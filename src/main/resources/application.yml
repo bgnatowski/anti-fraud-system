@@ -1,0 +1,31 @@
+spring:
+  dataSource:
+    url: jdbc:postgresql://localhost:5433/anti_fraud_system
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddlAuto: create-drop
+    showSql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    databasePlatform: org.hibernate.dialect.PostgreSQLDialect
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+server:
+  port: 1102
+  error:
+    include-message: always
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    web:
+      exposure:
+        include: "*"
