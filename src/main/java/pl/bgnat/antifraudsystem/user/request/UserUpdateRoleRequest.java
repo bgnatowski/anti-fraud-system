@@ -1,7 +1,7 @@
-package pl.bgnat.antifraudsystem.user;
+package pl.bgnat.antifraudsystem.user.request;
 
 public record UserUpdateRoleRequest(
 		String username,
-		Role role
+		String role
 ) {
 }

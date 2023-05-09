@@ -16,7 +16,7 @@ public class UserRowMapper implements RowMapper {
 		var password = rs.getString("password");
 		var roleStr = rs.getString("role");
 		var role = Role.valueOf(roleStr);
-		var isNonLocked = rs.getBoolean("is_non_locked");
-		return new User(id, name, username, password, role, isNonLocked);
+		var accountNonLocked = rs.getBoolean("account_non_locked");
+		return new User(id, name, username, password, role, accountNonLocked);
 	}
 }

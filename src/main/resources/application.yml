@@ -7,7 +7,7 @@ spring:
   jpa:
     hibernate:
       ddlAuto: create-drop
-    showSql: true
+    showSql: false
     properties:
       hibernate:
         format_sql: true

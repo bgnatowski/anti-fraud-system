@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.ResourceNotFoundException;
+import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
+import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
+import pl.bgnat.antifraudsystem.user.request.UserUpdateRoleRequest;
+import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
+import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +26,7 @@ public class MyUserDetailService implements UserDetailsService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 
-	public MyUserDetailService(@Qualifier("jpa") UserDao userDao,
+	public MyUserDetailService(@Qualifier("jdbc") UserDao userDao,
 							   PasswordEncoder passwordEncoder,
 							   UserDTOMapper userDTOMapper) {
 		this.userDao = userDao;
@@ -68,21 +74,25 @@ public class MyUserDetailService implements UserDetailsService {
 
 	}
 
-	public UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
-		String username = updateRequest.username();
-		Role role = updateRequest.role();
+	public UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
+		try {
+			String username = updateRequest.username();
+			Role role = Role.valueOf(updateRequest.role());
 
-		User user = userDao.selectUserByUsername(username)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no user with username = " + username));
-		if(isNotSupportOrMerchant(role))
-			throw new RequestValidationException("The role should be SUPPORT or MERCHANT");
-		if(isTheSameRoleAlreadyAssigned(role, user))
-			throw new DuplicateResourceException("Role: " + role + " is already assigned to the user: " + username);
+			User user = userDao.selectUserByUsername(username)
+					.orElseThrow(() -> new ResourceNotFoundException("There is no user with username = " + username));
+			if (!isSupportOrMerchant(role))
+				throw new RequestValidationException("The role should be SUPPORT or MERCHANT");
+			if (isTheSameRoleAlreadyAssigned(role, user))
+				throw new DuplicateResourceException("Role: " + role + " is already assigned to the user: " + username);
 
-		user.setRole(updateRequest.role());
-		userDao.updateUser(user);
+			user.setRole(role);
+			userDao.updateUser(user);
 
-		return userDTOMapper.apply(user);
+			return userDTOMapper.apply(user);
+		} catch (IllegalArgumentException e) {
+			throw new RequestValidationException("Invalid role: " + updateRequest.role());
+		}
 	}
 
 	public UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
@@ -91,19 +101,21 @@ public class MyUserDetailService implements UserDetailsService {
 
 		User user = userDao.selectUserByUsername(username)
 				.orElseThrow(() -> new ResourceNotFoundException("There is no user with username = " + username));
+
 		if(isAdministrator(user))
 			throw new RequestValidationException("Cannot block administrator!");
 
-		if("LOCK".equals(operation))
-			user.setAccountNonLocked(false);
-		else if("UNLOCK".equals(operation))
-			user.setAccountNonLocked(true);
-		else throw new RequestValidationException("Invalid operation: " + operation);
+		switch (operation){
+			case "LOCK" -> user.setAccountNonLocked(false);
+			case "UNLOCK" -> user.setAccountNonLocked(true);
+			default -> throw new RequestValidationException("Invalid operation: " + operation);
+		}
 
 		//update
 		userDao.updateUser(user);
 
-		return new UserUnlockResponse("User " + username + operation);
+		String operationResult = "LOCK".equals(operation) ? "locked!" : "unlocked!";
+		return new UserUnlockResponse(String.format("User %s %s", username, operationResult));
 	}
 
 	private boolean isAdministrator(User user) {
@@ -114,8 +126,8 @@ public class MyUserDetailService implements UserDetailsService {
 		return user.getRole().equals(role);
 	}
 
-	private static boolean isNotSupportOrMerchant(Role role) {
-		return !Role.SUPPORT.equals(role) || !Role.MERCHANT.equals(role); //todo
+	private static boolean isSupportOrMerchant(Role role) {
+		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
 	}
 
 	private User createAdministrator(UserRegistrationRequest userRegistrationRequest) {

@@ -132,7 +132,7 @@ public class UserJDBCDataAccessService implements UserDao {
 			String sql = "UPDATE _user SET role = ? WHERE id = ?";
 			int result = jdbcTemplate.update(
 					sql,
-					update.getRole(),
+					update.getRole().name(),
 					update.getId()
 			);
 			System.out.println("update user role result = " + result);

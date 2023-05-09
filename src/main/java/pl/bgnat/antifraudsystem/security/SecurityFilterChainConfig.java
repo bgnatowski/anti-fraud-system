@@ -32,14 +32,16 @@ public class SecurityFilterChainConfig {
 				.and()
 				.authorizeHttpRequests()
 				.requestMatchers(HttpMethod.GET,
-						"/api/auth/list").hasAuthority(ADMINISTRATOR.name())
+						"/api/auth/list").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
 				.requestMatchers(HttpMethod.DELETE,
-						"/api/auth/user/*").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
+						"/api/auth/user/*").hasAuthority(ADMINISTRATOR.name())
 				.requestMatchers(HttpMethod.POST,
 						"/api/antifraud/transaction").hasAuthority(MERCHANT.name())
 				.requestMatchers(HttpMethod.PUT,
 						"/api/auth/access",
-						"/api/auth/role").hasAuthority(ADMINISTRATOR.name())
+						"/api/auth/access/",
+						"/api/auth/role",
+						"/api/auth/role/").hasAuthority(ADMINISTRATOR.name())
 				.requestMatchers("/actuator/shutdown").permitAll()
 				.requestMatchers(HttpMethod.POST,
 						"/api/auth/user").permitAll() //Anonymous

@@ -1,5 +1,7 @@
 package pl.bgnat.antifraudsystem.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,7 +17,8 @@ public class UserJPADataAccessService implements UserDao{
 
 	@Override
 	public List<User> selectAllUsers() {
-		return userRepository.findAll();
+		Page<User> page = userRepository.findAll(Pageable.ofSize(100));
+		return page.getContent();
 	}
 
 	@Override
