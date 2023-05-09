@@ -127,11 +127,16 @@ public class User implements UserDetails {
 		return role;
 	}
 
-	public void setAccountNonLocked(boolean nonLocked) {
-		accountNonLocked = nonLocked;
-	}
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public void lockAccount(){
+		if(accountNonLocked) accountNonLocked = false;
+	}
+
+	public void unlockAccount(){
+		if(!accountNonLocked) accountNonLocked = true;
 	}
 }

@@ -1,8 +1,11 @@
 package pl.bgnat.antifraudsystem.user;
 
+import lombok.SneakyThrows;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,7 @@ public class UserJDBCDataAccessService implements UserDao {
 		var sql = """
 					SELECT *
 					FROM _user
+					LIMIT 100
 				""";
 		return jdbcTemplate.query(sql, userRowMapper);
 	}
@@ -49,8 +53,9 @@ public class UserJDBCDataAccessService implements UserDao {
 				.findFirst();
 	}
 
+	@SneakyThrows
 	@Override
-	public void insertUser(User user) {
+	public User insertUser(@NonNull User user) {
 		var sql = """
 				INSERT INTO _user(name, username, password, role, account_non_locked)
 				VALUES(?,?,?,?,?)
@@ -61,7 +66,15 @@ public class UserJDBCDataAccessService implements UserDao {
 				user.getPassword(),
 				user.getRole().name(),
 				user.isAccountNonLocked());
-		System.out.println("insertUser result " + result);
+
+		// Pobierz wstawionego użytkownika z bazy danych
+		if(result == 1){
+			var getInsertedUserSql = "SELECT * FROM _user WHERE username = ?";
+			return jdbcTemplate.queryForObject(getInsertedUserSql,
+					userRowMapper, user.getUsername());
+		} else {
+			throw new SQLException("Cannot insert user");
+		}
 	}
 
 	@Override

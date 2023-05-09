@@ -25,7 +25,7 @@ public class MyUserDetailService implements UserDetailsService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 
-	public MyUserDetailService(@Qualifier("jdbc") UserDao userDao,
+	public MyUserDetailService(@Qualifier("jpa") UserDao userDao,
 							   PasswordEncoder passwordEncoder,
 							   UserDTOMapper userDTOMapper) {
 		this.userDao = userDao;
@@ -33,11 +33,17 @@ public class MyUserDetailService implements UserDetailsService {
 		this.userDTOMapper = userDTOMapper;
 	}
 
-
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		return userDao.selectUserByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
+	}
+
+	public List<UserDTO> getAllRegisteredUsers() {
+		return userDao.selectAllUsers()
+				.stream()
+				.map(userDTOMapper)
+				.collect(Collectors.toList());
 	}
 
 	public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
@@ -53,17 +59,7 @@ public class MyUserDetailService implements UserDetailsService {
 			user = createUser(userRegistrationRequest);
 
 		//register
-		userDao.insertUser(user);
-		return userDao.selectUserByUsername(username)
-				.map(userDTOMapper)
-				.orElseThrow(() -> new ResourceNotFoundException("User with username = " + username + " not found"));
-	}
-
-	public List<UserDTO> getAllRegisteredUsers() {
-		return userDao.selectAllUsers()
-				.stream()
-				.map(userDTOMapper)
-				.collect(Collectors.toList());
+		return userDTOMapper.apply(userDao.insertUser(user));
 	}
 
 	public UserDeleteResponse deleteUserByUsername(String username) {
@@ -105,8 +101,8 @@ public class MyUserDetailService implements UserDetailsService {
 			throw new RequestValidationException("Cannot block administrator!");
 
 		switch (operation){
-			case "LOCK" -> user.setAccountNonLocked(false);
-			case "UNLOCK" -> user.setAccountNonLocked(true);
+			case "LOCK" -> user.lockAccount();
+			case "UNLOCK" -> user.unlockAccount();
 			default -> throw new RequestValidationException("Invalid operation: " + operation);
 		}
 
@@ -149,12 +145,12 @@ public class MyUserDetailService implements UserDetailsService {
 
 	private void doesTheUserExist(String username) {
 		if (!userDao.existsUserWithUsername(username))
-			throw new ResourceNotFoundException("There is no user with username = " + username);
+			throw new ResourceNotFoundException(String.format("There is no user with username = %s", username));
 	}
 
 	private void validIfUserAlreadyExist(String username) {
 		if (userDao.existsUserWithUsername(username)) {
-			throw new DuplicateResourceException("User with username = " + username + " already exists");
+			throw new DuplicateResourceException(String.format("User with username = %s already exists", username));
 		}
 	}
 

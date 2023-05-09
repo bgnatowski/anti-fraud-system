@@ -7,7 +7,7 @@ public interface UserDao {
 	List<User> selectAllUsers();
 	Optional<User> selectUserById(Long userId);
 	Optional<User> selectUserByUsername(String username);
-	void insertUser(User user);
+	User insertUser(User user);
 	boolean existsUserWithUsername(String username);
 	boolean existsUserById(Long userId);
 	void updateUser(User update);
