@@ -12,7 +12,6 @@ import pl.bgnat.antifraudsystem.exception.ResourceNotFoundException;
 import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
 import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.request.UserUpdateRoleRequest;
 import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 

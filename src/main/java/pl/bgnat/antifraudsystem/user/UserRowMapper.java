@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class UserRowMapper implements RowMapper {
+public class UserRowMapper implements RowMapper<User> {
 	@Override
 	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
 		var id = rs.getLong("id");

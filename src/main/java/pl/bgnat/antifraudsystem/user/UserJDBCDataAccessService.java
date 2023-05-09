@@ -29,7 +29,7 @@ public class UserJDBCDataAccessService implements UserDao {
 	public Optional<User> selectUserById(Long userId) {
 		var sql = """
 				SELECT *
-				FROM _user 
+				FROM _user
 				WHERE id = ?
 				""";
 		return jdbcTemplate.query(sql, userRowMapper, userId)
