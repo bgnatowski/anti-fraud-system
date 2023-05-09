@@ -1,0 +1,16 @@
+package pl.bgnat.antifraudsystem.user;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserDao {
+	List<User> selectAllUsers();
+	Optional<User> selectUserById(Long userId);
+	Optional<User> selectUserByUsername(String username);
+	void insertUser(User user);
+	boolean existsUserWithUsername(String username);
+	boolean existsUserById(Long userId);
+	void updateUser(User update);
+	void deleteUserById(Long userId);
+	void deleteUserByUsername(String username);
+}

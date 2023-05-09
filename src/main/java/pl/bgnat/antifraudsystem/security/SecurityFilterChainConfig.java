@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static pl.bgnat.antifraudsystem.user.Role.*;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityFilterChainConfig {
@@ -29,15 +31,15 @@ public class SecurityFilterChainConfig {
 				.csrf().disable().headers().frameOptions().disable()
 				.and()
 				.authorizeHttpRequests()
-//				.requestMatchers(HttpMethod.GET,
-//						"/api/auth/list").hasRole(ADMINISTRATOR.name())
-//				.requestMatchers(HttpMethod.DELETE,
-//						"/api/auth/user/*").hasAnyRole(ADMINISTRATOR.name(), SUPPORT.name())
-//				.requestMatchers(HttpMethod.POST,
-//						"/api/antifraud/transaction").hasRole(MERCHANT.name())
-//				.requestMatchers(HttpMethod.PUT,
-//						"/api/auth/access",
-//						"/api/auth/role").hasRole(ADMINISTRATOR.name())
+				.requestMatchers(HttpMethod.GET,
+						"/api/auth/list").hasAuthority(ADMINISTRATOR.name())
+				.requestMatchers(HttpMethod.DELETE,
+						"/api/auth/user/*").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
+				.requestMatchers(HttpMethod.POST,
+						"/api/antifraud/transaction").hasAuthority(MERCHANT.name())
+				.requestMatchers(HttpMethod.PUT,
+						"/api/auth/access",
+						"/api/auth/role").hasAuthority(ADMINISTRATOR.name())
 				.requestMatchers("/actuator/shutdown").permitAll()
 				.requestMatchers(HttpMethod.POST,
 						"/api/auth/user").permitAll() //Anonymous
