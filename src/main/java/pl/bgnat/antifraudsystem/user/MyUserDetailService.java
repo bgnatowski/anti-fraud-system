@@ -21,6 +21,17 @@ import java.util.stream.Collectors;
 @Service
 public class MyUserDetailService implements UserDetailsService {
 	public static final long ADMINISTRATOR_ID = 1L;
+	public static final String USER_WITH_USERNAME_S_ALREADY_EXISTS = "User with username = %s already exists";
+	public static final String THERE_IS_NO_USER_WITH_USERNAME_S = "There is no user with username = %s";
+	public static final String WRONG_JSON_FORMAT = "Wrong json format";
+	public static final String USER_UNLOCK_RESPONSE_TEXT = "User %s %s";
+	public static final String INVALID_OPERATION_S = "Invalid operation: %s";
+	public static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
+	public static final String INVALID_ROLE_S = "Invalid role: %s";
+	public static final String THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT = "The role should be SUPPORT or MERCHANT";
+	public static final String ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S = "Role: %s is already assigned to the user with username = %s";
+	public static final String DELETED_SUCCESSFULLY = "Deleted successfully!";
+	private static final String INVALID_REQUEST = "Invalid request form";
 	private final UserDao userDao;
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
@@ -36,7 +47,7 @@ public class MyUserDetailService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		return userDao.selectUserByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
+				.orElseThrow(() -> new UsernameNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
 	}
 
 	public List<UserDTO> getAllRegisteredUsers() {
@@ -53,7 +64,7 @@ public class MyUserDetailService implements UserDetailsService {
 		validIfUserAlreadyExist(username);
 
 		User user;
-		if(!doesTheAdministratorExist())
+		if (!doesTheAdministratorExist())
 			user = createAdministrator(userRegistrationRequest);
 		else
 			user = createUser(userRegistrationRequest);
@@ -65,8 +76,7 @@ public class MyUserDetailService implements UserDetailsService {
 	public UserDeleteResponse deleteUserByUsername(String username) {
 		doesTheUserExist(username);
 		userDao.deleteUserByUsername(username);
-		return new UserDeleteResponse(username, "Deleted successfully!");
-
+		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY);
 	}
 
 	public UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
@@ -75,18 +85,18 @@ public class MyUserDetailService implements UserDetailsService {
 			Role role = Role.valueOf(updateRequest.role());
 
 			User user = userDao.selectUserByUsername(username)
-					.orElseThrow(() -> new ResourceNotFoundException("There is no user with username = " + username));
+					.orElseThrow(() -> new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
 			if (!isSupportOrMerchant(role))
-				throw new RequestValidationException("The role should be SUPPORT or MERCHANT");
+				throw new RequestValidationException(THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT);
 			if (isTheSameRoleAlreadyAssigned(role, user))
-				throw new DuplicateResourceException("Role: " + role + " is already assigned to the user: " + username);
+				throw new DuplicateResourceException(String.format(ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S, role, username));
 
 			user.setRole(role);
 			userDao.updateUser(user);
 
 			return userDTOMapper.apply(user);
-		} catch (IllegalArgumentException e) {
-			throw new RequestValidationException("Invalid role: " + updateRequest.role());
+		} catch (IllegalArgumentException | NullPointerException e) {
+			throw new RequestValidationException(String.format(INVALID_ROLE_S, updateRequest.role()));
 		}
 	}
 
@@ -94,23 +104,26 @@ public class MyUserDetailService implements UserDetailsService {
 		String username = updateRequest.username();
 		String operation = updateRequest.operation();
 
+		if(operation==null || username==null)
+			throw new RequestValidationException(String.format(INVALID_REQUEST));
+
 		User user = userDao.selectUserByUsername(username)
-				.orElseThrow(() -> new ResourceNotFoundException("There is no user with username = " + username));
+				.orElseThrow(() -> new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
 
-		if(isAdministrator(user))
-			throw new RequestValidationException("Cannot block administrator!");
+		if (isAdministrator(user))
+			throw new RequestValidationException(CANNOT_BLOCK_ADMINISTRATOR);
 
-		switch (operation){
+		switch (operation) {
 			case "LOCK" -> user.lockAccount();
 			case "UNLOCK" -> user.unlockAccount();
-			default -> throw new RequestValidationException("Invalid operation: " + operation);
+			default -> throw new RequestValidationException(String.format(INVALID_OPERATION_S, operation));
 		}
 
 		//update
 		userDao.updateUser(user);
 
 		String operationResult = "LOCK".equals(operation) ? "locked!" : "unlocked!";
-		return new UserUnlockResponse(String.format("User %s %s", username, operationResult));
+		return new UserUnlockResponse(String.format(USER_UNLOCK_RESPONSE_TEXT, username, operationResult));
 	}
 
 	private boolean isAdministrator(User user) {
@@ -145,12 +158,12 @@ public class MyUserDetailService implements UserDetailsService {
 
 	private void doesTheUserExist(String username) {
 		if (!userDao.existsUserWithUsername(username))
-			throw new ResourceNotFoundException(String.format("There is no user with username = %s", username));
+			throw new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
 	}
 
 	private void validIfUserAlreadyExist(String username) {
 		if (userDao.existsUserWithUsername(username)) {
-			throw new DuplicateResourceException(String.format("User with username = %s already exists", username));
+			throw new DuplicateResourceException(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
 		}
 	}
 
@@ -162,6 +175,6 @@ public class MyUserDetailService implements UserDetailsService {
 		if (userRegistrationRequest.name() == null ||
 				userRegistrationRequest.username() == null ||
 				userRegistrationRequest.password() == null)
-			throw new RequestValidationException("Wrong json format");
+			throw new RequestValidationException(WRONG_JSON_FORMAT);
 	}
 }
