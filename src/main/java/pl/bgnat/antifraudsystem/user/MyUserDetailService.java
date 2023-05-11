@@ -108,7 +108,8 @@ public class MyUserDetailService implements UserDetailsService {
 			throw new RequestValidationException(String.format(INVALID_REQUEST));
 
 		User user = userDao.selectUserByUsername(username)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
+				.orElseThrow(() -> new ResourceNotFoundException(String.format
+						(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
 
 		if (isAdministrator(user))
 			throw new RequestValidationException(CANNOT_BLOCK_ADMINISTRATOR);
