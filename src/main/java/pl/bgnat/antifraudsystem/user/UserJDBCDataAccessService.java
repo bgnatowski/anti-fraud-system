@@ -3,13 +3,14 @@ package pl.bgnat.antifraudsystem.user;
 import lombok.SneakyThrows;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@Repository("jdbc")
+@Service("jdbc")
+// for training sql queries
 public class UserJDBCDataAccessService implements UserDao {
 	private final JdbcTemplate jdbcTemplate;
 	private final UserRowMapper userRowMapper;
@@ -158,6 +159,5 @@ public class UserJDBCDataAccessService implements UserDao {
 				update.getId()
 		);
 		System.out.println("update user account_non_locked result = " + result);
-
 	}
 }

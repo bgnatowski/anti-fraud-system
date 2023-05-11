@@ -14,40 +14,40 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/auth/")
 public class UserController {
-	private final MyUserDetailService userDetailService;
+	private final UserService userService;
 
-	public UserController(MyUserDetailService userDetailService) {
-		this.userDetailService = userDetailService;
+	public UserController(UserService userService) {
+		this.userService = userService;
 	}
 
 	@PostMapping("/user")
 	public ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest user) {
-		UserDTO registeredUser = userDetailService.registerUser(user);
+		UserDTO registeredUser = userService.registerUser(user);
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/list")
 	public ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){
-		List<UserDTO> allRegisteredUsers = userDetailService.getAllRegisteredUsers();
+		List<UserDTO> allRegisteredUsers = userService.getAllRegisteredUsers();
 		return ResponseEntity.ok(allRegisteredUsers);
 	}
 
 	@DeleteMapping("/user/{username}")
 	public ResponseEntity<UserDeleteResponse> deleteUser(
 			@PathVariable("username") String username){
-		UserDeleteResponse userDeleteResponse = userDetailService.deleteUserByUsername(username);
+		UserDeleteResponse userDeleteResponse = userService.deleteUserByUsername(username);
 		return ResponseEntity.ok(userDeleteResponse);
 	}
 
 	@PutMapping("/role")
 	public ResponseEntity<UserDTO> changeRole(@RequestBody UserRoleUpdateRequest updateRequest){
-		UserDTO updatedUser = userDetailService.changeRole(updateRequest);
+		UserDTO updatedUser = userService.changeRole(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
 
 	@PutMapping("/access")
 	public ResponseEntity<UserUnlockResponse> changeRole(@RequestBody UserUnlockRequest updateRequest){
-		UserUnlockResponse updatedUser = userDetailService.changeLock(updateRequest);
+		UserUnlockResponse updatedUser = userService.changeLock(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
 

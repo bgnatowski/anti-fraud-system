@@ -24,18 +24,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class MyUserDetailsServiceTest {
+public class UserServiceTest {
 
 	@Mock
 	private UserDao userDao;
 	@Mock
 	private PasswordEncoder passwordEncoder;
-	private MyUserDetailService serviceUnderTest;
+	private UserService serviceUnderTest;
 	private final UserDTOMapper userDTOMapper = new UserDTOMapper();
 
 	@BeforeEach
 	void setUp() {
-		serviceUnderTest = new MyUserDetailService(
+		serviceUnderTest = new UserService(
 				userDao,
 				passwordEncoder,
 				userDTOMapper);

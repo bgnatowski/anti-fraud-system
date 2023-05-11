@@ -1,4 +1,6 @@
 package pl.bgnat.antifraudsystem.transaction;
 
-public record TransactionRequest(Long amount) {
+import org.springframework.lang.NonNull;
+
+public record TransactionRequest(@NonNull Long amount) {
 }
