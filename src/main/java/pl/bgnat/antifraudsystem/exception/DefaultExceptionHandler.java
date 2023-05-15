@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class DefaultExceptionHandler {
 
-	@ExceptionHandler(ResourceNotFoundException.class)
+	@ExceptionHandler({ResourceNotFoundException.class})
 	public ResponseEntity<ApiError> handleException(ResourceNotFoundException e,
 													HttpServletRequest request){
 		ApiError apiError = new ApiError(

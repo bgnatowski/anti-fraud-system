@@ -5,7 +5,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.exception.ResourceNotFoundException;
+import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
+import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
 import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
 import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
@@ -13,34 +14,35 @@ import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
+import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @Service
 public class UserService {
 	public static final long ADMINISTRATOR_ID = 1L;
-	public static final String USER_WITH_USERNAME_S_ALREADY_EXISTS = "User with username = %s already exists";
-	public static final String THERE_IS_NO_USER_WITH_USERNAME_S = "There is no user with username = %s";
 	public static final String WRONG_JSON_FORMAT = "Wrong json format";
-	public static final String USER_UNLOCK_RESPONSE_TEXT = "User %s %s";
-	public static final String INVALID_OPERATION_S = "Invalid operation: %s";
 	public static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
+	public static final String INVALID_OPERATION_S = "Invalid operation: %s";
 	public static final String INVALID_ROLE_S = "Invalid role: %s";
+	public static final String INVALID_REQUEST = "Invalid request form";
 	public static final String THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT = "The role should be SUPPORT or MERCHANT";
 	public static final String ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S = "Role: %s is already assigned to the user with username = %s";
-	public static final String DELETED_SUCCESSFULLY = "Deleted successfully!";
-	private static final String INVALID_REQUEST = "Invalid request form";
+	public static final String DELETED_SUCCESSFULLY_RESPONSE = "Deleted successfully!";
+	public static final String USER_UNLOCK_RESPONSE = "User %s %s";
 	private final UserDao userDao;
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 
 	public UserService(@Qualifier("jpa") UserDao userDao,
-							   PasswordEncoder passwordEncoder,
-							   UserDTOMapper userDTOMapper) {
+					   PasswordEncoder passwordEncoder, UserDTOMapper userDTOMapper) {
 		this.userDao = userDao;
 		this.passwordEncoder = passwordEncoder;
 		this.userDTOMapper = userDTOMapper;
 	}
-
 
 	public List<UserDTO> getAllRegisteredUsers() {
 		return userDao.selectAllUsers()
@@ -50,25 +52,27 @@ public class UserService {
 	}
 
 	public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
-		validRegistrationRequest(userRegistrationRequest);
-
+		if (!isValidRegistrationRequest(userRegistrationRequest))
+			throw new RequestValidationException(WRONG_JSON_FORMAT);
+		
 		String username = userRegistrationRequest.username();
-		validIfUserAlreadyExist(username);
 
-		User user;
-		if (!doesTheAdministratorExist())
-			user = createAdministrator(userRegistrationRequest);
-		else
-			user = createUser(userRegistrationRequest);
+		if (isUserWithUsernameAlreadyRegistered(username)) {
+			throw new DuplicatedUserException(username);
+		}
 
-		//register
-		return userDTOMapper.apply(userDao.insertUser(user));
+		User user = createProperUser(userRegistrationRequest);
+
+		//register user
+		User registeredUser = userDao.insertUser(user);
+		return userDTOMapper.apply(registeredUser);
 	}
 
 	public UserDeleteResponse deleteUserByUsername(String username) {
-		doesTheUserExist(username);
+		if (!isUserWithUsernameAlreadyRegistered(username))
+			throw new UserNotFoundException(username);
 		userDao.deleteUserByUsername(username);
-		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY);
+		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY_RESPONSE);
 	}
 
 	public UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
@@ -77,10 +81,13 @@ public class UserService {
 			Role role = Role.valueOf(updateRequest.role());
 
 			User user = getUserByUserName(username);
+
 			if (!isSupportOrMerchant(role))
-				throw new RequestValidationException(THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT);
+				throw new RequestValidationException(
+						THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT);
 			if (isTheSameRoleAlreadyAssigned(role, user))
-				throw new DuplicateResourceException(String.format(ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S, role, username));
+				throw new DuplicateResourceException(
+						String.format(ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S, role, username));
 
 			user.setRole(role);
 			userDao.updateUser(user);
@@ -95,7 +102,7 @@ public class UserService {
 		String username = updateRequest.username();
 		String operation = updateRequest.operation();
 
-		if(operation==null || username==null)
+		if (isValidChangeLockRequest(username, operation))
 			throw new RequestValidationException(String.format(INVALID_REQUEST));
 
 		User user = getUserByUserName(username);
@@ -113,63 +120,40 @@ public class UserService {
 		userDao.updateUser(user);
 
 		String operationResult = "LOCK".equals(operation) ? "locked!" : "unlocked!";
-		return new UserUnlockResponse(String.format(USER_UNLOCK_RESPONSE_TEXT, username, operationResult));
+		return new UserUnlockResponse(String.format(USER_UNLOCK_RESPONSE, username, operationResult));
 	}
 
-	private User getUserByUserName(String username) {
-		return userDao.selectUserByUsername(username)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username)));
+	private boolean isValidRegistrationRequest(UserRegistrationRequest userRegistrationRequest) {
+		return Stream.of(userRegistrationRequest.name(),
+						userRegistrationRequest.username(),
+						userRegistrationRequest.password())
+				.noneMatch(Objects::isNull);
 	}
-
-	private boolean isAdministrator(User user) {
-		return Role.ADMINISTRATOR.equals(user.getRole());
+	private boolean isUserWithUsernameAlreadyRegistered(String username) {
+		return userDao.existsUserWithUsername(username);
 	}
-
-	private static boolean isTheSameRoleAlreadyAssigned(Role role, User user) {
-		return user.getRole().equals(role);
+	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
+		if (!doesTheAdministratorExist())
+			return createAdministrator(userRegistrationRequest, passwordEncoder);
+		return createMerchant(userRegistrationRequest, passwordEncoder);
 	}
-
-	private static boolean isSupportOrMerchant(Role role) {
-		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
-	}
-
-	private User createAdministrator(UserRegistrationRequest userRegistrationRequest) {
-		return new User(userRegistrationRequest.name(),
-				userRegistrationRequest.username(),
-				passwordEncoder.encode(userRegistrationRequest.password()),
-				Role.ADMINISTRATOR,
-				true);
-	}
-
-	private User createUser(UserRegistrationRequest userRegistrationRequest) {
-		User user;
-		user = new User(userRegistrationRequest.name(),
-				userRegistrationRequest.username(),
-				passwordEncoder.encode(userRegistrationRequest.password()),
-				Role.MERCHANT,
-				false);
-		return user;
-	}
-
-	private void doesTheUserExist(String username) {
-		if (!userDao.existsUserWithUsername(username))
-			throw new ResourceNotFoundException(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
-	}
-
-	private void validIfUserAlreadyExist(String username) {
-		if (userDao.existsUserWithUsername(username)) {
-			throw new DuplicateResourceException(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
-		}
-	}
-
 	private boolean doesTheAdministratorExist() {
 		return userDao.existsUserById(ADMINISTRATOR_ID);
 	}
-
-	private static void validRegistrationRequest(UserRegistrationRequest userRegistrationRequest) {
-		if (userRegistrationRequest.name() == null ||
-				userRegistrationRequest.username() == null ||
-				userRegistrationRequest.password() == null)
-			throw new RequestValidationException(WRONG_JSON_FORMAT);
+	private User getUserByUserName(String username) {
+		return userDao.selectUserByUsername(username)
+				.orElseThrow(() -> new UserNotFoundException(username));
+	}
+	private boolean isTheSameRoleAlreadyAssigned(Role role, User user) {
+		return user.getRole().equals(role);
+	}
+	private boolean isSupportOrMerchant(Role role) {
+		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
+	}
+	private boolean isValidChangeLockRequest(String username, String operation) {
+		return operation == null || username == null;
+	}
+	private boolean isAdministrator(User user) {
+		return Role.ADMINISTRATOR.equals(user.getRole());
 	}
 }

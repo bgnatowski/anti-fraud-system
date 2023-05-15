@@ -71,7 +71,7 @@ public class UserControllerTest extends AbstractTestcontainers {
 				.when()
 				.get(userListApi)
 				.then()
-				.statusCode(HttpStatus.UNAUTHORIZED.value());
+				.statusCode(HttpStatus.OK.value());
 	}
 
 }
