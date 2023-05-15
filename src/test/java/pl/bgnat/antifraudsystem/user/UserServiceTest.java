@@ -6,10 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.ResourceNotFoundException;
+import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
+import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
 import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
 import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
@@ -22,6 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException.*;
+import static pl.bgnat.antifraudsystem.exception.user.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
+import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
+import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -74,8 +81,8 @@ public class UserServiceTest {
 		given(userDao.existsUserWithUsername(username)).willReturn(true);
 		// Then
 		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
-				.isInstanceOf(DuplicateResourceException.class)
-				.hasMessageContaining(String.format("User with username = %s already exists", username));
+				.isInstanceOf(DuplicatedUserException.class)
+				.hasMessageContaining(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
 		verify(userDao, never()).insertUser(any(User.class));
 	}
 
@@ -88,12 +95,7 @@ public class UserServiceTest {
 		UserRegistrationRequest registrationRequest =
 				new UserRegistrationRequest(name, username, password);
 
-		User administrator = new User(
-				registrationRequest.name(),
-				registrationRequest.username(),
-				passwordEncoder.encode(registrationRequest.password()),
-				Role.ADMINISTRATOR,
-				true);
+		User administrator = createAdministrator(registrationRequest, passwordEncoder);
 		// When
 		given(userDao.existsUserWithUsername(username)).willReturn(false);
 		given(userDao.existsUserById(1L)).willReturn(false);
@@ -117,12 +119,7 @@ public class UserServiceTest {
 		UserRegistrationRequest registrationRequest =
 				new UserRegistrationRequest(name, username, password);
 
-		User merchant = new User(
-				registrationRequest.name(),
-				registrationRequest.username(),
-				passwordEncoder.encode(registrationRequest.password()),
-				Role.MERCHANT,
-				false);
+		User merchant = createMerchant(registrationRequest, passwordEncoder);
 		// When
 		given(userDao.existsUserWithUsername(username)).willReturn(false);
 		given(userDao.existsUserById(1L)).willReturn(true);
@@ -161,8 +158,8 @@ public class UserServiceTest {
 
 		// When
 		assertThatThrownBy(() -> serviceUnderTest.deleteUserByUsername(username))
-				.isInstanceOf(ResourceNotFoundException.class)
-				.hasMessageContaining(String.format("There is no user with username = %s", username));
+				.isInstanceOf(UserNotFoundException.class)
+				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
 		// Then
 		verify(userDao, never()).deleteUserByUsername(username);
 	}
@@ -199,8 +196,8 @@ public class UserServiceTest {
 		UserRoleUpdateRequest wrongRoleUpdate = new UserRoleUpdateRequest(usernameThatNotExist, "SUPPORT");
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
-				.isInstanceOf(ResourceNotFoundException.class)
-				.hasMessageContaining(String.format("There is no user with username = %s", usernameThatNotExist));
+				.isInstanceOf(UserNotFoundException.class)
+				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, usernameThatNotExist));
 
 		verify(userDao, never()).updateUser(any(User.class));
 	}
@@ -283,8 +280,8 @@ public class UserServiceTest {
 
 
 		assertThatThrownBy(() -> serviceUnderTest.changeLock(unlockRequest))
-				.isInstanceOf(ResourceNotFoundException.class)
-				.hasMessageContaining(String.format("There is no user with username = %s", username));
+				.isInstanceOf(UserNotFoundException.class)
+				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
 
 		verify(userDao, never()).updateUser(any(User.class));
 	}
