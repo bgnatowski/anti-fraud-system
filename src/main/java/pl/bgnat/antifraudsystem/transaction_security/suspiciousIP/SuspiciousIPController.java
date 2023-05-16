@@ -19,7 +19,7 @@ class SuspiciousIPController {
 	@PostMapping( "/api/antifraud/suspicious-ip")
 	ResponseEntity<SuspiciousIP> addSuspiciousIp(@RequestBody SuspiciousIPRequest suspiciousIPRequest){
 		SuspiciousIP addedSuspiciousIp = ipService.addSuspiciousIp(suspiciousIPRequest);
-		return new ResponseEntity(addedSuspiciousIp, HttpStatus.CREATED);
+		return new ResponseEntity<>(addedSuspiciousIp, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/api/antifraud/suspicious-ip/{ip}")

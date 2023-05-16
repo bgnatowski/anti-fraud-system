@@ -45,27 +45,6 @@ class User implements UserDetails {
 	@Column(name = "account_non_locked")
 	private boolean accountNonLocked;
 
-	User(String name, String username, String password) {
-		this.name = name;
-		this.username = username;
-		this.password = password;
-	}
-
-	User(Long id, String name, String username, String password, Role role) {
-		this.id = id;
-		this.name = name;
-		this.username = username;
-		this.password = password;
-		this.role = role;
-	}
-
-	User(String name, String username, String password, Role role) {
-		this.name = name;
-		this.username = username;
-		this.password = password;
-		this.role = role;
-	}
-
 	User(String name, String username, String password, Role role, boolean accountNonLocked) {
 		this.name = name;
 		this.username = username;

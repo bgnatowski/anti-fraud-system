@@ -2,8 +2,6 @@ package pl.bgnat.antifraudsystem.transaction_security.suspiciousIP;
 
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class SuspiciousIPFacade {
 	private final SuspiciousIPService suspiciousIpService;

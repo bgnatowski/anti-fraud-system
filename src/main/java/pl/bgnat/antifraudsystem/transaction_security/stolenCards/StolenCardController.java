@@ -19,7 +19,7 @@ class StolenCardController {
 	@PostMapping( "/api/antifraud/stolencard")
 	ResponseEntity<StolenCard> addSuspiciousIp(@RequestBody StolenCardRequest stolenCardRequest){
 		StolenCard addedStolenCard = stolenCardService.addStolenCard(stolenCardRequest);
-		return new ResponseEntity(addedStolenCard, HttpStatus.CREATED);
+		return new ResponseEntity<>(addedStolenCard, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/api/antifraud/stolencard/{number}")
