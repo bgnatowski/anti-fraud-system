@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AntiFraudSystemApplication {
 
 	public static void main(String[] args) {
-//		SpringApplication.run(AntiFraudSystemApplication.class, args);
-		System.out.println(calculateLuhnChecksum(516931000755635L));
+		SpringApplication.run(AntiFraudSystemApplication.class, args);
 	}
+
 
 	public static int calculateLuhnChecksum(long num) {
 		if (num < 0) {

@@ -2,6 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 
 @Entity(name = "User")
@@ -26,7 +28,8 @@ import java.util.List;
 		})
 public class User implements UserDetails {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
 	private Long id;
 	@Column(name = "name", nullable = false, columnDefinition = "TEXT")
 	private String name;
@@ -64,15 +67,6 @@ public class User implements UserDetails {
 	}
 
 	public User(String name, String username, String password, Role role, boolean accountNonLocked) {
-		this.name = name;
-		this.username = username;
-		this.password = password;
-		this.role = role;
-		this.accountNonLocked = accountNonLocked;
-	}
-
-	public User(Long id, String name, String username, String password, Role role, boolean accountNonLocked) {
-		this.id = id;
 		this.name = name;
 		this.username = username;
 		this.password = password;

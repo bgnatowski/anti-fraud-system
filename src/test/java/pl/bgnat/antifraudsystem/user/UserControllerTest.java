@@ -20,7 +20,6 @@ import static io.restassured.RestAssured.given;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-
 public class UserControllerTest extends AbstractTestcontainers {
 	private final String transactionApi = "/api/antifraud/transaction";
 	private final String userApi = "/api/auth/user";

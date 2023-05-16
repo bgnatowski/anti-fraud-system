@@ -18,13 +18,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @Service
 public class UserService {
 	public static final long ADMINISTRATOR_ID = 1L;
-	public static final String WRONG_JSON_FORMAT = "Wrong json format";
 	public static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
 	public static final String INVALID_OPERATION_S = "Invalid operation: %s";
 	public static final String INVALID_ROLE_S = "Invalid role: %s";
@@ -52,7 +52,7 @@ public class UserService {
 	}
 
 	public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
-		if (!isValidRegistrationRequest(userRegistrationRequest))
+		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 		
 		String username = userRegistrationRequest.username();
@@ -123,7 +123,7 @@ public class UserService {
 		return new UserUnlockResponse(String.format(USER_UNLOCK_RESPONSE, username, operationResult));
 	}
 
-	private boolean isValidRegistrationRequest(UserRegistrationRequest userRegistrationRequest) {
+	private boolean isValidRequestJsonFormat(UserRegistrationRequest userRegistrationRequest) {
 		return Stream.of(userRegistrationRequest.name(),
 						userRegistrationRequest.username(),
 						userRegistrationRequest.password())
