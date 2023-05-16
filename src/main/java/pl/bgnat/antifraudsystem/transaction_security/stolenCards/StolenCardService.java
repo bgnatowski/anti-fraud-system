@@ -1,6 +1,5 @@
 package pl.bgnat.antifraudsystem.transaction_security.stolenCards;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
@@ -14,16 +13,16 @@ import java.util.List;
 
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 @Service
-public class StolenCardService {
+class StolenCardService {
 	private final StolenCardRepository stolenCardRepository;
 	private final TransactionValidator transactionValidator;
 
-	public StolenCardService(StolenCardRepository stolenCardRepository, TransactionValidator transactionValidator) {
+	StolenCardService(StolenCardRepository stolenCardRepository, TransactionValidator transactionValidator) {
 		this.stolenCardRepository = stolenCardRepository;
 		this.transactionValidator = transactionValidator;
 	}
 
-	public StolenCard addStolenCard(StolenCardRequest stolenCardRequest) {
+	StolenCard addStolenCard(StolenCardRequest stolenCardRequest) {
 		String number = stolenCardRequest.number();
 		if(!isValidJsonFormat(number))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
@@ -35,15 +34,15 @@ public class StolenCardService {
 		return stolenCardRepository.save(stolenCard);
 	}
 
-	public StolenCardDeleteResponse deleteStolenCardByNumber(String number) {
+	StolenCardDeleteResponse deleteStolenCardByNumber(String number) {
 		if(!isAlreadyInDb(number))
 			throw new StolenCardNotFound(number);
 		stolenCardRepository.deleteByNumber(number);
 		return new StolenCardDeleteResponse(String.format("Card %s successfully removed!", number));
 	}
 
-	public List<StolenCard> getAllStolenCards() {
-		return stolenCardRepository.findAll(Pageable.ofSize(100)).getContent();
+	List<StolenCard> getAllStolenCards() {
+		return stolenCardRepository.findAll();
 	}
 
 

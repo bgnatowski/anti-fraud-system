@@ -26,7 +26,7 @@ import java.util.List;
 						columnNames = "username"
 				)
 		})
-public class User implements UserDetails {
+class User implements UserDetails {
 	@Id
 	@SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
@@ -45,13 +45,13 @@ public class User implements UserDetails {
 	@Column(name = "account_non_locked")
 	private boolean accountNonLocked;
 
-	public User(String name, String username, String password) {
+	User(String name, String username, String password) {
 		this.name = name;
 		this.username = username;
 		this.password = password;
 	}
 
-	public User(Long id, String name, String username, String password, Role role) {
+	User(Long id, String name, String username, String password, Role role) {
 		this.id = id;
 		this.name = name;
 		this.username = username;
@@ -59,14 +59,14 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
-	public User(String name, String username, String password, Role role) {
+	User(String name, String username, String password, Role role) {
 		this.name = name;
 		this.username = username;
 		this.password = password;
 		this.role = role;
 	}
 
-	public User(String name, String username, String password, Role role, boolean accountNonLocked) {
+	User(String name, String username, String password, Role role, boolean accountNonLocked) {
 		this.name = name;
 		this.username = username;
 		this.password = password;

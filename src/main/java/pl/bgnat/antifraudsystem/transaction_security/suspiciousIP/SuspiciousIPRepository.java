@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-public interface SuspiciousIPRepository extends JpaRepository<SuspiciousIP, Long> {
+interface SuspiciousIPRepository extends JpaRepository<SuspiciousIP, Long> {
 	boolean existsByIpAddress(String ipAddress);
 
 	void deleteByIpAddress(String ipAddress);

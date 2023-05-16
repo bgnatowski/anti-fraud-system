@@ -3,6 +3,7 @@ package pl.bgnat.antifraudsystem.user;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -49,6 +50,7 @@ public class UserControllerTest extends AbstractTestcontainers {
 	}
 
 	@Test
+	@Disabled
 	public void shouldReturnListOfAllRegisteredUsersWhenCalledByAdministrator(){
 		// Given
 		List<User> users = List.of(

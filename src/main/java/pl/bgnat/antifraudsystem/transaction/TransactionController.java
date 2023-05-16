@@ -11,15 +11,15 @@ import pl.bgnat.antifraudsystem.transaction.response.TransactionResponse;
 
 @RestController
 @RequestMapping
-public class TransactionController {
+class TransactionController {
 	private final TransactionService transactionService;
 
-	public TransactionController(TransactionService transactionService) {
+	TransactionController(TransactionService transactionService) {
 		this.transactionService = transactionService;
 	}
 
 	@PostMapping(value = "/api/antifraud/transaction", produces = "application/json")
-	public ResponseEntity<TransactionResponse> validTransaction(@RequestBody TransactionRequest transactionRequest) {
+	ResponseEntity<TransactionResponse> validTransaction(@RequestBody TransactionRequest transactionRequest) {
 		TransactionResponse response = transactionService.validTransaction(transactionRequest);
 		return ResponseEntity.ok(response);
 

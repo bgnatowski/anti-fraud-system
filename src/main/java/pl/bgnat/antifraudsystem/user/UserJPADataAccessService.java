@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("jpa")
-public class UserJPADataAccessService implements UserDao{
+class UserJPADataAccessService implements UserDao{
 	private final UserRepository userRepository;
 
-	public UserJPADataAccessService(UserRepository userRepository) {
+	UserJPADataAccessService(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 

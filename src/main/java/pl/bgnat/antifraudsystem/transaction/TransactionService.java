@@ -2,29 +2,46 @@ package pl.bgnat.antifraudsystem.transaction;
 
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
+import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
 import pl.bgnat.antifraudsystem.transaction.request.TransactionRequest;
 import pl.bgnat.antifraudsystem.transaction.response.TransactionResponse;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static pl.bgnat.antifraudsystem.exception.RequestValidationException.*;
+import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 
 @Service
-public class TransactionService {
+class TransactionService {
 	private final TransactionValidator transactionValidator;
 
-	public TransactionService(TransactionValidator transactionValidator) {
+	TransactionService(TransactionValidator transactionValidator) {
 		this.transactionValidator = transactionValidator;
 	}
 
-	public TransactionResponse validTransaction(TransactionRequest transactionRequest){
+	TransactionResponse validTransaction(TransactionRequest transactionRequest){
 		if(isValidRequestJsonFormat(transactionRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
 		Long amount = transactionRequest.amount();
-		if(amount <= 0)
-			throw new RequestValidationException("Wrong request!");
+		String ip = transactionRequest.ip();
+		String cardNumber = transactionRequest.number();
+		List<String> info = new ArrayList<>();
+
+		if(transactionValidator.isValidCardNumber(cardNumber)) {
+			throw new CardNumberFormatException(cardNumber);
+		}
+		if(transactionValidator.isValidIpAddress(ip)) {
+			throw new IpFormatException(ip);
+		}
+		if(amount <= 0) {
+			throw new RequestValidationException("Wrong request! Amount have to be positive number!");
+		}
+
+
 		if (amount <= 200)
 			return new TransactionResponse(TransactionStatus.ALLOWED, "none");
 		else if (amount <= 1500)

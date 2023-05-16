@@ -23,35 +23,35 @@ import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @Service
-public class UserService {
-	public static final long ADMINISTRATOR_ID = 1L;
-	public static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
-	public static final String INVALID_OPERATION_S = "Invalid operation: %s";
-	public static final String INVALID_ROLE_S = "Invalid role: %s";
-	public static final String INVALID_REQUEST = "Invalid request form";
-	public static final String THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT = "The role should be SUPPORT or MERCHANT";
-	public static final String ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S = "Role: %s is already assigned to the user with username = %s";
-	public static final String DELETED_SUCCESSFULLY_RESPONSE = "Deleted successfully!";
-	public static final String USER_UNLOCK_RESPONSE = "User %s %s";
+class UserService {
+	private static final long ADMINISTRATOR_ID = 1L;
+	static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
+	static final String INVALID_OPERATION_S = "Invalid operation: %s";
+	static final String INVALID_ROLE_S = "Invalid role: %s";
+	static final String INVALID_REQUEST = "Invalid request form";
+	static final String THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT = "The role should be SUPPORT or MERCHANT";
+	static final String ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S = "Role: %s is already assigned to the user with username = %s";
+	static final String DELETED_SUCCESSFULLY_RESPONSE = "Deleted successfully!";
+	static final String USER_UNLOCK_RESPONSE = "User %s %s";
 	private final UserDao userDao;
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 
-	public UserService(@Qualifier("jpa") UserDao userDao,
+	UserService(@Qualifier("jpa") UserDao userDao,
 					   PasswordEncoder passwordEncoder, UserDTOMapper userDTOMapper) {
 		this.userDao = userDao;
 		this.passwordEncoder = passwordEncoder;
 		this.userDTOMapper = userDTOMapper;
 	}
 
-	public List<UserDTO> getAllRegisteredUsers() {
+	List<UserDTO> getAllRegisteredUsers() {
 		return userDao.selectAllUsers()
 				.stream()
 				.map(userDTOMapper)
 				.collect(Collectors.toList());
 	}
 
-	public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 		
@@ -68,14 +68,14 @@ public class UserService {
 		return userDTOMapper.apply(registeredUser);
 	}
 
-	public UserDeleteResponse deleteUserByUsername(String username) {
+	UserDeleteResponse deleteUserByUsername(String username) {
 		if (!isUserWithUsernameAlreadyRegistered(username))
 			throw new UserNotFoundException(username);
 		userDao.deleteUserByUsername(username);
 		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY_RESPONSE);
 	}
 
-	public UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
+	UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
 		try {
 			String username = updateRequest.username();
 			Role role = Role.valueOf(updateRequest.role());
@@ -98,7 +98,7 @@ public class UserService {
 		}
 	}
 
-	public UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
+	UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
 		String username = updateRequest.username();
 		String operation = updateRequest.operation();
 

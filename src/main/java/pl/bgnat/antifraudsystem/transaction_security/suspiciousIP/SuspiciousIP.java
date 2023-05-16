@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Entity(name = "SuspiciousIP")
 @Table(name = "suspicious_ip")
-public class SuspiciousIP {
+class SuspiciousIP {
 	@Id
 	@SequenceGenerator(name = "suspicious_ip_id_sequence", sequenceName = "suspicious_ip_id_sequence", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "suspicious_ip_id_sequence")

@@ -3,7 +3,7 @@ package pl.bgnat.antifraudsystem.user;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserDao {
+interface UserDao {
 	List<User> selectAllUsers();
 	Optional<User> selectUserById(Long userId);
 	Optional<User> selectUserByUsername(String username);

@@ -13,7 +13,6 @@ public class UserCreator {
 				Role.ADMINISTRATOR,
 				true);
 	}
-
 	static User createMerchant(UserRegistrationRequest userRegistrationRequest, PasswordEncoder passwordEncoder) {
 		User user;
 		user = new User(userRegistrationRequest.name(),

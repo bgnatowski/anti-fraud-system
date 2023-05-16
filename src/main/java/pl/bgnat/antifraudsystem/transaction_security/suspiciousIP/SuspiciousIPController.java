@@ -10,25 +10,25 @@ import java.util.List;
 
 @RestController
 @RequestMapping
-public class SuspiciousIPController {
+class SuspiciousIPController {
 	private final SuspiciousIPService ipService;
 
 	public SuspiciousIPController(SuspiciousIPService ipService) {
 		this.ipService = ipService;
 	}
 	@PostMapping( "/api/antifraud/suspicious-ip")
-	public ResponseEntity<SuspiciousIP> addSuspiciousIp(@RequestBody SuspiciousIPRequest suspiciousIPRequest){
+	ResponseEntity<SuspiciousIP> addSuspiciousIp(@RequestBody SuspiciousIPRequest suspiciousIPRequest){
 		SuspiciousIP addedSuspiciousIp = ipService.addSuspiciousIp(suspiciousIPRequest);
 		return new ResponseEntity(addedSuspiciousIp, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/api/antifraud/suspicious-ip/{ip}")
-	public ResponseEntity<SuspiciousIpDeleteResponse> deleteSuspiciousIpByIpAddress(@PathVariable("ip") String ipAddress){
+	ResponseEntity<SuspiciousIpDeleteResponse> deleteSuspiciousIpByIpAddress(@PathVariable("ip") String ipAddress){
 		return ResponseEntity.ok(ipService.deleteSuspiciousIpByIpAddress(ipAddress));
 	}
 
 	@GetMapping("/api/antifraud/suspicious-ip")
-	public ResponseEntity<List<SuspiciousIP>> getAllSuspiciousIPs(){
+	ResponseEntity<List<SuspiciousIP>> getAllSuspiciousIPs(){
 		return ResponseEntity.ok(ipService.getAllSuspiciousIPs());
 	}
 }

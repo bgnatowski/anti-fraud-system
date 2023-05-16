@@ -7,10 +7,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MyUserDetailService implements UserDetailsService {
-	public static final String USER_WITH_USERNAME_S_NOT_FOUND = "User with username = %s not found";
+class MyUserDetailService implements UserDetailsService {
+	private static final String USER_WITH_USERNAME_S_NOT_FOUND = "User with username = %s not found";
 	private final UserDao userDao;
-	public MyUserDetailService(@Qualifier("jpa") UserDao userDao) {
+	MyUserDetailService(@Qualifier("jpa") UserDao userDao) {
 		this.userDao = userDao;
 	}
 

@@ -11,11 +11,11 @@ import java.util.Optional;
 
 @Service("jdbc")
 // for training sql queries
-public class UserJDBCDataAccessService implements UserDao {
+class UserJDBCDataAccessService implements UserDao {
 	private final JdbcTemplate jdbcTemplate;
 	private final UserRowMapper userRowMapper;
 
-	public UserJDBCDataAccessService(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper) {
+	UserJDBCDataAccessService(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.userRowMapper = userRowMapper;
 	}
