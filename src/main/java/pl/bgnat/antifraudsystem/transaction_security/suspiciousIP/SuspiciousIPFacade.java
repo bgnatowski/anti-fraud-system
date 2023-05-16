@@ -12,8 +12,8 @@ public class SuspiciousIPFacade {
 		this.suspiciousIpService = suspiciousIpService;
 	}
 
-	public List<SuspiciousIP> getAllSuspiciousIps(){
-		return this.suspiciousIpService.getAllSuspiciousIPs();
+	public boolean isBlacklistedIP(String ipAddress){
+		return this.suspiciousIpService.isBlacklisted(ipAddress);
 	}
 
 }

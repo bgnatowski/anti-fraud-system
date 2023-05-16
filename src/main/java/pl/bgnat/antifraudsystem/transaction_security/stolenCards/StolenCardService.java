@@ -9,7 +9,9 @@ import pl.bgnat.antifraudsystem.transaction.TransactionValidator;
 import pl.bgnat.antifraudsystem.transaction_security.stolenCards.request.StolenCardRequest;
 import pl.bgnat.antifraudsystem.transaction_security.stolenCards.response.StolenCardDeleteResponse;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 @Service
@@ -41,8 +43,15 @@ class StolenCardService {
 		return new StolenCardDeleteResponse(String.format("Card %s successfully removed!", number));
 	}
 
+	public boolean isBlacklisted(String number) {
+		return isAlreadyInDb(number);
+	}
+
 	List<StolenCard> getAllStolenCards() {
-		return stolenCardRepository.findAll();
+		return stolenCardRepository.findAll()
+				.stream()
+				.sorted(Comparator.comparingLong(StolenCard::getId))
+				.collect(Collectors.toList());
 	}
 
 

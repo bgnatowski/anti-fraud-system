@@ -8,6 +8,7 @@ public class AntiFraudSystemApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AntiFraudSystemApplication.class, args);
+		System.out.println(calculateLuhnChecksum(400000112233556L));
 	}
 
 

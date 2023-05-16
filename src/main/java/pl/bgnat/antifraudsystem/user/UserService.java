@@ -13,6 +13,7 @@ import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
 import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -48,6 +49,7 @@ class UserService {
 		return userDao.selectAllUsers()
 				.stream()
 				.map(userDTOMapper)
+				.sorted(Comparator.comparingLong(UserDTO::id))
 				.collect(Collectors.toList());
 	}
 

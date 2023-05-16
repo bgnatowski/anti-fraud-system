@@ -6,6 +6,8 @@ import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
 import pl.bgnat.antifraudsystem.transaction.request.TransactionRequest;
 import pl.bgnat.antifraudsystem.transaction.response.TransactionResponse;
+import pl.bgnat.antifraudsystem.transaction_security.stolenCards.StolenCardFacade;
+import pl.bgnat.antifraudsystem.transaction_security.suspiciousIP.SuspiciousIPFacade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +19,16 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @Service
 class TransactionService {
 	private final TransactionValidator transactionValidator;
-
-	TransactionService(TransactionValidator transactionValidator) {
+	private final StolenCardFacade stolenCardFacade;
+	private final SuspiciousIPFacade suspiciousIPFacade;
+	TransactionService(TransactionValidator transactionValidator, StolenCardFacade stolenCardFacade, SuspiciousIPFacade suspiciousIPFacade) {
 		this.transactionValidator = transactionValidator;
+		this.stolenCardFacade = stolenCardFacade;
+		this.suspiciousIPFacade = suspiciousIPFacade;
 	}
 
 	TransactionResponse validTransaction(TransactionRequest transactionRequest){
-		if(isValidRequestJsonFormat(transactionRequest))
+		if(!isValidRequestJsonFormat(transactionRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
 		Long amount = transactionRequest.amount();
@@ -31,23 +36,30 @@ class TransactionService {
 		String cardNumber = transactionRequest.number();
 		List<String> info = new ArrayList<>();
 
-		if(transactionValidator.isValidCardNumber(cardNumber)) {
+		if(!transactionValidator.isValidCardNumber(cardNumber))
 			throw new CardNumberFormatException(cardNumber);
-		}
-		if(transactionValidator.isValidIpAddress(ip)) {
+		if(!transactionValidator.isValidIpAddress(ip))
 			throw new IpFormatException(ip);
-		}
-		if(amount <= 0) {
+		if(amount <= 0)
 			throw new RequestValidationException("Wrong request! Amount have to be positive number!");
-		}
 
+		if(stolenCardFacade.isBlacklistedCard(cardNumber))
+			info.add("card-number");
+		if(suspiciousIPFacade.isBlacklistedIP(ip))
+			info.add("ip");
 
 		if (amount <= 200)
 			return new TransactionResponse(TransactionStatus.ALLOWED, "none");
-		else if (amount <= 1500)
-			return new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, "none");
-		else
-			return new TransactionResponse(TransactionStatus.PROHIBITED, "none");
+		else if (amount <= 1500){
+			info.add("amount");
+			String result = String.join(", ", info.stream().sorted().toList());
+			return new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, result);
+		}
+		else{
+			info.add("amount");
+			String result = String.join(", ", info.stream().sorted().toList());
+			return new TransactionResponse(TransactionStatus.PROHIBITED, result);
+		}
 	}
 
 	private boolean isValidRequestJsonFormat(TransactionRequest request) {

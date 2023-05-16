@@ -1,6 +1,6 @@
 package pl.bgnat.antifraudsystem.user;
 
-enum Role {
+public enum Role {
 	ADMINISTRATOR, MERCHANT, SUPPORT
 
 }
