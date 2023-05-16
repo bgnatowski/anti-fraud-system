@@ -32,7 +32,6 @@ import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
 	@Mock
 	private UserDao userDao;
 	@Mock

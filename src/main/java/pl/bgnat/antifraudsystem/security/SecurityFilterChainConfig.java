@@ -36,7 +36,8 @@ public class SecurityFilterChainConfig {
 				.requestMatchers(HttpMethod.GET,
 						"/api/auth/list").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
 				.requestMatchers(HttpMethod.POST,
-						"/api/antifraud/transaction").hasAuthority(MERCHANT.name())
+						"/api/antifraud/transaction",
+						"/api/antifraud/transaction/").hasAuthority(MERCHANT.name())
 				.requestMatchers(HttpMethod.PUT,
 						"/api/auth/access",
 						"/api/auth/access/",

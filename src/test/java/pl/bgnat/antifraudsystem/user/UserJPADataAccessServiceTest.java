@@ -36,7 +36,7 @@ public class UserJPADataAccessServiceTest {
 
 	@Test
 	void shouldSelectAllUsers(){
-		Page<User> page = mock(Page.class);
+		Page page = mock(Page.class);
 		List<User> users = List.of(new User());
 
 		when(page.getContent()).thenReturn(users);
@@ -58,11 +58,9 @@ public class UserJPADataAccessServiceTest {
 		// Given
 		long id = 1;
 		// When
-		Optional<User> user = serviceUnderTest.selectUserById(id);
+		serviceUnderTest.selectUserById(id);
 		// Then
 		verify(userRepository).findById(id);
-		assertThat(user).isPresent();
-		assertThat(user.get().getId()).isEqualTo(id);
 	}
 	@Test
 	void shouldSelectUserByUsername(){

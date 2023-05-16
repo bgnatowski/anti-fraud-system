@@ -46,7 +46,7 @@ class UserController {
 	}
 
 	@PutMapping("/access")
-	ResponseEntity<UserUnlockResponse> changeRole(@RequestBody UserUnlockRequest updateRequest){
+	ResponseEntity<UserUnlockResponse> changeAccess(@RequestBody UserUnlockRequest updateRequest){
 		UserUnlockResponse updatedUser = userService.changeLock(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
