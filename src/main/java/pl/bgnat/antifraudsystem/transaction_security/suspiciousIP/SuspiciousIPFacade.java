@@ -17,5 +17,15 @@ public class SuspiciousIPFacade {
 		return suspiciousIpService.isValidIpAddress(ipAddress);
 	}
 
+	public String add(String ip){
+		SuspiciousIPRequest request = new SuspiciousIPRequest(ip);
+		SuspiciousIP suspiciousIP = suspiciousIpService.addSuspiciousIp(request);
+		return suspiciousIP.toString();
+	}
+
+	public String delete(String ip){
+		SuspiciousIpDeleteResponse suspiciousIpDeleteResponse = suspiciousIpService.deleteSuspiciousIpByIpAddress(ip);
+		return suspiciousIpDeleteResponse.status();
+	}
 
 }

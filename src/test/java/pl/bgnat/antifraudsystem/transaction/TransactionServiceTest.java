@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorChainFacade;
+import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,7 +18,7 @@ import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatExce
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
 	@Mock
-	private TransactionValidatorChainFacade validator;
+	private TransactionValidatorFacade validator;
 	@InjectMocks
 	private TransactionService underTest;
 
@@ -33,10 +33,6 @@ public class TransactionServiceTest {
 		TransactionRequest transactionRequest = new TransactionRequest(120l, null, null);
 		// When Then
 		underTest.validTransaction(transactionRequest);
-
-//		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
-//				.isInstanceOf(RequestValidationException.class)
-//				.hasMessageContaining(WRONG_JSON_FORMAT);
 	}
 
 	@Test
