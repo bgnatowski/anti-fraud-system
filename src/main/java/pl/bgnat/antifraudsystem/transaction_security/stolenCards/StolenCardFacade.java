@@ -13,7 +13,6 @@ public class StolenCardFacade {
 		return stolenCardService.isValidCardNumber(cardNumber);
 	}
 	public boolean isBlacklisted(String number){
-
 		return this.stolenCardService.isBlacklisted(number);
 	}
 

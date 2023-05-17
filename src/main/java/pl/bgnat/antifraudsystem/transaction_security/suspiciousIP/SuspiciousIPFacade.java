@@ -7,12 +7,9 @@ import pl.bgnat.antifraudsystem.transaction_security.validation.SecurityValidato
 @Component
 public class SuspiciousIPFacade {
 	private final SuspiciousIPService suspiciousIpService;
-	private final SecurityValidator<String> ipValidator;
 
-	public SuspiciousIPFacade(SuspiciousIPService suspiciousIpService,
-							  @Qualifier("IpValidator") SecurityValidator<String> ipValidator) {
+	public SuspiciousIPFacade(SuspiciousIPService suspiciousIpService) {
 		this.suspiciousIpService = suspiciousIpService;
-		this.ipValidator = ipValidator;
 	}
 
 	public boolean isBlacklisted(String ipAddress){
@@ -20,6 +17,6 @@ public class SuspiciousIPFacade {
 	}
 
 	public boolean isValid(String ipAddress) {
-		return ipValidator.isValid(ipAddress);
+		return suspiciousIpService.isValidIpAddress(ipAddress);
 	}
 }
