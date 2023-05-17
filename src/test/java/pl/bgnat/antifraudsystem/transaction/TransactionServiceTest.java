@@ -13,7 +13,6 @@ import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionVa
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
 
 @ExtendWith(MockitoExtension.class)

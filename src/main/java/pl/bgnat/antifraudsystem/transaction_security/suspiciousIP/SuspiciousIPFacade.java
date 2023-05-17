@@ -1,8 +1,6 @@
 package pl.bgnat.antifraudsystem.transaction_security.suspiciousIP;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.transaction_security.validation.SecurityValidator;
 
 @Component
 public class SuspiciousIPFacade {
