@@ -5,20 +5,22 @@ import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionVa
 
 @Service
 class TransactionService {
+	public static final int MAX_AMOUNT_FOR_MANUAL_PROCESSING = 1500;
 	private final TransactionValidatorFacade validatorChainFacade;
+
 	TransactionService(TransactionValidatorFacade validatorChainFacade) {
 		this.validatorChainFacade = validatorChainFacade;
 	}
-	TransactionResponse validTransaction(TransactionRequest transactionRequest){
+
+	TransactionResponse validTransaction(TransactionRequest transactionRequest) {
 		String info = validatorChainFacade.valid(transactionRequest);
-		Long amount = transactionRequest.amount();
 
-		if (amount <= 200)
-			return new TransactionResponse(TransactionStatus.ALLOWED, info);
-		else if (amount <= 1500)
-			return new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, info);
-		else
-			return new TransactionResponse(TransactionStatus.PROHIBITED, info);
+		boolean isManualProcessing = transactionRequest.amount() <= MAX_AMOUNT_FOR_MANUAL_PROCESSING;
+		TransactionStatus status = switch (info) {
+			case "none" -> TransactionStatus.ALLOWED;
+			case "amount" -> isManualProcessing ? TransactionStatus.MANUAL_PROCESSING : TransactionStatus.PROHIBITED;
+			default -> TransactionStatus.PROHIBITED;
+		};
+		return new TransactionResponse(status, info);
 	}
-
 }
