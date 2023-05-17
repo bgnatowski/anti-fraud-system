@@ -13,11 +13,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
-import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
-import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
 import java.util.ArrayList;
 
@@ -73,7 +68,7 @@ public class UserControllerTest {
 		String name = "John Doe";
 		Role role = Role.SUPPORT;
 
-		UserRoleUpdateRequest roleUpdateRequest = new UserRoleUpdateRequest(
+		UserUpdateRoleRequest roleUpdateRequest = new UserUpdateRoleRequest(
 				username, "SUPPORT");
 
 		String json = new ObjectMapper().writeValueAsString(roleUpdateRequest);

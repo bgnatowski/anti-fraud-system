@@ -6,7 +6,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddlAuto: validate
+      ddlAuto: create-drop
     showSql: false
     properties:
       hibernate:

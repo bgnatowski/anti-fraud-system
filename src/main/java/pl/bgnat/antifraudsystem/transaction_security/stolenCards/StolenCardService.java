@@ -1,13 +1,12 @@
 package pl.bgnat.antifraudsystem.transaction_security.stolenCards;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.DuplicatedStolenCardException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.StolenCardNotFound;
-import pl.bgnat.antifraudsystem.transaction.TransactionValidator;
-import pl.bgnat.antifraudsystem.transaction_security.stolenCards.request.StolenCardRequest;
-import pl.bgnat.antifraudsystem.transaction_security.stolenCards.response.StolenCardDeleteResponse;
+import pl.bgnat.antifraudsystem.transaction_security.validation.SecurityValidator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,12 +16,14 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @Service
 class StolenCardService {
 	private final StolenCardRepository stolenCardRepository;
-	private final TransactionValidator transactionValidator;
+	private final SecurityValidator<String> cardNumberValidator;
 
-	StolenCardService(StolenCardRepository stolenCardRepository, TransactionValidator transactionValidator) {
+	StolenCardService(StolenCardRepository stolenCardRepository,
+					  @Qualifier("CardNumberValidator") SecurityValidator<String> cardNumberValidator) {
 		this.stolenCardRepository = stolenCardRepository;
-		this.transactionValidator = transactionValidator;
+		this.cardNumberValidator = cardNumberValidator;
 	}
+
 
 	StolenCard addStolenCard(StolenCardRequest stolenCardRequest) {
 		String number = stolenCardRequest.number();
@@ -55,12 +56,12 @@ class StolenCardService {
 	}
 
 
-	private boolean isValidJsonFormat(String number) {
-		return number != null;
+	boolean isValidCardNumber(String number) {
+		return cardNumberValidator.isValid(number);
 	}
 
-	private boolean isValidCardNumber(String number) {
-		return transactionValidator.isValidCardNumber(number);
+	private boolean isValidJsonFormat(String number) {
+		return number != null;
 	}
 
 	private boolean isAlreadyInDb(String number) {

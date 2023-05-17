@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.bgnat.antifraudsystem.transaction.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.response.TransactionResponse;
 
 @RestController
 @RequestMapping

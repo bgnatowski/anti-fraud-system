@@ -2,10 +2,9 @@ package pl.bgnat.antifraudsystem.user;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
 
 @Component
-public class UserCreator {
+class UserCreator {
 	static User createAdministrator(UserRegistrationRequest userRegistrationRequest, PasswordEncoder passwordEncoder) {
 		return new User(userRegistrationRequest.name(),
 				userRegistrationRequest.username(),

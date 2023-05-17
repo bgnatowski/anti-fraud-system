@@ -7,11 +7,6 @@ import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
 import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
-import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
-import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
-import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
 import java.util.Comparator;
 import java.util.List;
@@ -77,7 +72,7 @@ class UserService {
 		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY_RESPONSE);
 	}
 
-	UserDTO changeRole(UserRoleUpdateRequest updateRequest) {
+	UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
 		try {
 			String username = updateRequest.username();
 			Role role = Role.valueOf(updateRequest.role());

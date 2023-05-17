@@ -3,11 +3,6 @@ package pl.bgnat.antifraudsystem.user;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
-import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
-import pl.bgnat.antifraudsystem.user.response.UserUnlockResponse;
 
 import java.util.List;
 
@@ -40,7 +35,7 @@ class UserController {
 	}
 
 	@PutMapping("/role")
-	ResponseEntity<UserDTO> changeRole(@RequestBody UserRoleUpdateRequest updateRequest){
+	ResponseEntity<UserDTO> changeRole(@RequestBody UserUpdateRoleRequest updateRequest){
 		UserDTO updatedUser = userService.changeRole(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}

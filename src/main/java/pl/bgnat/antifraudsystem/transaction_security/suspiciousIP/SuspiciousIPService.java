@@ -1,13 +1,12 @@
 package pl.bgnat.antifraudsystem.transaction_security.suspiciousIP;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.DuplicatedSuspiciousIPException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.SuspiciousIpAddressNotFound;
-import pl.bgnat.antifraudsystem.transaction.TransactionValidator;
-import pl.bgnat.antifraudsystem.transaction_security.suspiciousIP.request.SuspiciousIPRequest;
-import pl.bgnat.antifraudsystem.transaction_security.suspiciousIP.response.SuspiciousIpDeleteResponse;
+import pl.bgnat.antifraudsystem.transaction_security.validation.SecurityValidator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,12 +17,15 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @Service
 class SuspiciousIPService {
 	private final SuspiciousIPRepository ipRepository;
-	private final TransactionValidator transactionValidator;
+	private final SecurityValidator<String> ipValidator;
 
-	SuspiciousIPService(SuspiciousIPRepository ipRepository, TransactionValidator transactionValidator) {
+	SuspiciousIPService(SuspiciousIPRepository ipRepository,
+						@Qualifier("IpValidator")
+						SecurityValidator<String> ipValidator) {
 		this.ipRepository = ipRepository;
-		this.transactionValidator = transactionValidator;
+		this.ipValidator = ipValidator;
 	}
+
 
 	SuspiciousIP addSuspiciousIp(SuspiciousIPRequest suspiciousIPRequest) {
 		if(!isValidRequestJson(suspiciousIPRequest))
@@ -59,8 +61,8 @@ class SuspiciousIPService {
 				.sorted(Comparator.comparingLong(SuspiciousIP::getId))
 				.collect(Collectors.toList());
 	}
-	private boolean isValidIpAddress(String ipAddress) {
-		return transactionValidator.isValidIpAddress(ipAddress);
+	boolean isValidIpAddress(String ipAddress) {
+		return ipValidator.isValid(ipAddress);
 	}
 
 	private boolean isAlreadyInDb(String ipAddress) {

@@ -3,8 +3,6 @@ package pl.bgnat.antifraudsystem.transaction_security.stolenCards;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.bgnat.antifraudsystem.transaction_security.stolenCards.request.StolenCardRequest;
-import pl.bgnat.antifraudsystem.transaction_security.stolenCards.response.StolenCardDeleteResponse;
 
 import java.util.List;
 

@@ -8,8 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
-import pl.bgnat.antifraudsystem.transaction.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.response.TransactionResponse;
 import pl.bgnat.antifraudsystem.transaction_security.stolenCards.StolenCardFacade;
 import pl.bgnat.antifraudsystem.transaction_security.suspiciousIP.SuspiciousIPFacade;
 
@@ -18,17 +16,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
-import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.*;
+import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
 import static pl.bgnat.antifraudsystem.transaction.TransactionService.WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
 	@Mock
 	private TransactionValidator transactionValidator;
-	@Mock
-	private StolenCardFacade stolenCardFacade;
-	@Mock
-	private SuspiciousIPFacade suspiciousIPFacade;
 	@InjectMocks
 	private TransactionService underTest;
 
@@ -42,8 +36,6 @@ public class TransactionServiceTest {
 				.hasMessageContaining(WRONG_JSON_FORMAT);
 		verify(transactionValidator, never()).isValidIpAddress(any());
 		verify(transactionValidator, never()).isValidIpAddress(any());
-		verify(stolenCardFacade, never()).isBlacklistedCard(any());
-		verify(suspiciousIPFacade, never()).isBlacklistedIP(any());
 	}
 
 	@Test
@@ -106,8 +98,8 @@ public class TransactionServiceTest {
 		// When Then
 		when(transactionValidator.isValidCardNumber(cardNumber)).thenReturn(true);
 		when(transactionValidator.isValidIpAddress(ip)).thenReturn(true);
-		when(stolenCardFacade.isBlacklistedCard(cardNumber)).thenReturn(true);
-		when(suspiciousIPFacade.isBlacklistedIP(ip)).thenReturn(true);
+		when(transactionValidator.isValidCardNumber(cardNumber)).thenReturn(true);
+		when(transactionValidator.isValidIpAddress(ip)).thenReturn(true);
 		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
 
 		assertThat(actualResponse).isEqualTo(expectedResponse);

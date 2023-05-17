@@ -6,17 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.exception.ResourceNotFoundException;
 import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
 import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
-import pl.bgnat.antifraudsystem.user.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.request.UserRoleUpdateRequest;
-import pl.bgnat.antifraudsystem.user.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.response.UserDeleteResponse;
 
 import java.util.Optional;
 
@@ -167,7 +161,7 @@ public class UserServiceTest {
 	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatDoesNotExist(){
 		// Given
 		String roleThatNotExist = "ROLE_THAT_NOT_EXIST";
-		UserRoleUpdateRequest wrongRoleUpdate = new UserRoleUpdateRequest("username", roleThatNotExist);
+		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest("username", roleThatNotExist);
 
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
@@ -179,7 +173,7 @@ public class UserServiceTest {
 	@Test
 	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatIsPassedNull(){
 		// Given
-		UserRoleUpdateRequest wrongRoleUpdate = new UserRoleUpdateRequest("username", null);
+		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest("username", null);
 
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
@@ -192,7 +186,7 @@ public class UserServiceTest {
 	void shouldThrowResourceNotFoundExceptionWhenChangingRoleToUserThatDoesNotExist(){
 		// Given
 		String usernameThatNotExist = "usernameThatNotExist";
-		UserRoleUpdateRequest wrongRoleUpdate = new UserRoleUpdateRequest(usernameThatNotExist, "SUPPORT");
+		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest(usernameThatNotExist, "SUPPORT");
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
 				.isInstanceOf(UserNotFoundException.class)
@@ -206,7 +200,7 @@ public class UserServiceTest {
 		// Given
 		String role = "ADMINISTRATOR";
 		String username = "username";
-		UserRoleUpdateRequest wrongRoleUpdate = new UserRoleUpdateRequest(username, role);
+		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest(username, role);
 
 		User user = new User(
 				"user",
@@ -228,7 +222,7 @@ public class UserServiceTest {
 		// Given
 		String role = "MERCHANT";
 		String username = "username";
-		UserRoleUpdateRequest updateRequest = new UserRoleUpdateRequest(username, role);
+		UserUpdateRoleRequest updateRequest = new UserUpdateRoleRequest(username, role);
 
 		User user = new User(
 				"user",
@@ -249,7 +243,7 @@ public class UserServiceTest {
 		// Given
 		String role = "SUPPORT";
 		String username = "username";
-		UserRoleUpdateRequest updateRequest = new UserRoleUpdateRequest(username, role);
+		UserUpdateRoleRequest updateRequest = new UserUpdateRoleRequest(username, role);
 
 		User user = new User(
 				"user",
