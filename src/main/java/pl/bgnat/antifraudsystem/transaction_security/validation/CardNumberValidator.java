@@ -10,7 +10,6 @@ class CardNumberValidator implements SecurityValidator<String> {
 	@Override
 	public boolean isValid(String number) {
 		if (number.length() < CARD_NUMBER_LENGTH) return false;
-
 		boolean isOddPosition = true;
 		int sum = 0;
 		int checkSum = Integer.parseInt(Character.toString((number.charAt(CHECKSUM_DIGIT_POSITION))));

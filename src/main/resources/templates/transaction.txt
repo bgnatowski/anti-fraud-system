@@ -1,0 +1,23 @@
+Request:
+{
+  "amount": 200,
+  "ip": "192.168.1.1",
+  "number": "4000008449433403"
+}
+Response:
+{
+    "result": "ALLOWED",
+    "info": "none"
+}
+
+Request:
+{
+  "amount": 800,
+  "ip": "192.168.1.1",
+  "number": "4000008449433403"
+}
+Response:
+{
+   "result": "MANUAL_PROCESSING",
+   "info": "amount"
+}
