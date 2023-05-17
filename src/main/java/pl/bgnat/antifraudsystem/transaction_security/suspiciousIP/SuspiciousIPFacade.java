@@ -16,4 +16,6 @@ public class SuspiciousIPFacade {
 	public boolean isValid(String ipAddress) {
 		return suspiciousIpService.isValidIpAddress(ipAddress);
 	}
+
+
 }
