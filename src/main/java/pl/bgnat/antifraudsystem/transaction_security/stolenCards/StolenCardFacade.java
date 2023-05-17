@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StolenCardFacade {
-	private final StolenCardService stolenCardService;;
+	private final StolenCardService stolenCardService;
 	public StolenCardFacade(StolenCardService stolenCardService) {
 		this.stolenCardService = stolenCardService;
 	}

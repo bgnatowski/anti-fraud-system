@@ -44,7 +44,7 @@ public class SecurityConfig {
 	@Bean
 	public DataSource dataSource()
 	{
-		DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+		DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
 		dataSourceBuilder.driverClassName("org.postgresql.Driver");
 		dataSourceBuilder.url("jdbc:postgresql://localhost:5433/anti_fraud_system");
 		dataSourceBuilder.username("postgres");

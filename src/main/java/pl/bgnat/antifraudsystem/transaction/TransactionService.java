@@ -4,8 +4,6 @@ import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
-import pl.bgnat.antifraudsystem.transaction_security.stolenCards.StolenCardFacade;
-import pl.bgnat.antifraudsystem.transaction_security.suspiciousIP.SuspiciousIPFacade;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,7 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 class TransactionService {
 	public static final String WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER = "Wrong request! Amount have to be positive number!";
 	private final TransactionValidator transactionValidator;
-	TransactionService(TransactionValidator transactionValidator, StolenCardFacade stolenCardFacade, SuspiciousIPFacade suspiciousIPFacade) {
+	TransactionService(TransactionValidator transactionValidator) {
 		this.transactionValidator = transactionValidator;
 	}
 
