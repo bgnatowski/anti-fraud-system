@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 class CardNumberValidator implements SecurityValidator<String> {
 	private static final int CHECKSUM_DIGIT_POSITION = 15;
 	private static final int CARD_NUMBER_LENGTH = 16;
-
 	@Override
 	public boolean isValid(String number) {
 		if (number.length() < CARD_NUMBER_LENGTH) return false;

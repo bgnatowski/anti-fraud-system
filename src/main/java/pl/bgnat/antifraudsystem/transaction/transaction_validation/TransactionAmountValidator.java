@@ -1,15 +1,16 @@
-package pl.bgnat.antifraudsystem.transaction;
+package pl.bgnat.antifraudsystem.transaction.transaction_validation;
 
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.transaction.TransactionRequest;
 
 import java.util.List;
 
 @Component
-class TransactionAmountValidator extends Validator{
+class TransactionAmountValidator extends AbstractValidator {
 	private static final String WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER =
 			"Wrong request! Amount have to be positive number!";
-	public static final int MAXIMUM_AMOUNT_WITHOUT_ANY_RESTRICTION = 200;
+	private static final int MAXIMUM_AMOUNT_WITHOUT_ANY_RESTRICTION = 200;
 
 	@Override
 	public List<String> isValid(TransactionRequest request, List<String> info) {

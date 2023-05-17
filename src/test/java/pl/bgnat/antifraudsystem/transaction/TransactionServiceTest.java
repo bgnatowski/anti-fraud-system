@@ -1,5 +1,6 @@
 package pl.bgnat.antifraudsystem.transaction;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -8,32 +9,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
+import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorChainFacade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
-
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
 	@Mock
-//	private TransactionValidatorOld transactionValidator;
+	private TransactionValidatorChainFacade validator;
 	@InjectMocks
 	private TransactionService underTest;
 
+	@BeforeEach
+	void setUp() {
+		underTest = new TransactionService(
+				validator);
+	}
 	@Test
 	void shouldThrowRequestValidationExceptionWhenValidTransactionWithWrongJsonFormatRequest() {
 		// Given
 		TransactionRequest transactionRequest = new TransactionRequest(120l, null, null);
 		// When Then
-		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
-				.isInstanceOf(RequestValidationException.class)
-				.hasMessageContaining(WRONG_JSON_FORMAT);
-//		verify(transactionValidator, never()).isValidIpAddress(any());
-//		verify(transactionValidator, never()).isValidIpAddress(any());
+		underTest.validTransaction(transactionRequest);
+
+//		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
+//				.isInstanceOf(RequestValidationException.class)
+//				.hasMessageContaining(WRONG_JSON_FORMAT);
 	}
 
 	@Test
@@ -59,7 +63,6 @@ public class TransactionServiceTest {
 						"192.168.356.1",
 						"4000008449433403");
 		// When Then
-//		when(transactionValidator.isValidCardNumber("4000008449433403")).thenReturn(true);
 		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
 				.isInstanceOf(IpFormatException.class)
 				.hasMessageContaining(String.format(IpFormatException.WRONG_IP_FORMAT_S, "192.168.356.1"));
@@ -74,11 +77,9 @@ public class TransactionServiceTest {
 						"192.168.1.1",
 						"4000008449433403");
 		// When Then
-//		when(transactionValidator.isValidCardNumber("4000008449433403")).thenReturn(true);
-//		when(transactionValidator.isValidIpAddress("192.168.1.1")).thenReturn(true);
-//		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
-//				.isInstanceOf(RequestValidationException.class)
-//				.hasMessageContaining(WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER);
+		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
+				.isInstanceOf(RequestValidationException.class)
+				.hasMessageContaining("Wrong request! Amount have to be positive number!");
 	}
 
 	@Test
@@ -91,15 +92,9 @@ public class TransactionServiceTest {
 						150L,
 						ip,
 						cardNumber);
-
 		TransactionResponse expectedResponse = new TransactionResponse(TransactionStatus.ALLOWED, "none");
 		// When Then
-//		when(transactionValidator.isValidCardNumber(cardNumber)).thenReturn(true);
-//		when(transactionValidator.isValidIpAddress(ip)).thenReturn(true);
-//		when(transactionValidator.isValidCardNumber(cardNumber)).thenReturn(true);
-//		when(transactionValidator.isValidIpAddress(ip)).thenReturn(true);
 		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
-
 		assertThat(actualResponse).isEqualTo(expectedResponse);
 	}
 

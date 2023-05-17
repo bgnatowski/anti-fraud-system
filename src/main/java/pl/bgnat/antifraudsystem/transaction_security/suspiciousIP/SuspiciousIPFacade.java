@@ -7,7 +7,6 @@ import pl.bgnat.antifraudsystem.transaction_security.validation.SecurityValidato
 @Component
 public class SuspiciousIPFacade {
 	private final SuspiciousIPService suspiciousIpService;
-
 	public SuspiciousIPFacade(SuspiciousIPService suspiciousIpService) {
 		this.suspiciousIpService = suspiciousIpService;
 	}
