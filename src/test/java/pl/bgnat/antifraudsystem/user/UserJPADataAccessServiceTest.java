@@ -9,7 +9,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,10 +37,10 @@ public class UserJPADataAccessServiceTest {
 
 	@Test
 	void shouldSelectAllUsers(){
-		Page page = mock(Page.class);
+		Page<User> page = mock(Page.class);
 		List<User> users = List.of(new User());
 
-		when(page.getContent()).thenReturn(users);
+		when(page.getContent()).thenReturn(new ArrayList<>(users));
 		when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
 
 		// When
@@ -56,10 +58,20 @@ public class UserJPADataAccessServiceTest {
 	void shouldSelectUserById(){
 		// Given
 		long id = 1;
+		User expectedUser = User.builder().id(id)
+				.name("name")
+				.username("username")
+				.password("pass")
+				.accountNonLocked(true)
+				.role(Role.MERCHANT)
+				.build();
 		// When
-		serviceUnderTest.selectUserById(id);
+		when(userRepository.findById(id)).thenReturn(Optional.of(expectedUser));
+		Optional<User> actualUser = serviceUnderTest.selectUserById(id);
 		// Then
 		verify(userRepository).findById(id);
+		assertThat(actualUser).isPresent();
+		assertThat(actualUser.get()).isEqualTo(expectedUser);
 	}
 	@Test
 	void shouldSelectUserByUsername(){
