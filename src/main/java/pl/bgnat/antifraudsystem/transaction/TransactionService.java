@@ -1,16 +1,16 @@
 package pl.bgnat.antifraudsystem.transaction;
 
 import org.springframework.stereotype.Service;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorChainFacade;
+import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
 
 @Service
 class TransactionService {
-	private final TransactionValidatorChainFacade validatorChain;
-	TransactionService(TransactionValidatorChainFacade validatorChain) {
-		this.validatorChain = validatorChain;
+	private final TransactionValidatorFacade validatorChainFacade;
+	TransactionService(TransactionValidatorFacade validatorChainFacade) {
+		this.validatorChainFacade = validatorChainFacade;
 	}
 	TransactionResponse validTransaction(TransactionRequest transactionRequest){
-		String info = validatorChain.valid(transactionRequest);
+		String info = validatorChainFacade.valid(transactionRequest);
 		Long amount = transactionRequest.amount();
 
 		if (amount <= 200)
