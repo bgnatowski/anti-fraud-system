@@ -9,16 +9,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorChainFacade;
+import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
 	@Mock
-	private TransactionValidatorChainFacade validator;
+	private TransactionValidatorFacade validator;
 	@InjectMocks
 	private TransactionService underTest;
 
@@ -30,13 +32,14 @@ public class TransactionServiceTest {
 	@Test
 	void shouldThrowRequestValidationExceptionWhenValidTransactionWithWrongJsonFormatRequest() {
 		// Given
-		TransactionRequest transactionRequest = new TransactionRequest(120l, null, null);
+		TransactionRequest transactionRequest = new TransactionRequest(null, null, null);
+		given(validator.valid(transactionRequest)).willThrow(
+				new RequestValidationException(WRONG_JSON_FORMAT)
+		);
 		// When Then
-		underTest.validTransaction(transactionRequest);
-
-//		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
-//				.isInstanceOf(RequestValidationException.class)
-//				.hasMessageContaining(WRONG_JSON_FORMAT);
+		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
+				.isInstanceOf(RequestValidationException.class)
+				.hasMessageContaining(String.format(WRONG_JSON_FORMAT));
 	}
 
 	@Test
@@ -44,9 +47,12 @@ public class TransactionServiceTest {
 		// Given
 		TransactionRequest transactionRequest =
 				new TransactionRequest(
-						120l,
+						120L,
 						"192.168.1.1",
 						"4000008449433402");
+		given(validator.valid(transactionRequest)).willThrow(
+				new CardNumberFormatException("4000008449433402")
+		);
 		// When Then
 		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
 				.isInstanceOf(CardNumberFormatException.class)
@@ -58,9 +64,13 @@ public class TransactionServiceTest {
 		// Given
 		TransactionRequest transactionRequest =
 				new TransactionRequest(
-						120l,
+						120L,
 						"192.168.356.1",
 						"4000008449433403");
+
+		given(validator.valid(transactionRequest)).willThrow(
+				new IpFormatException("192.168.356.1")
+		);
 		// When Then
 		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
 				.isInstanceOf(IpFormatException.class)
@@ -75,6 +85,9 @@ public class TransactionServiceTest {
 						-20L,
 						"192.168.1.1",
 						"4000008449433403");
+		given(validator.valid(transactionRequest)).willThrow(
+				new RequestValidationException("Wrong request! Amount have to be positive number!")
+		);
 		// When Then
 		assertThatThrownBy(() -> underTest.validTransaction(transactionRequest))
 				.isInstanceOf(RequestValidationException.class)
@@ -92,9 +105,73 @@ public class TransactionServiceTest {
 						ip,
 						cardNumber);
 		TransactionResponse expectedResponse = new TransactionResponse(TransactionStatus.ALLOWED, "none");
+
+		given(validator.valid(transactionRequest)).willReturn("none");
 		// When Then
 		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
 		assertThat(actualResponse).isEqualTo(expectedResponse);
 	}
 
+	@Test
+	void shouldReturnManualProcessingAndAmountWhenAmountIsToHigh(){
+		// Given
+		String cardNumber = "4000008449433403";
+		String ip = "192.168.1.1";
+		TransactionRequest transactionRequest =
+				new TransactionRequest(
+						800L,
+						ip,
+						cardNumber);
+
+		String info = "amount";
+		TransactionResponse expectedResponse =
+				new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, info);
+
+		given(validator.valid(transactionRequest)).willReturn(info);
+		// When Then
+		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
+		assertThat(actualResponse).isEqualTo(expectedResponse);
+	}
+
+	@Test
+	void shouldReturnProhibitedAndAmountWhenAmountIsToHighHigh(){
+		// Given
+		String cardNumber = "4000008449433403";
+		String ip = "192.168.1.1";
+		TransactionRequest transactionRequest =
+				new TransactionRequest(
+						1800L,
+						ip,
+						cardNumber);
+
+		String info = "amount";
+		TransactionResponse expectedResponse =
+				new TransactionResponse(TransactionStatus.PROHIBITED, info);
+
+		given(validator.valid(transactionRequest)).willReturn(info);
+		// When Then
+		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
+		assertThat(actualResponse).isEqualTo(expectedResponse);
+	}
+
+	@Test
+	void shouldReturnProhibitedAndIpWhenIpIsBlacklisted(){
+		// Given
+		String cardNumber = "4000008449433403";
+		String ip = "192.168.1.1";
+		TransactionRequest transactionRequest =
+				new TransactionRequest(
+						200L,
+						ip,
+						cardNumber);
+
+		String info = "ip";
+		TransactionResponse expectedResponse =
+				new TransactionResponse(TransactionStatus.PROHIBITED, info);
+
+		given(validator.valid(transactionRequest)).willReturn(info);
+		// When Then
+		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
+		assertThat(actualResponse).isEqualTo(expectedResponse);
+	}
 }

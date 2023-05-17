@@ -1,24 +1,26 @@
 package pl.bgnat.antifraudsystem.transaction;
 
 import org.springframework.stereotype.Service;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorChainFacade;
+import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
 
 @Service
 class TransactionService {
-	private final TransactionValidatorChainFacade validatorChain;
-	TransactionService(TransactionValidatorChainFacade validatorChain) {
-		this.validatorChain = validatorChain;
-	}
-	TransactionResponse validTransaction(TransactionRequest transactionRequest){
-		String info = validatorChain.valid(transactionRequest);
-		Long amount = transactionRequest.amount();
+	public static final int MAX_AMOUNT_FOR_MANUAL_PROCESSING = 1500;
+	private final TransactionValidatorFacade validatorChainFacade;
 
-		if (amount <= 200)
-			return new TransactionResponse(TransactionStatus.ALLOWED, info);
-		else if (amount <= 1500)
-			return new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, info);
-		else
-			return new TransactionResponse(TransactionStatus.PROHIBITED, info);
+	TransactionService(TransactionValidatorFacade validatorChainFacade) {
+		this.validatorChainFacade = validatorChainFacade;
 	}
 
+	TransactionResponse validTransaction(TransactionRequest transactionRequest) {
+		String info = validatorChainFacade.valid(transactionRequest);
+
+		boolean isManualProcessing = transactionRequest.amount() <= MAX_AMOUNT_FOR_MANUAL_PROCESSING;
+		TransactionStatus status = switch (info) {
+			case "none" -> TransactionStatus.ALLOWED;
+			case "amount" -> isManualProcessing ? TransactionStatus.MANUAL_PROCESSING : TransactionStatus.PROHIBITED;
+			default -> TransactionStatus.PROHIBITED;
+		};
+		return new TransactionResponse(status, info);
+	}
 }

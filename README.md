@@ -8,5 +8,5 @@ This is a REST project based on Hyperskill course but with some changes in used 
 - PostgreSQL
 - Spring Security 6
 - Spring Data JPA
-- JDBC for efficient db communication
+- JDBC (for training sql queries)
 - Docker (containerization and deployment) 
