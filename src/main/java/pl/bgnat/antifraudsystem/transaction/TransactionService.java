@@ -5,7 +5,6 @@ import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionVa
 
 @Service
 class TransactionService {
-	public static final int MAX_AMOUNT_FOR_MANUAL_PROCESSING = 1500;
 	private final TransactionValidatorFacade validatorChainFacade;
 
 	TransactionService(TransactionValidatorFacade validatorChainFacade) {
@@ -15,7 +14,9 @@ class TransactionService {
 	TransactionResponse validTransaction(TransactionRequest transactionRequest) {
 		String info = validatorChainFacade.valid(transactionRequest);
 
-		boolean isManualProcessing = transactionRequest.amount() <= MAX_AMOUNT_FOR_MANUAL_PROCESSING;
+		boolean isManualProcessing =
+				transactionRequest.amount() <= validatorChainFacade.getMaxAmountForManualProcessing();
+
 		TransactionStatus status = switch (info) {
 			case "none" -> TransactionStatus.ALLOWED;
 			case "amount" -> isManualProcessing ? TransactionStatus.MANUAL_PROCESSING : TransactionStatus.PROHIBITED;

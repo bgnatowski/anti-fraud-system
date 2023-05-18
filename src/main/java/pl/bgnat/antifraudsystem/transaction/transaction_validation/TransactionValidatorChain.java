@@ -5,25 +5,26 @@ import org.springframework.stereotype.Component;
 @Component
 class TransactionValidatorChain {
 	private final TransactionJsonFormatValidator jsonFormatValidator;
-	private final TransactionAmountValidator amountValidator;
-	private final TransactionIpValidator ipValidator;
 	private final TransactionCardNumberValidator cardNumberValidator;
+	private final TransactionIpValidator ipValidator;
+	private final TransactionAmountValidator amountValidator;
 
 	TransactionValidatorChain(TransactionJsonFormatValidator jsonFormatValidator,
-									 TransactionAmountValidator amountValidator,
-									 TransactionIpValidator ipValidator,
-									 TransactionCardNumberValidator cardNumberValidator) {
+							  TransactionCardNumberValidator cardNumberValidator,
+							  TransactionIpValidator ipValidator,
+							  TransactionAmountValidator amountValidator) {
 		this.jsonFormatValidator = jsonFormatValidator;
-		this.amountValidator = amountValidator;
-		this.ipValidator = ipValidator;
 		this.cardNumberValidator = cardNumberValidator;
+		this.ipValidator = ipValidator;
+		this.amountValidator = amountValidator;
 	}
 
 	TransactionValidator getTransactionValidationFilterChain() {
 		return AbstractValidator.link(
 				jsonFormatValidator,
-				amountValidator,
+				cardNumberValidator,
 				ipValidator,
-				cardNumberValidator);
+				amountValidator
+				);
 	}
 }

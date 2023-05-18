@@ -29,8 +29,9 @@ class StolenCardService {
 		String number = stolenCardRequest.number();
 		if(!isValidJsonFormat(number))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
-		if(!isValidCardNumber(number))
-			throw new CardNumberFormatException(number);
+
+		checkCardNumberFormat(number);
+
 		if(isAlreadyInDb(number))
 			throw new DuplicatedStolenCardException(number);
 		StolenCard stolenCard = StolenCard.builder().number(number).build();
@@ -38,10 +39,16 @@ class StolenCardService {
 	}
 
 	StolenCardDeleteResponse deleteStolenCardByNumber(String number) {
+		checkCardNumberFormat(number);
 		if(!isAlreadyInDb(number))
 			throw new StolenCardNotFound(number);
 		stolenCardRepository.deleteByNumber(number);
 		return new StolenCardDeleteResponse(String.format("Card %s successfully removed!", number));
+	}
+
+	private void checkCardNumberFormat(String number) {
+		if(!isValidCardNumber(number))
+			throw new CardNumberFormatException(number);
 	}
 
 	public boolean isBlacklisted(String number) {

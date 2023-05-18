@@ -19,5 +19,5 @@ class SuspiciousIP {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "suspicious_ip_id_sequence")
 	Long id;
 	@Column(name = "ip", nullable = false)
-	String ipAddress;
+	String ip;
 }

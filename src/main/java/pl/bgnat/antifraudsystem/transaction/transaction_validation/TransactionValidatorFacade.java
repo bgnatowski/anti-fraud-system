@@ -16,7 +16,11 @@ public class TransactionValidatorFacade {
 	public String valid(TransactionRequest transactionRequest) {
 		TransactionValidator transactionValidator = transactionValidatorChain.getTransactionValidationFilterChain();
 		List<String> info = transactionValidator.isValid(transactionRequest, new ArrayList<>());
-		return info.isEmpty() ? "none" : getResultedInfoAsString(info);
+		return getResultedInfoAsString(info);
+	}
+
+	public long getMaxAmountForManualProcessing(){
+		return TransactionAmountValidator.MAX_AMOUNT_FOR_MANUAL_PROCESSING;
 	}
 
 	private static String getResultedInfoAsString(List<String> info) {

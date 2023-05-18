@@ -126,8 +126,8 @@ public class TransactionServiceTest {
 		String info = "amount";
 		TransactionResponse expectedResponse =
 				new TransactionResponse(TransactionStatus.MANUAL_PROCESSING, info);
-
 		given(validator.valid(transactionRequest)).willReturn(info);
+		given(validator.getMaxAmountForManualProcessing()).willReturn(1500L);
 		// When Then
 		TransactionResponse actualResponse = underTest.validTransaction(transactionRequest);
 		assertThat(actualResponse).isEqualTo(expectedResponse);

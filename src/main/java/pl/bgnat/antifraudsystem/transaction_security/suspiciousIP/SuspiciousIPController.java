@@ -1,6 +1,5 @@
 package pl.bgnat.antifraudsystem.transaction_security.suspiciousIP;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +16,7 @@ class SuspiciousIPController {
 	@PostMapping( "/api/antifraud/suspicious-ip")
 	ResponseEntity<SuspiciousIP> addSuspiciousIp(@RequestBody SuspiciousIPRequest suspiciousIPRequest){
 		SuspiciousIP addedSuspiciousIp = ipService.addSuspiciousIp(suspiciousIPRequest);
-		return new ResponseEntity<>(addedSuspiciousIp, HttpStatus.CREATED);
+		return ResponseEntity.ok(addedSuspiciousIp);
 	}
 
 	@DeleteMapping("/api/antifraud/suspicious-ip/{ip}")

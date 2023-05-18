@@ -30,13 +30,11 @@ class SuspiciousIPService {
 	SuspiciousIP addSuspiciousIp(SuspiciousIPRequest suspiciousIPRequest) {
 		if(!isValidRequestJson(suspiciousIPRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
-
 		String ipAddress = suspiciousIPRequest.ip();
-		if(!isValidIpAddress(ipAddress))
-			throw new IpFormatException(ipAddress);
+		checkIpFormat(ipAddress);
 		if(isAlreadyInDb(ipAddress))
 			throw new DuplicatedSuspiciousIPException(ipAddress);
-		SuspiciousIP ip = SuspiciousIP.builder().ipAddress(ipAddress).build();
+		SuspiciousIP ip = SuspiciousIP.builder().ip(ipAddress).build();
 		return ipRepository.save(ip);
 	}
 
@@ -45,9 +43,10 @@ class SuspiciousIPService {
 	}
 
 	SuspiciousIpDeleteResponse deleteSuspiciousIpByIpAddress(String ipAddress) {
+		checkIpFormat(ipAddress);
 		if(!isAlreadyInDb(ipAddress))
 			throw new SuspiciousIpAddressNotFound(ipAddress);
-		ipRepository.deleteByIpAddress(ipAddress);
+		ipRepository.deleteByIp(ipAddress);
 		return new SuspiciousIpDeleteResponse(String.format("IP %s successfully removed!", ipAddress));
 	}
 
@@ -61,11 +60,16 @@ class SuspiciousIPService {
 				.sorted(Comparator.comparingLong(SuspiciousIP::getId))
 				.collect(Collectors.toList());
 	}
+
 	boolean isValidIpAddress(String ipAddress) {
 		return ipValidator.isValid(ipAddress);
 	}
+	private void checkIpFormat(String ipAddress) {
+		if(!isValidIpAddress(ipAddress))
+			throw new IpFormatException(ipAddress);
+	}
 
 	private boolean isAlreadyInDb(String ipAddress) {
-		return ipRepository.existsByIpAddress(ipAddress);
+		return ipRepository.existsByIp(ipAddress);
 	}
 }
