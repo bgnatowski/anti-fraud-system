@@ -7,15 +7,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException;
-import pl.bgnat.antifraudsystem.exception.suspiciousIP.IpFormatException;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException;
+import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.IpFormatException;
+import pl.bgnat.antifraudsystem.transaction.validation.TransactionValidatorFacade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
-import static pl.bgnat.antifraudsystem.exception.stolenCard.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
+import static pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException.WRONG_CARD_NUMBER_FORMAT_S;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {

@@ -1,7 +1,10 @@
 package pl.bgnat.antifraudsystem.transaction;
 
 import org.springframework.stereotype.Service;
-import pl.bgnat.antifraudsystem.transaction.transaction_validation.TransactionValidatorFacade;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.transaction.validation.TransactionValidatorFacade;
 
 @Service
 class TransactionService {
