@@ -15,19 +15,19 @@ import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException;
 import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException.*;
-import static pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
+import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException.USER_WITH_USERNAME_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -60,6 +60,7 @@ public class UserServiceTest {
 		verify(userRepository).findAll(pageableArgumentCaptor.capture());
 		Pageable capturedPageable = pageableArgumentCaptor.getValue();
 		assertThat(capturedPageable).isEqualTo(Pageable.ofSize(100));
+		assertThat(actual).isEqualTo(users.stream().map(userDTOMapper).collect(Collectors.toList()));
 	}
 
 	@Test
