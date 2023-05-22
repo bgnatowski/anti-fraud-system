@@ -6,6 +6,6 @@ import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
 import java.util.List;
 
 @Component
-interface TransactionValidator {
-	List<String> isValid(TransactionRequest request, List<String> info);
+interface TransactionValidator extends Validator<List<String>> {
+	List<String> valid(TransactionRequest request, List<String> info);
 }

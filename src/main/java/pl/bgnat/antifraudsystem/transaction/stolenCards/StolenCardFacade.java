@@ -17,7 +17,7 @@ public class StolenCardFacade {
 		return this.stolenCardService.isBlacklisted(number);
 	}
 
-	public String add(String number){
+	public String blacklist(String number){
 		StolenCardRequest request = new StolenCardRequest(number);
 		StolenCard stolenCard = stolenCardService.addStolenCard(request);
 		return stolenCard.toString();

@@ -19,7 +19,7 @@ public class SuspiciousIPFacade {
 		return suspiciousIpService.isValidIpAddress(ipAddress);
 	}
 
-	public String add(String ip){
+	public String blacklist(String ip){
 		SuspiciousIPRequest request = new SuspiciousIPRequest(ip);
 		SuspiciousIP suspiciousIP = suspiciousIpService.addSuspiciousIp(request);
 		return suspiciousIP.toString();

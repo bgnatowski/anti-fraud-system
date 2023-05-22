@@ -1,25 +1,24 @@
 package pl.bgnat.antifraudsystem.transaction.validation;
 
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.IpFormatException;
+import pl.bgnat.antifraudsystem.transaction.TransactionFacade;
 import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.suspiciousIP.SuspiciousIPFacade;
+import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.IpFormatException;
 
 import java.util.List;
 
 @Component
-class TransactionIpValidator extends AbstractValidator {
-	private final SuspiciousIPFacade suspiciousIPFacade;
-	TransactionIpValidator(SuspiciousIPFacade suspiciousIPFacade) {
-		this.suspiciousIPFacade = suspiciousIPFacade;
+class TransactionIpValidator extends AbstractTransactionValidator {
+	TransactionIpValidator(TransactionFacade transactionFacade) {
+		super(transactionFacade);
 	}
 
 	@Override
-	public List<String> isValid(TransactionRequest request, List<String> info) {
+	public List<String> valid(TransactionRequest request, List<String> info) {
 		String ip = request.ip();
-		if(!suspiciousIPFacade.isValid(ip))
+		if(!transactionFacade.isValidIp(ip))
 			throw new IpFormatException(ip);
-		if (suspiciousIPFacade.isBlacklisted(request.ip()))
+		if (transactionFacade.isBlacklistedIp(request.ip()))
 			info.add("ip");
 		return nextValidation(request, info);
 	}

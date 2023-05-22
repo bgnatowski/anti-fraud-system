@@ -1,25 +1,25 @@
 package pl.bgnat.antifraudsystem.transaction.validation;
 
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException;
+import pl.bgnat.antifraudsystem.transaction.TransactionFacade;
 import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.stolenCards.StolenCardFacade;
+import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException;
 
 import java.util.List;
 
 @Component
-class TransactionCardNumberValidator extends AbstractValidator {
-	private final StolenCardFacade stolenCardFacade;
-	TransactionCardNumberValidator(StolenCardFacade facade) {
-		this.stolenCardFacade = facade;
+class TransactionCardNumberValidator extends AbstractTransactionValidator {
+
+	TransactionCardNumberValidator(TransactionFacade transactionFacade) {
+		super(transactionFacade);
 	}
 
 	@Override
-	public List<String> isValid(TransactionRequest request, List<String> info) {
+	public List<String> valid(TransactionRequest request, List<String> info) {
 		String cardNumber = request.number();
-		if(!stolenCardFacade.isValid(cardNumber))
+		if(!transactionFacade.isValidCarNumber(cardNumber))
 			throw new CardNumberFormatException(cardNumber);
-		if (stolenCardFacade.isBlacklisted(cardNumber))
+		if (transactionFacade.isBlacklistedCardNumber(cardNumber))
 			info.add("card-number");
 		return nextValidation(request, info);
 	}

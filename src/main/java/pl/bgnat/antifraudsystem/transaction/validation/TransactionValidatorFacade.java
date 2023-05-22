@@ -2,6 +2,8 @@ package pl.bgnat.antifraudsystem.transaction.validation;
 
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,18 +11,22 @@ import java.util.List;
 @Component
 public class TransactionValidatorFacade {
 	private final TransactionValidatorChain transactionValidatorChain;
-	public TransactionValidatorFacade(TransactionValidatorChain transactionValidatorChain) {
+	private final StatusValidatorChain statusValidatorChain;
+
+	public TransactionValidatorFacade(TransactionValidatorChain transactionValidatorChain, StatusValidatorChain statusValidatorChain) {
 		this.transactionValidatorChain = transactionValidatorChain;
+		this.statusValidatorChain = statusValidatorChain;
 	}
 
-	public String valid(TransactionRequest transactionRequest) {
+	public TransactionResponse valid(TransactionRequest transactionRequest) {
 		TransactionValidator transactionValidator = transactionValidatorChain.getTransactionValidationFilterChain();
-		List<String> info = transactionValidator.isValid(transactionRequest, new ArrayList<>());
-		return getResultedInfoAsString(info);
-	}
+		List<String> info = transactionValidator.valid(transactionRequest, new ArrayList<>());
 
-	public long getMaxAmountForManualProcessing(){
-		return TransactionAmountValidator.MAX_AMOUNT_FOR_MANUAL_PROCESSING;
+		StatusValidator statusValidator= statusValidatorChain.getStatusValidatorChain();
+		statusValidator.init();
+		TransactionStatus status = statusValidator.valid(transactionRequest, info);
+
+		return new TransactionResponse(status, getResultedInfoAsString(info));
 	}
 
 	private static String getResultedInfoAsString(List<String> info) {

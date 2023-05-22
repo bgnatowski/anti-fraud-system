@@ -2,18 +2,25 @@ package pl.bgnat.antifraudsystem.transaction.validation;
 
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.transaction.TransactionFacade;
 import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
 
 import java.util.List;
 
 @Component
-class TransactionAmountValidator extends AbstractValidator {
+class TransactionAmountValidator extends AbstractTransactionValidator {
 	private static final String WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER =
 			"Wrong request! Amount have to be positive number!";
 	private static final int MAXIMUM_AMOUNT_WITHOUT_ANY_RESTRICTION = 200;
 	static final int MAX_AMOUNT_FOR_MANUAL_PROCESSING = 1500;
+
+	TransactionAmountValidator(TransactionFacade transactionFacade) {
+		super(transactionFacade);
+	}
+
+
 	@Override
-	public List<String> isValid(TransactionRequest request, List<String> info) {
+	public List<String> valid(TransactionRequest request, List<String> info) {
 		if(request.amount() <= 0)
 			throw new RequestValidationException(WRONG_REQUEST_AMOUNT_HAVE_TO_BE_POSITIVE_NUMBER);
 
@@ -34,18 +41,20 @@ class TransactionAmountValidator extends AbstractValidator {
 					info.add("none");
 				else
 					info.add("amount");
+
 				return nextValidation(request, info);
 			}
 		}
 	}
 
 	private ValidationType getValidationType(boolean containsIp, boolean containsCardNumber) {
-		if (containsIp && containsCardNumber)
+		if (containsIp && containsCardNumber) {
 			return ValidationType.BOTH_CONTAINED;
-		else if (containsIp || containsCardNumber)
+		} else if (containsIp || containsCardNumber) {
 			return ValidationType.EITHER_CONTAINED;
-		else
+		} else {
 			return ValidationType.NONE_CONTAINED;
+		}
 	}
 
 	private enum ValidationType {

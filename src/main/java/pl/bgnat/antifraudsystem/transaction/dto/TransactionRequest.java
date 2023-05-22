@@ -2,7 +2,8 @@ package pl.bgnat.antifraudsystem.transaction.dto;
 
 public record TransactionRequest(Long amount,
 								 String ip,
-								 String number
-
+								 String number,
+								 String region,
+								 String date
 ) {
 }
