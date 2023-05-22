@@ -13,7 +13,6 @@ import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
 @RequestMapping
 class TransactionController {
 	private final TransactionService transactionService;
-
 	TransactionController(TransactionService transactionService) {
 		this.transactionService = transactionService;
 	}
