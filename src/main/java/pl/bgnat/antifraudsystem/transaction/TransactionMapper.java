@@ -12,12 +12,12 @@ import static pl.bgnat.antifraudsystem.utils.DateTimeParser.parseDate;
 class TransactionMapper implements Function<TransactionRequest, Transaction> {
 	@Override
 	public Transaction apply(TransactionRequest request) {
-		return new Transaction(
-				request.amount(),
-				request.ip(),
-				request.number(),
-				Region.valueOf(request.region()),
-				parseDate(request.date())
-		);
+		return Transaction.builder()
+				.amount(request.amount())
+				.ipAddress(request.ip())
+				.cardNumber(request.number())
+				.region(Region.valueOf(request.region()))
+				.date(parseDate(request.date()))
+				.build();
 	}
 }

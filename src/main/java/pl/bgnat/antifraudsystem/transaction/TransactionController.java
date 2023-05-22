@@ -19,7 +19,7 @@ class TransactionController {
 
 	@PostMapping(value = "/api/antifraud/transaction", produces = "application/json")
 	ResponseEntity<TransactionResponse> validTransaction(@RequestBody TransactionRequest transactionRequest) {
-		TransactionResponse response = transactionService.validTransaction(transactionRequest);
+		TransactionResponse response = transactionService.transferTransaction(transactionRequest);
 		return ResponseEntity.ok(response);
 
 	}

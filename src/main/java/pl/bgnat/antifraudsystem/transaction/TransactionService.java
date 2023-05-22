@@ -18,7 +18,7 @@ class TransactionService {
 		this.transactionMapper = transactionMapper;
 	}
 
-	TransactionResponse validTransaction(TransactionRequest transactionRequest) {
+	TransactionResponse transferTransaction(TransactionRequest transactionRequest) {
 		TransactionResponse transactionResponse = validatorChainFacade.valid(transactionRequest);
 
 		Transaction transaction = transactionMapper.apply(transactionRequest);

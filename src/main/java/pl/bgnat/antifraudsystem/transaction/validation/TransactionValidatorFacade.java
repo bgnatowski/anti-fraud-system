@@ -23,7 +23,6 @@ public class TransactionValidatorFacade {
 		List<String> info = transactionValidator.valid(transactionRequest, new ArrayList<>());
 
 		StatusValidator statusValidator= statusValidatorChain.getStatusValidatorChain();
-		statusValidator.init();
 		TransactionStatus status = statusValidator.valid(transactionRequest, info);
 
 		return new TransactionResponse(status, getResultedInfoAsString(info));

@@ -15,7 +15,7 @@ import static pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus.PROHIBI
 abstract class AbstractStatusValidator implements StatusValidator{
 	private AbstractStatusValidator nextValidator;
 	protected TransactionFacade transactionFacade;
-	static TransactionStatus status = ALLOWED;
+	protected static TransactionStatus status = ALLOWED;
 	protected AbstractStatusValidator(TransactionFacade transactionFacade) {
 		this.transactionFacade = transactionFacade;
 	}

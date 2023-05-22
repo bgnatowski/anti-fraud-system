@@ -24,8 +24,5 @@ class StatusAmountValidator extends AbstractStatusValidator {
 		return nextValidation(request, info);
 	}
 
-	private boolean containsCorrelations(List<String> info) {
-		return info.contains("ip-correlation") || info.contains("region-correlation");
-	}
 
 }
