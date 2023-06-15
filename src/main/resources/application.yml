@@ -1,6 +1,6 @@
 spring:
   dataSource:
-    url: jdbc:postgresql://localhost:5433/anti_fraud
+    url: jdbc:postgresql://localhost:5433/anti_fraud_system
     driverClassName: org.postgresql.Driver
     username: postgres
     password: password
