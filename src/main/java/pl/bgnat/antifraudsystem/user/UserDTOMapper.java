@@ -1,6 +1,7 @@
 package pl.bgnat.antifraudsystem.user;
 
 import org.springframework.stereotype.Component;
+import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 
 import java.util.function.Function;
 

@@ -15,13 +15,13 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class MyUserDetailServiceTest {
 	@Mock
-	private UserJPADataAccessService userDao;
+	private UserRepository userRepository;
 
 	private MyUserDetailService myUserDetailsService;
 
 	@BeforeEach
 	public void setUp() {
-		myUserDetailsService = new MyUserDetailService(userDao);
+		myUserDetailsService = new MyUserDetailService(userRepository);
 	}
 
 	@Test
@@ -29,7 +29,7 @@ public class MyUserDetailServiceTest {
 		// Given
 		final String username = "existingUserName";
 		final User user = User.builder().username(username).build();
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.ofNullable(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.ofNullable(user));
 		// When
 		final UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
 		//Assert

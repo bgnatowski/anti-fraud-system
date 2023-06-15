@@ -1,12 +1,14 @@
 package pl.bgnat.antifraudsystem.user;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
-import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
+import pl.bgnat.antifraudsystem.user.dto.*;
+import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException;
+import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static pl.bgnat.antifraudsystem.exception.RequestValidationException.INVALID_REQUEST;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
@@ -24,24 +27,24 @@ class UserService {
 	static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
 	static final String INVALID_OPERATION_S = "Invalid operation: %s";
 	static final String INVALID_ROLE_S = "Invalid role: %s";
-	static final String INVALID_REQUEST = "Invalid request form";
 	static final String THE_ROLE_SHOULD_BE_SUPPORT_OR_MERCHANT = "The role should be SUPPORT or MERCHANT";
 	static final String ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S = "Role: %s is already assigned to the user with username = %s";
 	static final String DELETED_SUCCESSFULLY_RESPONSE = "Deleted successfully!";
 	static final String USER_UNLOCK_RESPONSE = "User %s %s";
-	private final UserDao userDao;
+	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 
-	UserService(@Qualifier("jpa") UserDao userDao,
+	UserService(UserRepository userRepository,
 					   PasswordEncoder passwordEncoder, UserDTOMapper userDTOMapper) {
-		this.userDao = userDao;
+		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.userDTOMapper = userDTOMapper;
 	}
 
 	List<UserDTO> getAllRegisteredUsers() {
-		return userDao.selectAllUsers()
+		Page<User> page = userRepository.findAll(Pageable.ofSize(100));
+		return page.getContent()
 				.stream()
 				.map(userDTOMapper)
 				.sorted(Comparator.comparingLong(UserDTO::id))
@@ -61,14 +64,14 @@ class UserService {
 		User user = createProperUser(userRegistrationRequest);
 
 		//register user
-		User registeredUser = userDao.insertUser(user);
+		User registeredUser = userRepository.save(user);
 		return userDTOMapper.apply(registeredUser);
 	}
 
 	UserDeleteResponse deleteUserByUsername(String username) {
 		if (!isUserWithUsernameAlreadyRegistered(username))
 			throw new UserNotFoundException(username);
-		userDao.deleteUserByUsername(username);
+		userRepository.deleteUserByUsername(username);
 		return new UserDeleteResponse(username, DELETED_SUCCESSFULLY_RESPONSE);
 	}
 
@@ -87,7 +90,7 @@ class UserService {
 						String.format(ROLE_S_IS_ALREADY_ASSIGNED_TO_THE_USER_WITH_USERNAME_S, role, username));
 
 			user.setRole(role);
-			userDao.updateUser(user);
+			userRepository.save(user);
 
 			return userDTOMapper.apply(user);
 		} catch (IllegalArgumentException | NullPointerException e) {
@@ -114,7 +117,7 @@ class UserService {
 		}
 
 		//update
-		userDao.updateUser(user);
+		userRepository.save(user);
 
 		String operationResult = "LOCK".equals(operation) ? "locked!" : "unlocked!";
 		return new UserUnlockResponse(String.format(USER_UNLOCK_RESPONSE, username, operationResult));
@@ -127,7 +130,7 @@ class UserService {
 				.noneMatch(Objects::isNull);
 	}
 	private boolean isUserWithUsernameAlreadyRegistered(String username) {
-		return userDao.existsUserWithUsername(username);
+		return userRepository.existsUserByUsername(username);
 	}
 	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!doesTheAdministratorExist())
@@ -135,10 +138,10 @@ class UserService {
 		return createMerchant(userRegistrationRequest, passwordEncoder);
 	}
 	private boolean doesTheAdministratorExist() {
-		return userDao.existsUserById(ADMINISTRATOR_ID);
+		return userRepository.existsById(ADMINISTRATOR_ID);
 	}
 	private User getUserByUserName(String username) {
-		return userDao.selectUserByUsername(username)
+		return userRepository.findUserByUsername(username)
 				.orElseThrow(() -> new UserNotFoundException(username));
 	}
 	private boolean isTheSameRoleAlreadyAssigned(Role role, User user) {

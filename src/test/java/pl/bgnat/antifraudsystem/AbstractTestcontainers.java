@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem;
 
 import com.github.javafaker.Faker;
-import org.flywaydb.core.Flyway;
+//import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,20 +17,20 @@ import javax.sql.DataSource;
 public abstract class AbstractTestcontainers {
 	@BeforeAll
 	static void beforeAll() {
-		Flyway flyway = Flyway
-				.configure()
-				.dataSource(
-						postgreSQLContainer.getJdbcUrl(),
-						postgreSQLContainer.getUsername(),
-						postgreSQLContainer.getPassword()
-				).load();
-		flyway.migrate();
+//		Flyway flyway = Flyway
+//				.configure()
+//				.dataSource(
+//						postgreSQLContainer.getJdbcUrl(),
+//						postgreSQLContainer.getUsername(),
+//						postgreSQLContainer.getPassword()
+//				).load();
+//		flyway.migrate();
 	}
 
 	@Container
 	protected static final PostgreSQLContainer<?> postgreSQLContainer =
-			new PostgreSQLContainer<>("postgres:latest")
-					.withDatabaseName("anti_fraud_test")
+			new PostgreSQLContainer<>("postgres:14.7")
+					.withDatabaseName("anti_fraud_system_test")
 					.withUsername("postgres")
 					.withPassword("password");
 

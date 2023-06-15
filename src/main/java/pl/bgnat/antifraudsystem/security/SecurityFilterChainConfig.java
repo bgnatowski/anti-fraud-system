@@ -50,9 +50,9 @@ public class SecurityFilterChainConfig {
 						"api/antifraud/stolencard/").hasAuthority(SUPPORT.name())
 				.requestMatchers(HttpMethod.DELETE,
 						"api/antifraud/suspicious-ip",
-						"api/antifraud/suspicious-ip/",
+						"api/antifraud/suspicious-ip/*",
 						"api/antifraud/stolencard",
-						"api/antifraud/stolencard/").hasAuthority(SUPPORT.name())
+						"api/antifraud/stolencard/*").hasAuthority(SUPPORT.name())
 				.requestMatchers(HttpMethod.GET,
 						"api/antifraud/suspicious-ip",
 						"api/antifraud/suspicious-ip/",

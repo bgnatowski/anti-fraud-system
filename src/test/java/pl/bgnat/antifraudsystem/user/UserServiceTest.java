@@ -6,28 +6,33 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException;
-import pl.bgnat.antifraudsystem.exception.user.UserNotFoundException;
+import pl.bgnat.antifraudsystem.user.dto.*;
+import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException;
+import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static pl.bgnat.antifraudsystem.exception.user.DuplicatedUserException.*;
-import static pl.bgnat.antifraudsystem.exception.user.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
+import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException.USER_WITH_USERNAME_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 	@Mock
-	private UserDao userDao;
+	private UserRepository userRepository;
 	@Mock
 	private PasswordEncoder passwordEncoder;
 	private UserService serviceUnderTest;
@@ -36,17 +41,26 @@ public class UserServiceTest {
 	@BeforeEach
 	void setUp() {
 		serviceUnderTest = new UserService(
-				userDao,
+				userRepository,
 				passwordEncoder,
 				userDTOMapper);
 	}
 
 	@Test
 	void shouldGetAllRegisteredUsers(){
+		// Given
+		Page<User> page = mock(Page.class);
+		List<User> users = List.of(new User());
+		when(page.getContent()).thenReturn(users);
+		given(userRepository.findAll(any(Pageable.class))).willReturn(page);
 		// When
-		serviceUnderTest.getAllRegisteredUsers();
+		List<UserDTO> actual = serviceUnderTest.getAllRegisteredUsers();
 		// Then
-		verify(userDao).selectAllUsers();
+		ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
+		verify(userRepository).findAll(pageableArgumentCaptor.capture());
+		Pageable capturedPageable = pageableArgumentCaptor.getValue();
+		assertThat(capturedPageable).isEqualTo(Pageable.ofSize(100));
+		assertThat(actual).isEqualTo(users.stream().map(userDTOMapper).collect(Collectors.toList()));
 	}
 
 	@Test
@@ -59,7 +73,7 @@ public class UserServiceTest {
 		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("Wrong json format");
-		verify(userDao, never()).insertUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -71,12 +85,12 @@ public class UserServiceTest {
 		UserRegistrationRequest registrationRequest =
 				new UserRegistrationRequest(name, username, password);
 		// When
-		given(userDao.existsUserWithUsername(username)).willReturn(true);
+		given(userRepository.existsUserByUsername(username)).willReturn(true);
 		// Then
 		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
 				.isInstanceOf(DuplicatedUserException.class)
 				.hasMessageContaining(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
-		verify(userDao, never()).insertUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -90,14 +104,14 @@ public class UserServiceTest {
 
 		User administrator = createAdministrator(registrationRequest, passwordEncoder);
 		// When
-		given(userDao.existsUserWithUsername(username)).willReturn(false);
-		given(userDao.existsUserById(1L)).willReturn(false);
-		given(userDao.insertUser(administrator)).willReturn(administrator);
+		given(userRepository.existsUserByUsername(username)).willReturn(false);
+		given(userRepository.existsById(1L)).willReturn(false);
+		given(userRepository.save(administrator)).willReturn(administrator);
 
 		serviceUnderTest.registerUser(registrationRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-		verify(userDao).insertUser(userArgumentCaptor.capture());
+		verify(userRepository).save(userArgumentCaptor.capture());
 
 		var capturedUser = userArgumentCaptor.getValue();
 		assertThat(capturedUser).isEqualTo(administrator);
@@ -114,13 +128,13 @@ public class UserServiceTest {
 
 		User merchant = createMerchant(registrationRequest, passwordEncoder);
 		// When
-		given(userDao.existsUserWithUsername(username)).willReturn(false);
-		given(userDao.existsUserById(1L)).willReturn(true);
-		given(userDao.insertUser(merchant)).willReturn(merchant);
+		given(userRepository.existsUserByUsername(username)).willReturn(false);
+		given(userRepository.existsById(1L)).willReturn(true);
+		given(userRepository.save(merchant)).willReturn(merchant);
 		serviceUnderTest.registerUser(registrationRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-		verify(userDao).insertUser(userArgumentCaptor.capture());
+		verify(userRepository).save(userArgumentCaptor.capture());
 
 		User capturedUser = userArgumentCaptor.getValue();
 		assertThat(capturedUser).isEqualTo(merchant);
@@ -131,14 +145,14 @@ public class UserServiceTest {
 		// Given
 		var username = "johndoe";
 
-		when(userDao.existsUserWithUsername(username)).thenReturn(true);
+		when(userRepository.existsUserByUsername(username)).thenReturn(true);
 
 		UserDeleteResponse expectedResult = new UserDeleteResponse(username, "Deleted successfully!");
 
 		// When
 		UserDeleteResponse actualResult = serviceUnderTest.deleteUserByUsername(username);
 		// Then
-		verify(userDao).deleteUserByUsername(username);
+		verify(userRepository).deleteUserByUsername(username);
 		assertThat(actualResult).isEqualTo(expectedResult);
 	}
 
@@ -147,14 +161,14 @@ public class UserServiceTest {
 		// Given
 		var username = "johndoe_that_not_exist";
 
-		when(userDao.existsUserWithUsername(username)).thenReturn(false);
+		when(userRepository.existsUserByUsername(username)).thenReturn(false);
 
 		// When
 		assertThatThrownBy(() -> serviceUnderTest.deleteUserByUsername(username))
 				.isInstanceOf(UserNotFoundException.class)
 				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
 		// Then
-		verify(userDao, never()).deleteUserByUsername(username);
+		verify(userRepository, never()).deleteUserByUsername(username);
 	}
 
 	@Test
@@ -167,7 +181,7 @@ public class UserServiceTest {
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining(String.format("Invalid role: %s", roleThatNotExist));
-		verify(userDao, never()).insertUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -179,7 +193,7 @@ public class UserServiceTest {
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining(String.format("Invalid role: %s", null));
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -192,7 +206,7 @@ public class UserServiceTest {
 				.isInstanceOf(UserNotFoundException.class)
 				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, usernameThatNotExist));
 
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -209,12 +223,12 @@ public class UserServiceTest {
 				Role.MERCHANT,
 				true);
 
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(wrongRoleUpdate))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("The role should be SUPPORT or MERCHANT");
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -230,12 +244,12 @@ public class UserServiceTest {
 				passwordEncoder.encode("password"),
 				Role.MERCHANT,
 				true);
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		//When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(updateRequest))
 				.isInstanceOf(DuplicateResourceException.class)
 				.hasMessageContaining(String.format("Role: %s is already assigned to the user with username = %s", role, username));
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -251,7 +265,7 @@ public class UserServiceTest {
 				passwordEncoder.encode("password"),
 				Role.MERCHANT,
 				true);
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 
 		//When
 		serviceUnderTest.changeRole(updateRequest);
@@ -259,7 +273,7 @@ public class UserServiceTest {
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor =
 				ArgumentCaptor.forClass(User.class);
-		verify(userDao, times(1)).updateUser(userArgumentCaptor.capture());
+		verify(userRepository, times(1)).save(userArgumentCaptor.capture());
 
 		User capturedUser = userArgumentCaptor.getValue();
 		assertThat(capturedUser.getRole()).isEqualTo(Role.SUPPORT);
@@ -276,7 +290,7 @@ public class UserServiceTest {
 				.isInstanceOf(UserNotFoundException.class)
 				.hasMessageContaining(String.format(THERE_IS_NO_USER_WITH_USERNAME_S, username));
 
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -290,13 +304,13 @@ public class UserServiceTest {
 				Role.ADMINISTRATOR,
 				true);
 		UserUnlockRequest lockRequest = new UserUnlockRequest(username, "LOCK");
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(administrator));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(administrator));
 		// When
 		// Then
 		assertThatThrownBy(() -> serviceUnderTest.changeLock(lockRequest))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("Cannot block administrator!");
-		verify(userDao, never()).updateUser(any());
+		verify(userRepository, never()).save(any());
 	}
 
 	@Test
@@ -309,7 +323,7 @@ public class UserServiceTest {
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("Invalid request form");
 
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -325,14 +339,14 @@ public class UserServiceTest {
 
 		String operation = "INVALID_OPERATION";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 
 		// When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeLock(unlockRequest))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining(String.format("Invalid operation: %s", operation));
 
-		verify(userDao, never()).updateUser(any(User.class));
+		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
@@ -348,13 +362,13 @@ public class UserServiceTest {
 
 		String operation = "UNLOCK";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		//When
 		serviceUnderTest.changeLock(unlockRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor =
 				ArgumentCaptor.forClass(User.class);
-		verify(userDao, times(1)).updateUser(userArgumentCaptor.capture());
+		verify(userRepository, times(1)).save(userArgumentCaptor.capture());
 		User capturedUser = userArgumentCaptor.getValue();
 		assertThat(capturedUser.isAccountNonLocked()).isTrue();
 	}
@@ -372,13 +386,13 @@ public class UserServiceTest {
 
 		String operation = "LOCK";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
-		given(userDao.selectUserByUsername(username)).willReturn(Optional.of(user));
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		//When
 		serviceUnderTest.changeLock(unlockRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor =
 				ArgumentCaptor.forClass(User.class);
-		verify(userDao, times(1)).updateUser(userArgumentCaptor.capture());
+		verify(userRepository, times(1)).save(userArgumentCaptor.capture());
 		User capturedUser = userArgumentCaptor.getValue();
 		assertThat(capturedUser.isAccountNonLocked()).isFalse();
 	}

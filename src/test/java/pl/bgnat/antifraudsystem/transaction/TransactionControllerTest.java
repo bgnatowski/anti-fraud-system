@@ -12,6 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -19,7 +21,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.bgnat.antifraudsystem.transaction.TransactionStatus.*;
+import static pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(TransactionController.class)
@@ -38,13 +40,15 @@ public class TransactionControllerTest {
 		TransactionRequest transactionRequest = new TransactionRequest(
 				150L,
 				"192.168.1.1",
-				"4000008449433403"
+				"4000008449433403",
+				"EAP",
+				"2022-12-22T16:07:00"
 		);
 
 		String json = new ObjectMapper().writeValueAsString(transactionRequest);
 
 		TransactionResponse expectedResponse = new TransactionResponse(ALLOWED, "none");
-		given(transactionService.validTransaction(transactionRequest)).willReturn(expectedResponse);
+		given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
 
 		// When Then
 		mockMvc.perform(post(transactionApi)
@@ -65,13 +69,15 @@ public class TransactionControllerTest {
 		TransactionRequest transactionRequest = new TransactionRequest(
 				800L,
 				"192.168.1.1",
-				"4000008449433403"
+				"4000008449433403",
+				"EAP",
+				"2022-12-22T16:07:00"
 		);
 
 		String json = new ObjectMapper().writeValueAsString(transactionRequest);
 
 		TransactionResponse expectedResponse = new TransactionResponse(MANUAL_PROCESSING, "amount");
-		given(transactionService.validTransaction(transactionRequest)).willReturn(expectedResponse);
+		given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
 
 		// When Then
 		mockMvc.perform(post(transactionApi)
@@ -92,13 +98,15 @@ public class TransactionControllerTest {
 		TransactionRequest transactionRequest = new TransactionRequest(
 				1800L,
 				"192.168.1.3",
-				"4000008449433403"
+				"4000008449433403",
+				"EAP",
+				"2022-12-22T16:07:00"
 		);
 
 		String json = new ObjectMapper().writeValueAsString(transactionRequest);
 
 		TransactionResponse expectedResponse = new TransactionResponse(PROHIBITED, "amount, ip");
-		given(transactionService.validTransaction(transactionRequest)).willReturn(expectedResponse);
+		given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
 
 		// When Then
 		mockMvc.perform(post(transactionApi)
@@ -119,13 +127,15 @@ public class TransactionControllerTest {
 		TransactionRequest transactionRequest = new TransactionRequest(
 				150L,
 				"192.168.1.1",
-				"4000008449433403"
+				"4000008449433403",
+				"EAP",
+				"2022-12-22T16:07:00"
 		);
 
 		String json = new ObjectMapper().writeValueAsString(transactionRequest);
 
 		TransactionResponse expectedResponse = new TransactionResponse(ALLOWED, "none");
-		given(transactionService.validTransaction(transactionRequest)).willReturn(expectedResponse);
+		given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
 
 		// When Then
 		mockMvc.perform(post(transactionApi)

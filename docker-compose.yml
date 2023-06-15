@@ -1,12 +1,12 @@
 services:
   db:
     container_name: anti-fraud-postgres
-    image: postgres
+    image: postgres:14.7
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       PGDATA: /data/postgres
-      POSTGRES_DB: anti_fraud
+      POSTGRES_DB: anti_fraud_system
     volumes:
       - db:/data/postgres
     ports:
