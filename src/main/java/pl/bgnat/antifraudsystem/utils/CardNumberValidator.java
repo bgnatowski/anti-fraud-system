@@ -1,12 +1,12 @@
-package pl.bgnat.antifraudsystem.transaction.stolenCards;
+package pl.bgnat.antifraudsystem.utils;
 
 import org.springframework.stereotype.Component;
 
-@Component("CardNumberValidator")
-class CardNumberValidator {
+@Component
+public class CardNumberValidator {
 	private static final int CHECKSUM_DIGIT_POSITION = 15;
 	private static final int CARD_NUMBER_LENGTH = 16;
-	public boolean isValid(String number) {
+	public static boolean isValid(String number) {
 		if (number.length() < CARD_NUMBER_LENGTH) return false;
 		boolean isOddPosition = true;
 		int sum = 0;

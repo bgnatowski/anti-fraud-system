@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.transaction.suspiciousIP;
+package pl.bgnat.antifraudsystem.utils;
 
 import org.springframework.stereotype.Component;
 
@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 @Component
-class IpValidator {
-	public boolean isValid(String ipAddress) {
+public class IpValidator {
+	public static boolean isValid(String ipAddress) {
 		try {
 			InetAddress inetAddress = InetAddress.getByName(ipAddress);
 			return inetAddress instanceof Inet4Address;

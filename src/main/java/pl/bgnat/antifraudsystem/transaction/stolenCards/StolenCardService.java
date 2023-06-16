@@ -7,6 +7,7 @@ import pl.bgnat.antifraudsystem.transaction.stolenCards.dto.StolenCardRequest;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.DuplicatedStolenCardException;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.StolenCardNotFound;
+import pl.bgnat.antifraudsystem.utils.CardNumberValidator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,12 +17,10 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @Service
 class StolenCardService {
 	private final StolenCardRepository stolenCardRepository;
-	private final CardNumberValidator cardNumberValidator;
 
 	StolenCardService(StolenCardRepository stolenCardRepository,
 					  CardNumberValidator cardNumberValidator) {
 		this.stolenCardRepository = stolenCardRepository;
-		this.cardNumberValidator = cardNumberValidator;
 	}
 
 
@@ -64,7 +63,7 @@ class StolenCardService {
 
 
 	boolean isValidCardNumber(String number) {
-		return cardNumberValidator.isValid(number);
+		return CardNumberValidator.isValid(number);
 	}
 
 	private boolean isValidJsonFormat(String number) {

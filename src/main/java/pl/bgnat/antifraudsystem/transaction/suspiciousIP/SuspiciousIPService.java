@@ -7,6 +7,7 @@ import pl.bgnat.antifraudsystem.transaction.suspiciousIP.dto.SuspiciousIpDeleteR
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.DuplicatedSuspiciousIPException;
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.IpFormatException;
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.SuspiciousIpAddressNotFound;
+import pl.bgnat.antifraudsystem.utils.IpValidator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,12 +18,10 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @Service
 class SuspiciousIPService {
 	private final SuspiciousIPRepository ipRepository;
-	private final IpValidator ipValidator;
 
 	SuspiciousIPService(SuspiciousIPRepository ipRepository,
 						IpValidator ipValidator) {
 		this.ipRepository = ipRepository;
-		this.ipValidator = ipValidator;
 	}
 
 
@@ -61,7 +60,7 @@ class SuspiciousIPService {
 	}
 
 	boolean isValidIpAddress(String ipAddress) {
-		return ipValidator.isValid(ipAddress);
+		return IpValidator.isValid(ipAddress);
 	}
 	private void checkIpFormat(String ipAddress) {
 		if(!isValidIpAddress(ipAddress))

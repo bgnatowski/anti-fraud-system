@@ -30,6 +30,7 @@ class User implements UserDetails {
 	@Id
 	@SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
+	@Column(name = "id")
 	private Long id;
 	@Column(name = "name", nullable = false, columnDefinition = "TEXT")
 	private String name;
@@ -37,6 +38,21 @@ class User implements UserDetails {
 	private String username;
 	@Column(name = "password", nullable = false, columnDefinition = "TEXT")
 	private String password;
+
+	@OneToOne(mappedBy = "owner",
+			orphanRemoval = true,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	private Account account;
+
+	@OneToOne(mappedBy = "user",
+			orphanRemoval = true,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	private Address address;
+
+	@OneToOne(mappedBy = "user",
+			orphanRemoval = true,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	private Phone phone;
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
