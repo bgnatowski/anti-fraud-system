@@ -52,7 +52,7 @@ class User implements UserDetails {
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-	private Phone phone;
+	private PhoneNumber phone;
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)

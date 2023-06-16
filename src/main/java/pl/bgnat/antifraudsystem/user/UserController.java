@@ -11,9 +11,13 @@ import java.util.List;
 @RequestMapping("/api/auth/")
 class UserController {
 	private final UserService userService;
+	private final CreditCardService creditCardService;
+	private final AccountService accountService;
 
-	UserController(UserService userService) {
+	UserController(UserService userService, CreditCardService creditCardService, AccountService accountService) {
 		this.userService = userService;
+		this.creditCardService = creditCardService;
+		this.accountService = accountService;
 	}
 
 	@PostMapping("/user")
@@ -21,6 +25,8 @@ class UserController {
 		UserDTO registeredUser = userService.registerUser(user);
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
+
+
 
 	@GetMapping("/list")
 	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){

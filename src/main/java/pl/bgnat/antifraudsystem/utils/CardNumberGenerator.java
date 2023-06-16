@@ -15,32 +15,10 @@ public class CardNumberGenerator {
 		}
 
 		// Append the last digit using the Luhn algorithm
-		int lastDigit = calculateLuhnDigit(cardNumberBuilder.toString());
+		int lastDigit = CardNumberValidator.calculateLuhnDigit(cardNumberBuilder.toString());
 		cardNumberBuilder.append(lastDigit);
 
 		return cardNumberBuilder.toString();
 	}
 
-	private static int calculateLuhnDigit(String cardNumber) {
-		int[] digits = new int[cardNumber.length()];
-		for (int i = 0; i < cardNumber.length(); i++) {
-			digits[i] = Integer.parseInt(cardNumber.substring(i, i + 1));
-		}
-
-		for (int i = digits.length - 2; i >= 0; i -= 2) {
-			int doubledDigit = digits[i] * 2;
-			if (doubledDigit > 9) {
-				doubledDigit = doubledDigit % 10 + 1;
-			}
-			digits[i] = doubledDigit;
-		}
-
-		int sum = 0;
-		for (int digit : digits) {
-			sum += digit;
-		}
-
-		int checksum = 10 - (sum % 10);
-		return (checksum == 10) ? 0 : checksum;
-	}
 }

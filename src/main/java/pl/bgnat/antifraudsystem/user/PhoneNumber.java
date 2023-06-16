@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 
-@Entity(name = "phone")
-@Table(name = "phone")
-class Phone {
+@Entity(name = "PhoneNumber")
+@Table(name = "phone_number")
+class PhoneNumber {
 	@Id
-	@SequenceGenerator(name = "phone_id_sequence", sequenceName = "phone_id_sequence", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phone_id_sequence")
+	@SequenceGenerator(name = "phone_number_id_sequence", sequenceName = "phone_number_id_sequence", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phone_number_id_sequence")
 	private Long id;
 
 	@OneToOne(
@@ -25,7 +25,7 @@ class Phone {
 	@JoinColumn(
 			name = "user_id",
 			referencedColumnName = "id",
-			foreignKey = @ForeignKey(name = "fk_user_id_phone_id")
+			foreignKey = @ForeignKey(name = "fk_user_id_phone_number_id")
 	)
 	private User user;
 

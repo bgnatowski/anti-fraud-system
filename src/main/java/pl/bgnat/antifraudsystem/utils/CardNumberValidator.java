@@ -8,6 +8,11 @@ public class CardNumberValidator {
 	private static final int CARD_NUMBER_LENGTH = 16;
 	public static boolean isValid(String number) {
 		if (number.length() < CARD_NUMBER_LENGTH) return false;
+		int luhnDigit = calculateLuhnDigit(number);
+		return luhnDigit == 0;
+	}
+
+	public static int calculateLuhnDigit(String number) {
 		boolean isOddPosition = true;
 		int sum = 0;
 		int checkSum = Integer.parseInt(Character.toString((number.charAt(CHECKSUM_DIGIT_POSITION))));
@@ -19,6 +24,6 @@ public class CardNumberValidator {
 			sum += substracted9FromOver9Number;
 			isOddPosition = !isOddPosition;
 		}
-		return (sum+checkSum) % 10 == 0;
+		return (sum + checkSum) % 10;
 	}
 }
