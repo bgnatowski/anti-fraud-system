@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  background-color: #A59D95;
+  color: #823426;
+  font-family: 'Roboto', sans-serif;
+}
+
+.navbar {
+  background-color: #F8D7DA;
+}
+
+.card {
+  margin-bottom: 1.5rem;
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
