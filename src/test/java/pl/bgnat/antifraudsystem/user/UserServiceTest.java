@@ -70,7 +70,7 @@ public class UserServiceTest {
 				new UserRegistrationRequest("name", null, "password");
 		// When
 		// Then
-		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
+		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest, null, null))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("Wrong json format");
 		verify(userRepository, never()).save(any(User.class));
@@ -87,7 +87,7 @@ public class UserServiceTest {
 		// When
 		given(userRepository.existsUserByUsername(username)).willReturn(true);
 		// Then
-		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
+		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest, null, null))
 				.isInstanceOf(DuplicatedUserException.class)
 				.hasMessageContaining(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
 		verify(userRepository, never()).save(any(User.class));
@@ -108,7 +108,7 @@ public class UserServiceTest {
 		given(userRepository.existsById(1L)).willReturn(false);
 		given(userRepository.save(administrator)).willReturn(administrator);
 
-		serviceUnderTest.registerUser(registrationRequest);
+		serviceUnderTest.registerUser(registrationRequest, null, null);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userArgumentCaptor.capture());
@@ -131,7 +131,7 @@ public class UserServiceTest {
 		given(userRepository.existsUserByUsername(username)).willReturn(false);
 		given(userRepository.existsById(1L)).willReturn(true);
 		given(userRepository.save(merchant)).willReturn(merchant);
-		serviceUnderTest.registerUser(registrationRequest);
+		serviceUnderTest.registerUser(registrationRequest, null, null);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userArgumentCaptor.capture());

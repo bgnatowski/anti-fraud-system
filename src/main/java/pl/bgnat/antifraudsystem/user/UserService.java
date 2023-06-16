@@ -9,10 +9,12 @@ import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException;
 import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
+import pl.bgnat.antifraudsystem.utils.PhoneNumberValidator;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +38,7 @@ class UserService {
 	private final UserDTOMapper userDTOMapper;
 
 	UserService(UserRepository userRepository,
-					   PasswordEncoder passwordEncoder, UserDTOMapper userDTOMapper) {
+				PasswordEncoder passwordEncoder, UserDTOMapper userDTOMapper) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.userDTOMapper = userDTOMapper;
@@ -51,21 +53,65 @@ class UserService {
 				.collect(Collectors.toList());
 	}
 
-	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest,
+						 PhoneNumberRegisterRequest phone,
+						 AddressRegisterRequest address) {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
-		
+
+		User createdUser = createUser(userRegistrationRequest);
+		if (isValidPhone(phone)) {
+			PhoneNumber userPhone = PhoneNumber.builder()
+					.number(PhoneNumberValidator.extractDigits(phone.number()))
+					.user(createdUser)
+					.build();
+			createdUser.setPhone(userPhone);
+		}
+		if (isValidAddress(address)) {
+			Address userAddress = Address.builder()
+					.addressLine1(address.addressLine1())
+					.addressLine2(address.addressLine2())
+					.city(address.city())
+					.state(address.state())
+					.country(Country.valueOf(address.country()))
+					.postalCode(address.postalCode())
+					.user(createdUser)
+					.build();
+			createdUser.setAddress(userAddress);
+		}
+
+		User registeredUser = userRepository.save(createdUser);
+		return userDTOMapper.apply(registeredUser);
+	}
+
+	private boolean isValidAddress(AddressRegisterRequest address) {
+		return address != null
+				&&
+				Stream.of(
+						address.addressLine1(),
+						address.country(),
+						address.city(),
+						address.postalCode(),
+						address.state())
+				.noneMatch(Objects::isNull);
+	}
+
+	private boolean isValidPhone(PhoneNumberRegisterRequest phone) {
+		return (phone.number() != null) && PhoneNumberValidator.isPhoneNumberValid(phone.number());
+	}
+
+
+	User createUser(UserRegistrationRequest userRegistrationRequest) {
+		if (!isValidRequestJsonFormat(userRegistrationRequest))
+			throw new RequestValidationException(WRONG_JSON_FORMAT);
+
 		String username = userRegistrationRequest.username();
 
 		if (isUserWithUsernameAlreadyRegistered(username)) {
 			throw new DuplicatedUserException(username);
 		}
 
-		User user = createProperUser(userRegistrationRequest);
-
-		//register user
-		User registeredUser = userRepository.save(user);
-		return userDTOMapper.apply(registeredUser);
+		return createProperUser(userRegistrationRequest);
 	}
 
 	UserDeleteResponse deleteUserByUsername(String username) {
@@ -129,30 +175,38 @@ class UserService {
 						userRegistrationRequest.password())
 				.noneMatch(Objects::isNull);
 	}
+
 	private boolean isUserWithUsernameAlreadyRegistered(String username) {
 		return userRepository.existsUserByUsername(username);
 	}
+
 	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!doesTheAdministratorExist())
 			return createAdministrator(userRegistrationRequest, passwordEncoder);
 		return createMerchant(userRegistrationRequest, passwordEncoder);
 	}
+
 	private boolean doesTheAdministratorExist() {
 		return userRepository.existsById(ADMINISTRATOR_ID);
 	}
+
 	private User getUserByUserName(String username) {
 		return userRepository.findUserByUsername(username)
 				.orElseThrow(() -> new UserNotFoundException(username));
 	}
+
 	private boolean isTheSameRoleAlreadyAssigned(Role role, User user) {
 		return user.getRole().equals(role);
 	}
+
 	private boolean isSupportOrMerchant(Role role) {
 		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
 	}
+
 	private boolean isValidChangeLockRequest(String username, String operation) {
 		return operation == null || username == null;
 	}
+
 	private boolean isAdministrator(User user) {
 		return Role.ADMINISTRATOR.equals(user.getRole());
 	}

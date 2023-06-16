@@ -32,9 +32,9 @@ class Address {
 	)
 	private User user;
 
-	@Column(name = "addres_line_1", nullable = false)
+	@Column(name = "address_line_1", nullable = false)
 	private String addressLine1;
-	@Column(name = "addres_line_2")
+	@Column(name = "address_line_2")
 	private String addressLine2;
 	@Column(name = "postal_code", nullable = false)
 	private String postalCode;
@@ -42,8 +42,7 @@ class Address {
 	private String city;
 	@Column(name = "state", nullable = false)
 	private String state;
-	@Column(name = "country") //to enum
-	private String country;
-	@Column(name = "country_code") //to enum
-	private String countryCode;
+	@Column(name = "country", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Country country;
 }

@@ -48,7 +48,7 @@ public class UserControllerTest {
 		String json = new ObjectMapper().writeValueAsString(registrationRequest);
 
 		UserDTO userDTO = new UserDTO(1L, "John Doe", "johndoe", Role.ADMINISTRATOR);
-		given(userService.registerUser(registrationRequest)).willReturn(userDTO);
+		given(userService.registerUser(registrationRequest, null, null)).willReturn(userDTO);
 
 		// When Then
 		mockMvc.perform(post(userApi)

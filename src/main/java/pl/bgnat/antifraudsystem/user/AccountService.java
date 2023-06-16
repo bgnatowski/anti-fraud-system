@@ -13,7 +13,8 @@ class AccountService {
 	}
 
 	private Account createAccountForUser(User user){
-		String newIban = IBANGenerator.generateIBAN(user.getAddress().getCountryCode());
+		String alpha2Code = user.getAddress().getCountry().getCountryCode().getAlpha2Code();
+		String newIban = IBANGenerator.generateIBAN(alpha2Code);
 		Account newAccount = Account.builder()
 				.owner(user)
 				.balance(0d)
