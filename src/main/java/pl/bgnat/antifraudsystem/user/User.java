@@ -24,6 +24,10 @@ import java.util.List;
 				@UniqueConstraint(
 						name = "user_username_constraint",
 						columnNames = "username"
+				),
+				@UniqueConstraint(
+						name = "user_email_constraint",
+						columnNames = "email"
 				)
 		})
 class User implements UserDetails {
@@ -32,26 +36,30 @@ class User implements UserDetails {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
 	@Column(name = "id")
 	private Long id;
-	@Column(name = "name", nullable = false, columnDefinition = "TEXT")
-	private String name;
+	@Column(name = "firstName", nullable = false, columnDefinition = "TEXT")
+	private String firstName;
+	@Column(name = "lastName", nullable = false, columnDefinition = "TEXT")
+	private String lastName;
 	@Column(name = "username", nullable = false, columnDefinition = "TEXT", unique = true)
 	private String username;
 	@Column(name = "password", nullable = false, columnDefinition = "TEXT")
 	private String password;
+	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique=true)
+	private String email;
 
 	@OneToOne(mappedBy = "owner",
 			orphanRemoval = true,
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+			cascade = CascadeType.ALL)
 	private Account account;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+			cascade = CascadeType.ALL)
 	private Address address;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+			cascade = CascadeType.ALL)
 	private PhoneNumber phone;
 
 	@Column(name = "role", nullable = false)
@@ -61,13 +69,6 @@ class User implements UserDetails {
 	@Column(name = "account_non_locked")
 	private boolean accountNonLocked;
 
-	User(String name, String username, String password, Role role, boolean accountNonLocked) {
-		this.name = name;
-		this.username = username;
-		this.password = password;
-		this.role = role;
-		this.accountNonLocked = accountNonLocked;
-	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -108,8 +109,8 @@ class User implements UserDetails {
 		return id;
 	}
 
-	public String getName() {
-		return name;
+	public String getFirstName() {
+		return firstName;
 	}
 
 	public Role getRole() {
@@ -127,5 +128,65 @@ class User implements UserDetails {
 
 	public void unlockAccount(){
 		if(!accountNonLocked) accountNonLocked = true;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Account getAccount() {
+		return account;
+	}
+
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
+	public PhoneNumber getPhone() {
+		return phone;
+	}
+
+	public void setPhone(PhoneNumber phone) {
+		this.phone = phone;
+	}
+
+	public void setAccountNonLocked(boolean accountNonLocked) {
+		this.accountNonLocked = accountNonLocked;
 	}
 }

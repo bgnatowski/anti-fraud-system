@@ -22,8 +22,19 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	private User user;
+
 	@BeforeEach
 	void setUp() {
+		user = User.builder()
+				.firstName("User")
+				.lastName("LastName")
+				.username("username")
+				.password("password")
+				.email("user@gmail.com")
+				.role(Role.ADMINISTRATOR)
+				.build();
+
 		repositoryUnderTest.deleteAll();
 		System.out.println(applicationContext.getBeanDefinitionCount());
 	}
@@ -31,13 +42,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 	@Test
 	void existUserByUsername(){
 		// Given
-		String username = "user";
-		User user = User.builder()
-				.name("User")
-				.username(username)
-				.password("password")
-				.role(Role.ADMINISTRATOR)
-				.build();
+		String username = "username";
 
 		repositoryUnderTest.save(user);
 
@@ -62,13 +67,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 	@Test
 	void existUserById(){
 		// Given
-		String username = "user";
-		User user = User.builder()
-				.name("User")
-				.username(username)
-				.password("password")
-				.role(Role.ADMINISTRATOR)
-				.build();
+		String username = "username";
 
 		repositoryUnderTest.save(user);
 
@@ -98,13 +97,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 
 	@Test
 	void canFindUserByUsername(){
-		String username = "user";
-		User user = User.builder()
-				.name("User")
-				.username(username)
-				.password("password")
-				.role(Role.ADMINISTRATOR)
-				.build();
+		String username = "username";
 
 		repositoryUnderTest.save(user);
 
@@ -117,7 +110,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 
 	@Test
 	void cannotFindUserByUsername(){
-		String username = "user";
+		String username = "username";
 		// When
 		var actual = repositoryUnderTest.findUserByUsername(username);
 		// Then
@@ -126,14 +119,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 
 	@Test
 	void canDeleteUserByUsername(){
-		String username = "user";
-		User user = User.builder()
-				.name("User")
-				.username(username)
-				.password("password")
-				.role(Role.ADMINISTRATOR)
-				.build();
-
+		String username = "username";
 		repositoryUnderTest.save(user);
 		// When
 		repositoryUnderTest.deleteUserByUsername(username);

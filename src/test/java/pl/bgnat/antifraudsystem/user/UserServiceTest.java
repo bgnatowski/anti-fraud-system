@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.*;
-import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException;
+import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserEmailException;
+import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUsernameException;
+import pl.bgnat.antifraudsystem.user.exceptions.InvalidPhoneFormatException;
 import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
 
 import java.util.List;
@@ -26,7 +28,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
-import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserException.USER_WITH_USERNAME_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserEmailException.USER_WITH_EMAIL_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUsernameException.USER_WITH_USERNAME_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.InvalidPhoneFormatException.INVALID_PHONE_NUMBER_FORMAT_S;
 import static pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +40,29 @@ public class UserServiceTest {
 	@Mock
 	private PasswordEncoder passwordEncoder;
 	private UserService serviceUnderTest;
-	private final UserDTOMapper userDTOMapper = new UserDTOMapper();
+	private final UserDTOMapper userDTOMapper = new UserDTOMapper(
+			new AddressDTOMapper(),
+			new PhoneNumberDTOMapper());
+
+	private static final User finalUser = User.builder()
+			.id(2L)
+			.username("johndoe")
+			.firstName("John")
+			.lastName("Doe")
+			.password("password")
+			.email("johndoe@gmail.com")
+			.role(Role.MERCHANT)
+			.accountNonLocked(true)
+			.phone(PhoneNumber.builder().number("+48123123123").build())
+			.address(Address.builder()
+					.addressLine1("Some street")
+					.addressLine2("Apartment 123")
+					.postalCode("12345")
+					.city("Cityville")
+					.state("State")
+					.country(Country.POLAND)
+					.build())
+			.build();
 
 	@BeforeEach
 	void setUp() {
@@ -47,7 +73,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldGetAllRegisteredUsers(){
+	void shouldGetAllRegisteredUsers() {
 		// Given
 		Page<User> page = mock(Page.class);
 		List<User> users = List.of(new User());
@@ -64,43 +90,66 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenTryToRegisterWithInvalidData(){
+	void shouldThrowRequestValidationExceptionWhenTryToRegisterWithInvalidData() {
 		// Given
 		UserRegistrationRequest registrationRequest =
-				new UserRegistrationRequest("name", null, "password");
+				new UserRegistrationRequest("firstName", null, null, "password", null);
 		// When
 		// Then
-		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest, null, null))
+		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
 				.isInstanceOf(RequestValidationException.class)
 				.hasMessageContaining("Wrong json format");
 		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
-	void shouldThrowDuplicateResourceExceptionWhenTryToRegisterUserWithSameUsername(){
+	void shouldThrowDuplicatedUsernameExceptionWhenTryToRegisterUserWithSameUsername() {
 		// Given
 		String username = "johndoe";
-		String name = "John Doe";
+		String firstName = "John";
+		String lastName = "Doe";
 		String password = "password";
+		String email = "email@gmail.com";
 		UserRegistrationRequest registrationRequest =
-				new UserRegistrationRequest(name, username, password);
+				new UserRegistrationRequest(firstName, lastName, email, username, password);
 		// When
 		given(userRepository.existsUserByUsername(username)).willReturn(true);
 		// Then
-		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest, null, null))
-				.isInstanceOf(DuplicatedUserException.class)
+		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
+				.isInstanceOf(DuplicatedUsernameException.class)
 				.hasMessageContaining(String.format(USER_WITH_USERNAME_S_ALREADY_EXISTS, username));
 		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
-	void shouldAddAdministratorWhenHeIsNotExist(){
+	void shouldThrowDuplicatedUserEmailExceptionWhenTryToRegisterUserWithSameEmail() {
 		// Given
-		String name = "Administrator";
-		String username = "administrator";
+		String username = "johndoe";
+		String firstName = "John";
+		String lastName = "Doe";
 		String password = "password";
+		String email = "email@gmail.com";
 		UserRegistrationRequest registrationRequest =
-				new UserRegistrationRequest(name, username, password);
+				new UserRegistrationRequest(firstName, lastName, email, username, password);
+		// When
+		given(userRepository.existsUserByEmail(email)).willReturn(true);
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.registerUser(registrationRequest))
+				.isInstanceOf(DuplicatedUserEmailException.class)
+				.hasMessageContaining(String.format(USER_WITH_EMAIL_S_ALREADY_EXISTS, email));
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldAddAdministratorWhenHeIsNotExist() {
+		// Given
+		String username = "johndoe";
+		String firstName = "John";
+		String lastName = "Doe";
+		String password = "password";
+		String email = "email@gmail.com";
+		UserRegistrationRequest registrationRequest =
+				new UserRegistrationRequest(firstName, lastName, email, username, password);
 
 		User administrator = createAdministrator(registrationRequest, passwordEncoder);
 		// When
@@ -108,7 +157,7 @@ public class UserServiceTest {
 		given(userRepository.existsById(1L)).willReturn(false);
 		given(userRepository.save(administrator)).willReturn(administrator);
 
-		serviceUnderTest.registerUser(registrationRequest, null, null);
+		serviceUnderTest.registerUser(registrationRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userArgumentCaptor.capture());
@@ -118,20 +167,22 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldAddMerchantWhenAdministratorExist(){
+	void shouldAddMerchantWhenAdministratorExist() {
 		// Given
-		String name = "MerchantName";
-		String username = "merchantUsername";
-		String password = "merchantPassword";
+		String username = "johndoe";
+		String firstName = "John";
+		String lastName = "Doe";
+		String password = "password";
+		String email = "email@gmail.com";
 		UserRegistrationRequest registrationRequest =
-				new UserRegistrationRequest(name, username, password);
+				new UserRegistrationRequest(firstName, lastName, email, username, password);
 
 		User merchant = createMerchant(registrationRequest, passwordEncoder);
 		// When
 		given(userRepository.existsUserByUsername(username)).willReturn(false);
 		given(userRepository.existsById(1L)).willReturn(true);
 		given(userRepository.save(merchant)).willReturn(merchant);
-		serviceUnderTest.registerUser(registrationRequest, null, null);
+		serviceUnderTest.registerUser(registrationRequest);
 		// Then
 		ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userArgumentCaptor.capture());
@@ -172,7 +223,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatDoesNotExist(){
+	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatDoesNotExist() {
 		// Given
 		String roleThatNotExist = "ROLE_THAT_NOT_EXIST";
 		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest("username", roleThatNotExist);
@@ -185,7 +236,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatIsPassedNull(){
+	void shouldThrowRequestValidationExceptionWhenChangingRoleToOneThatIsPassedNull() {
 		// Given
 		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest("username", null);
 
@@ -197,7 +248,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowResourceNotFoundExceptionWhenChangingRoleToUserThatDoesNotExist(){
+	void shouldThrowResourceNotFoundExceptionWhenChangingRoleToUserThatDoesNotExist() {
 		// Given
 		String usernameThatNotExist = "usernameThatNotExist";
 		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest(usernameThatNotExist, "SUPPORT");
@@ -210,18 +261,16 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenChangeRoleIsNotSupportOrMerchant(){
+	void shouldThrowRequestValidationExceptionWhenChangeRoleIsNotSupportOrMerchant() {
 		// Given
 		String role = "ADMINISTRATOR";
 		String username = "username";
 		UserUpdateRoleRequest wrongRoleUpdate = new UserUpdateRoleRequest(username, role);
 
-		User user = new User(
-				"user",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				true);
+		User user = User.builder()
+				.username(username)
+				.role(Role.ADMINISTRATOR)
+				.build();
 
 		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		// When Then
@@ -231,19 +280,18 @@ public class UserServiceTest {
 		verify(userRepository, never()).save(any(User.class));
 	}
 
+	//
 	@Test
-	void shouldThrowDuplicateResourceExceptionWhenChangeToTheSameRole(){
+	void shouldThrowDuplicateResourceExceptionWhenChangeToTheSameRole() {
 		// Given
 		String role = "MERCHANT";
 		String username = "username";
 		UserUpdateRoleRequest updateRequest = new UserUpdateRoleRequest(username, role);
 
-		User user = new User(
-				"user",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				true);
+		User user = User.builder()
+				.username(username)
+				.role(Role.MERCHANT)
+				.build();
 		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 		//When Then
 		assertThatThrownBy(() -> serviceUnderTest.changeRole(updateRequest))
@@ -253,18 +301,17 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldUpdateUserWhenChangeRole(){
+	void shouldUpdateUserWhenChangeRole() {
 		// Given
-		String role = "SUPPORT";
+		String role = Role.SUPPORT.toString();
 		String username = "username";
 		UserUpdateRoleRequest updateRequest = new UserUpdateRoleRequest(username, role);
 
-		User user = new User(
-				"user",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				true);
+
+		User user = User.builder()
+				.username(username)
+				.role(Role.MERCHANT)
+				.build();
 		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(user));
 
 		//When
@@ -280,7 +327,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowResourceNotFoundExceptionWhenTryToChangeLockToUserThatNotExist(){
+	void shouldThrowResourceNotFoundExceptionWhenTryToChangeLockToUserThatNotExist() {
 		// Given
 		var username = "johndoe";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, "UNLOCK");
@@ -294,15 +341,15 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenTryToChangeLockToAdministrator(){
+	void shouldThrowRequestValidationExceptionWhenTryToChangeLockToAdministrator() {
 		// Given
 		String username = "administrator";
-		User administrator = new User(
-				"Administrator",
-				username,
-				passwordEncoder.encode("password"),
-				Role.ADMINISTRATOR,
-				true);
+
+		User administrator = User.builder()
+				.username(username)
+				.role(Role.ADMINISTRATOR)
+				.build();
+
 		UserUnlockRequest lockRequest = new UserUnlockRequest(username, "LOCK");
 		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(administrator));
 		// When
@@ -314,7 +361,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenTryToChangeLockWithWrongOperationRequestContainingNull(){
+	void shouldThrowRequestValidationExceptionWhenTryToChangeLockWithWrongOperationRequestContainingNull() {
 		// Given
 		var username = "johndoe";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, null);
@@ -327,15 +374,14 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowRequestValidationExceptionWhenTryToChangeLockWithWrongOperation(){
+	void shouldThrowRequestValidationExceptionWhenTryToChangeLockWithWrongOperation() {
 		// Given
 		var username = "johndoe";
-		User user = new User(
-				"User",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				false);
+
+		User user = User.builder()
+				.username(username)
+				.role(Role.MERCHANT)
+				.build();
 
 		String operation = "INVALID_OPERATION";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
@@ -350,15 +396,14 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldUnlockLockedUser(){
+	void shouldUnlockLockedUser() {
 		// Given
 		var username = "johndoe";
-		User user = new User(
-				"User",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				false);
+
+		User user = User.builder()
+				.username(username)
+				.role(Role.MERCHANT)
+				.build();
 
 		String operation = "UNLOCK";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
@@ -374,15 +419,14 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldLockUnLockedUser(){
+	void shouldLockUnLockedUser() {
 		// Given
 		var username = "johndoe";
-		User user = new User(
-				"User",
-				username,
-				passwordEncoder.encode("password"),
-				Role.MERCHANT,
-				true);
+
+		User user = User.builder()
+				.username(username)
+				.role(Role.MERCHANT)
+				.build();
 
 		String operation = "LOCK";
 		UserUnlockRequest unlockRequest = new UserUnlockRequest(username, operation);
@@ -397,5 +441,89 @@ public class UserServiceTest {
 		assertThat(capturedUser.isAccountNonLocked()).isFalse();
 	}
 
+	@Test
+	void shouldReturnUserByUsername() {
+		// Given
+		var username = "johndoe";
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(finalUser));
+		//When
+		UserDTO actualUserDTO = serviceUnderTest.getUserByUsername(username);
+		UserDTO expectedUserDTO = userDTOMapper.apply(finalUser);
+		// Then
+		verify(userRepository, times(1)).findUserByUsername(username);
+		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
+	}
+
+	@Test
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest() {
+		// Given
+		String username = "johndoe";
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest(null);
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest))
+				.isInstanceOf(InvalidPhoneFormatException.class)
+				.hasMessageContaining("Phone number is null");
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest2() {
+		// Given
+		String username = "johndoe";
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("");
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest))
+				.isInstanceOf(InvalidPhoneFormatException.class)
+				.hasMessageContaining(String.format(INVALID_PHONE_NUMBER_FORMAT_S, ""));
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest3() {
+		// Given
+		String username = "johndoe";
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("12312312300");
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest))
+				.isInstanceOf(InvalidPhoneFormatException.class)
+				.hasMessageContaining(String.format(INVALID_PHONE_NUMBER_FORMAT_S, "12312312300"));
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldAddPhoneNumberToUser1() {
+		// Given
+		String username = "johndoe";
+		User givenUser = User.builder()
+				.id(2L)
+				.username("johndoe")
+				.firstName("John")
+				.lastName("Doe")
+				.password("password")
+				.email("johndoe@gmail.com")
+				.role(Role.MERCHANT)
+				.accountNonLocked(true)
+				.build();
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("+48 123 123 123");
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(givenUser));
+		// Then
+		UserDTO actualUserDTO = serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest);
+
+
+		UserDTO expectedUserDTO = UserDTO.builder()
+				.id(2L)
+				.username(username).phoneNumber(new PhoneNumberDTO("+48 123123123"))
+				.build();
+
+		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
+		verify(userRepository, times(1)).save(any(User.class));
+	}
 
 }

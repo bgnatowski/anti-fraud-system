@@ -29,7 +29,7 @@ class PhoneNumber {
 	)
 	private User user;
 
-	@Column(name = "number", nullable = false)
+	@Column(name = "number", nullable = false, unique = true)
 	private String number;
 
 	public String getFullNumber() {

@@ -14,21 +14,39 @@ class UserController {
 	private final CreditCardService creditCardService;
 	private final AccountService accountService;
 
-	UserController(UserService userService, CreditCardService creditCardService, AccountService accountService) {
+	UserController(UserService userService,
+				   CreditCardService creditCardService,
+				   AccountService accountService) {
 		this.userService = userService;
 		this.creditCardService = creditCardService;
 		this.accountService = accountService;
 	}
 
 	@PostMapping("/user")
-	ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest user,
-										 @RequestBody PhoneNumberRegisterRequest phone,
-										 @RequestBody AddressRegisterRequest address) {
-		UserDTO registeredUser = userService.registerUser(user, phone, address);
+	ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest user) {
+		UserDTO registeredUser = userService.registerUser(user);
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
+	@PatchMapping("/user/{username}/phone")
+	ResponseEntity<UserDTO> registerUserPhone(@RequestBody PhoneNumberRegisterRequest phoneNumberRegisterRequest,
+										 @PathVariable("username") String username) {
+		UserDTO registeredUserWithPhone = userService.addUserPhone(username, phoneNumberRegisterRequest);
+		return new ResponseEntity<>(registeredUserWithPhone, HttpStatus.CREATED);
+	}
 
+	@PatchMapping("/user/{username}/address")
+	ResponseEntity<UserDTO> registerUserAddress(@RequestBody AddressRegisterRequest addressRegisterRequest,
+										 @PathVariable("username") String username) {
+		UserDTO registeredUserWithAddress = userService.addUserAddress(username, addressRegisterRequest);
+		return new ResponseEntity<>(registeredUserWithAddress, HttpStatus.CREATED);
+	}
+
+	@GetMapping("/user/{username}")
+	ResponseEntity<UserDTO> getUserDetails(@PathVariable("username") String username){
+		UserDTO userDTO = userService.getUserByUsername(username);
+		return new ResponseEntity<>(userDTO, HttpStatus.OK);
+	}
 
 	@GetMapping("/list")
 	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){

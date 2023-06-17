@@ -61,6 +61,8 @@ public class SecurityFilterChainConfig {
 				.requestMatchers("/actuator/shutdown").permitAll()
 				.requestMatchers(HttpMethod.POST,
 						"/api/auth/user").permitAll() //Anonymous
+				.requestMatchers(HttpMethod.PATCH,
+						"/api/auth/user/**").permitAll() //
 				.anyRequest()
 				.authenticated()
 				.and()

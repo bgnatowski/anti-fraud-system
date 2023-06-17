@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,25 +39,135 @@ public class UserControllerTest {
 	@MockBean
 	private UserService userService;
 
+	@MockBean
+	private CreditCardService creditCardService;
+	@MockBean
+	private AccountService accountService;
+
 	@SneakyThrows
 	@Test
 	@WithUserDetails
 	public void testRegisterUser() {
 		// Given
-		UserRegistrationRequest registrationRequest = new UserRegistrationRequest(
-				"John Doe", "johndoe", "password");
-		String json = new ObjectMapper().writeValueAsString(registrationRequest);
-
-		UserDTO userDTO = new UserDTO(1L, "John Doe", "johndoe", Role.ADMINISTRATOR);
-		given(userService.registerUser(registrationRequest, null, null)).willReturn(userDTO);
+		UserRegistrationRequest registrationRequest =
+				new UserRegistrationRequest(
+				"John", "Doe", "johndoe@gmail.com", "johndoe", "password");
+		String jsonUser = new ObjectMapper().writeValueAsString(registrationRequest);
+		UserDTO userDTO = new UserDTO(1L,
+				"John",
+				"Doe",
+				"johndoe",
+				"johndoe@gmail.com",
+				Role.ADMINISTRATOR,
+				true,
+				AddressDTO.emptyAddress(),
+				PhoneNumberDTO.emptyPhone());
+		given(userService.registerUser(registrationRequest)).willReturn(userDTO);
 
 		// When Then
 		mockMvc.perform(post(userApi)
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(json)
+						.content(jsonUser)
 						.with(csrf()))
 				.andExpect(status().isCreated());
 	}
+
+	@SneakyThrows
+	@Test
+	@WithUserDetails
+	public void testRegisterUserPhone() {
+		// Given
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("123123123");
+		String jsonPhone = new ObjectMapper().writeValueAsString(phoneNumberRegisterRequest);
+
+		UserDTO userDTO = new UserDTO(1L,
+				"John",
+				"Doe",
+				"johndoe",
+				"johndoe@gmail.com",
+				Role.ADMINISTRATOR,
+				true,
+				AddressDTO.emptyAddress(),
+				new PhoneNumberDTO("+48123123123"));
+		given(userService.addUserPhone("johndoe",phoneNumberRegisterRequest)).willReturn(userDTO);
+
+		// When Then
+		mockMvc.perform(patch(userApi+"/johndoe/phone")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(jsonPhone)
+						.with(csrf()))
+				.andExpect(status().isCreated());
+	}
+
+	@SneakyThrows
+	@Test
+	@WithUserDetails
+	public void testRegisterUserAddress() {
+		// Given
+		AddressRegisterRequest addressRegisterRequest = new AddressRegisterRequest(
+				"Some street",
+				"Apartment 123",
+				"12345",
+				"Cityville",
+				"State",
+				"Country");
+
+		String jsonAddress = new ObjectMapper().writeValueAsString(addressRegisterRequest);
+
+		UserDTO userDTO = new UserDTO(1L,
+				"John",
+				"Doe",
+				"johndoe",
+				"johndoe@gmail.com",
+				Role.ADMINISTRATOR,
+				true,
+				new AddressDTO("Some street",
+						"Apartment 123",
+						"12345",
+						"Cityville",
+						"State",
+						"Country"),
+				new PhoneNumberDTO("+48123123123"));
+		given(userService.addUserAddress("johndoe",addressRegisterRequest)).willReturn(userDTO);
+
+		// When Then
+		mockMvc.perform(patch(userApi+"/johndoe/address")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(jsonAddress)
+						.with(csrf()))
+				.andExpect(status().isCreated());
+	}
+
+	@SneakyThrows
+	@Test
+	@WithUserDetails
+	public void getUserDetailsFullDTO() {
+		// Given
+		UserDTO userDTO = new UserDTO(1L,
+				"John",
+				"Doe",
+				"johndoe",
+				"johndoe@gmail.com",
+				Role.ADMINISTRATOR,
+				true,
+				new AddressDTO("Some street",
+						"Apartment 123",
+						"12345",
+						"Cityville",
+						"State",
+						"Country"),
+				new PhoneNumberDTO("+48123123123"));
+
+		given(userService.getUserByUsername("johndoe")).willReturn(userDTO);
+
+		// When Then
+		mockMvc.perform(get(userApi+"/johndoe")
+						.contentType(MediaType.APPLICATION_JSON)
+						.with(csrf()))
+				.andExpect(status().isOk());
+	}
+
+
 
 	@SneakyThrows
 	@Test
@@ -66,14 +177,16 @@ public class UserControllerTest {
 		// Given
 		long id = 2;
 		String username = "johndoe";
-		String name = "John Doe";
+		String email = "johndoe@gmail.com";
+		String fistName = "John";
+		String lastName = "Doe";
 		Role role = Role.SUPPORT;
 
 		UserUpdateRoleRequest roleUpdateRequest = new UserUpdateRoleRequest(
 				username, "SUPPORT");
 
 		String json = new ObjectMapper().writeValueAsString(roleUpdateRequest);
-		UserDTO userDTO = new UserDTO(id, name, username, role);
+		UserDTO userDTO = new UserDTO(id, fistName, lastName, username,email, role, true, AddressDTO.emptyAddress(), PhoneNumberDTO.emptyPhone());
 		given(userService.changeRole(roleUpdateRequest)).willReturn(userDTO);
 
 		// When Then
@@ -83,9 +196,11 @@ public class UserControllerTest {
 						.with(csrf()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id", is(2)))
-				.andExpect(jsonPath("$.name", is(name)))
+				.andExpect(jsonPath("$.firstName", is(fistName)))
+				.andExpect(jsonPath("$.lastName", is(lastName)))
 				.andExpect(jsonPath("$.username", is(username)))
-				.andExpect(jsonPath("$.role", is(role.name())));
+				.andExpect(jsonPath("$.role", is(role.name())))
+				.andExpect(jsonPath("$.email", is(email)));
 	}
 
 	@SneakyThrows
@@ -112,7 +227,7 @@ public class UserControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status", is(result)));
 	}
-
+//
 	@Test
 	public void testGetAllRegisteredUsersAsAnonymous() throws Exception {
 		// Given

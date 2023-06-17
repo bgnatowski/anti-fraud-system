@@ -1,9 +1,16 @@
 package pl.bgnat.antifraudsystem.user.dto;
 
+import lombok.Builder;
 import pl.bgnat.antifraudsystem.user.Role;
 
+@Builder
 public record UserDTO(Long id,
-					  String name,
+					  String firstName,
+					  String lastName,
 					  String username,
-					  Role role) {
+					  String email,
+					  Role role,
+					  boolean isActive,
+					  AddressDTO address,
+					  PhoneNumberDTO phoneNumber) {
 }

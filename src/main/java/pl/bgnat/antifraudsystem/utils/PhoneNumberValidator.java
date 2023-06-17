@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PhoneNumberValidator {
-	public static boolean isPhoneNumberValid(String phoneNumber) { //only for polish now
+	public static boolean isValid(String phoneNumber) { //only for polish now
 		// Remove any spaces from the phone number
 		String sanitizedPhoneNumber = phoneNumber.replaceAll("\\s", "");
 
