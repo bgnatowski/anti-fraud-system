@@ -28,18 +28,25 @@ class UserController {
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/{username}/phone")
+	@PatchMapping("/user/{username}/phone/register")
 	ResponseEntity<UserDTO> registerUserPhone(@RequestBody PhoneNumberRegisterRequest phoneNumberRegisterRequest,
 										 @PathVariable("username") String username) {
 		UserDTO registeredUserWithPhone = userService.addUserPhone(username, phoneNumberRegisterRequest);
 		return new ResponseEntity<>(registeredUserWithPhone, HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/{username}/address")
+	@PatchMapping("/user/{username}/address/register")
 	ResponseEntity<UserDTO> registerUserAddress(@RequestBody AddressRegisterRequest addressRegisterRequest,
 										 @PathVariable("username") String username) {
 		UserDTO registeredUserWithAddress = userService.addUserAddress(username, addressRegisterRequest);
 		return new ResponseEntity<>(registeredUserWithAddress, HttpStatus.CREATED);
+	}
+
+	@PatchMapping("/user/{username}/creditcard/create")
+	ResponseEntity<UserDTO> generateCreditCard(@PathVariable("username") String username) {
+		CreditCard newCreditCard = creditCardService.createCreditCard();
+		UserDTO userWithCard = userService.addCreditCardToUser(username, newCreditCard);
+		return new ResponseEntity<>(userWithCard, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/user/{username}")

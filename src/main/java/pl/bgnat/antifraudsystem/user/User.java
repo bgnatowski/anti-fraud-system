@@ -2,20 +2,18 @@ package pl.bgnat.antifraudsystem.user;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 
 @Entity(name = "User")
@@ -36,9 +34,9 @@ class User implements UserDetails {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
 	@Column(name = "id")
 	private Long id;
-	@Column(name = "firstName", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "first_name", nullable = false, columnDefinition = "TEXT")
 	private String firstName;
-	@Column(name = "lastName", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "last_name", nullable = false, columnDefinition = "TEXT")
 	private String lastName;
 	@Column(name = "username", nullable = false, columnDefinition = "TEXT", unique = true)
 	private String username;
@@ -62,13 +60,17 @@ class User implements UserDetails {
 			cascade = CascadeType.ALL)
 	private PhoneNumber phone;
 
+	@OneToMany(mappedBy = "owner",
+			cascade = CascadeType.ALL
+	)
+	private final Set<CreditCard> creditCards = new HashSet<>();
+
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	@Column(name = "account_non_locked")
 	private boolean accountNonLocked;
-
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -113,14 +115,6 @@ class User implements UserDetails {
 		return firstName;
 	}
 
-	public Role getRole() {
-		return role;
-	}
-
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
 
 	public void lockAccount(){
 		if(accountNonLocked) accountNonLocked = false;
@@ -128,65 +122,5 @@ class User implements UserDetails {
 
 	public void unlockAccount(){
 		if(!accountNonLocked) accountNonLocked = true;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Account getAccount() {
-		return account;
-	}
-
-	public void setAccount(Account account) {
-		this.account = account;
-	}
-
-	public Address getAddress() {
-		return address;
-	}
-
-	public void setAddress(Address address) {
-		this.address = address;
-	}
-
-	public PhoneNumber getPhone() {
-		return phone;
-	}
-
-	public void setPhone(PhoneNumber phone) {
-		this.phone = phone;
-	}
-
-	public void setAccountNonLocked(boolean accountNonLocked) {
-		this.accountNonLocked = accountNonLocked;
 	}
 }

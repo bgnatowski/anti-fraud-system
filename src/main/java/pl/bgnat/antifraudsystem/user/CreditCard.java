@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 @Builder
 
 @Entity(name = "CreditCard")
-@Table(name = "credit_card")
+@Table(name = "credit_card", uniqueConstraints = {
+		@UniqueConstraint(
+				name = "credit_card_card_number_constraint",
+				columnNames = "card_number"
+		),
+})
 class CreditCard {
 	@Id
 	@SequenceGenerator(name = "credit_card_id_sequence",sequenceName = "credit_card_id_sequence", allocationSize = 1)
@@ -30,7 +35,15 @@ class CreditCard {
 	)
 	private Account account;
 
-	@Column(name = "card_number", nullable = false, columnDefinition = "TEXT", length = 16)
+	@ManyToOne
+	@JoinColumn(
+			name = "owner_id",
+			referencedColumnName = "id",
+			foreignKey = @ForeignKey(name = "fk_user_credit_card")
+	)
+	private User owner;
+
+	@Column(name = "card_number", nullable = false, columnDefinition = "TEXT", length = 16, unique = true)
 	private String cardNumber;
 
 	@Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")

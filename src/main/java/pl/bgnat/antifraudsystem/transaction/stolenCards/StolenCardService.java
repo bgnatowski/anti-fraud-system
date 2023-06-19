@@ -18,8 +18,7 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 class StolenCardService {
 	private final StolenCardRepository stolenCardRepository;
 
-	StolenCardService(StolenCardRepository stolenCardRepository,
-					  CardNumberValidator cardNumberValidator) {
+	StolenCardService(StolenCardRepository stolenCardRepository) {
 		this.stolenCardRepository = stolenCardRepository;
 	}
 

@@ -84,8 +84,8 @@ class UserService {
 				.user(user)
 				.build();
 		user.setPhone(userPhone);
-		User saved = userRepository.save(user);
-		return userDTOMapper.apply(saved);
+		userRepository.save(user);
+		return userDTOMapper.apply(user);
 	}
 
 	UserDTO addUserAddress(String username, AddressRegisterRequest address){
@@ -93,19 +93,39 @@ class UserService {
 
 		checkAddressRequest(address);
 
-		Address userAddress = Address.builder()
-				.addressLine1(address.addressLine1())
-				.addressLine2(address.addressLine2())
-				.city(address.city())
-				.state(address.state())
-				.country(Country.valueOf(address.country().toUpperCase()))
-				.postalCode(address.postalCode())
-				.user(user)
-				.build();
-		user.setAddress(userAddress);
+		try{
+			Address userAddress = Address.builder()
+					.addressLine1(address.addressLine1())
+					.addressLine2(address.addressLine2())
+					.city(address.city())
+					.state(address.state())
+					.country(Country.valueOf(address.country().toUpperCase()))
+					.postalCode(address.postalCode())
+					.user(user)
+					.build();
+			user.setAddress(userAddress);
+		}catch (IllegalArgumentException e){
+			throw new InvalidAddressFormatException(address.country()+" not supported");
+		}
+		userRepository.save(user);
+		return userDTOMapper.apply(user);
+	}
 
-		User saved = userRepository.save(user);
-		return userDTOMapper.apply(saved);
+	UserDTO addCreditCardToUser(String username, CreditCard newCreditCard) {
+		User user = findUserByUsername(username);
+
+		if(user.getAccount()==null)
+			throw new CreditCardWithoutAccountException();
+
+		newCreditCard.setOwner(user);
+		newCreditCard.setAccount(user.getAccount());
+
+		if(user.getCreditCards().contains(newCreditCard))
+			throw new CreditCardAlreadyAssignedException(newCreditCard.getCardNumber());
+		user.getCreditCards().add(newCreditCard);
+
+		userRepository.save(user);
+		return userDTOMapper.apply(user);
 	}
 
 	UserDeleteResponse deleteUserByUsername(String username) {
@@ -202,10 +222,10 @@ class UserService {
 						userRegistrationRequest.password())
 				.noneMatch(Objects::isNull);
 	}
-
 	private boolean isValidChangeLockRequest(String username, String operation) {
 		return operation == null || username == null;
 	}
+
 	private boolean isAdministrator(User user) {
 		return Role.ADMINISTRATOR.equals(user.getRole());
 	}
@@ -218,7 +238,7 @@ class UserService {
 	}
 
 	private static boolean isValidPhoneNumberRequest(PhoneNumberRegisterRequest phone) {
-		return phone != null && phone.number() != null;
+		return phone != null;
 	}
 
 	private void checkAddressRequest(AddressRegisterRequest address) {
@@ -231,7 +251,6 @@ class UserService {
 	private static boolean isValidAddressRequest(AddressRegisterRequest address) {
 		return address != null;
 	}
-
 	private boolean isValidAddress(AddressRegisterRequest address) {
 		return Stream.of(
 								address.addressLine1(),
@@ -239,6 +258,6 @@ class UserService {
 								address.city(),
 								address.postalCode(),
 								address.state())
-						.noneMatch(s-> s==null && s.isEmpty());
+						.noneMatch(s-> s==null || s.isEmpty());
 	}
 }

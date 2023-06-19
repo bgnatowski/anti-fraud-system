@@ -19,8 +19,7 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 class SuspiciousIPService {
 	private final SuspiciousIPRepository ipRepository;
 
-	SuspiciousIPService(SuspiciousIPRepository ipRepository,
-						IpValidator ipValidator) {
+	SuspiciousIPService(SuspiciousIPRepository ipRepository) {
 		this.ipRepository = ipRepository;
 	}
 

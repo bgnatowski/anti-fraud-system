@@ -11,6 +11,6 @@ public class InvalidPhoneFormatException extends RequestValidationException {
 	}
 
 	public InvalidPhoneFormatException() {
-		super("Phone number is null");
+		super("Phone number request is null");
 	}
 }

@@ -11,11 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.transaction.validation.exceptions.IllegalAmountException;
 import pl.bgnat.antifraudsystem.user.dto.*;
-import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserEmailException;
-import pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUsernameException;
-import pl.bgnat.antifraudsystem.user.exceptions.InvalidPhoneFormatException;
-import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
+import pl.bgnat.antifraudsystem.user.exceptions.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +28,7 @@ import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
 import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUserEmailException.USER_WITH_EMAIL_S_ALREADY_EXISTS;
 import static pl.bgnat.antifraudsystem.user.exceptions.DuplicatedUsernameException.USER_WITH_USERNAME_S_ALREADY_EXISTS;
+import static pl.bgnat.antifraudsystem.user.exceptions.InvalidAddressFormatException.INVALID_ADDRESS_FORMAT_S;
 import static pl.bgnat.antifraudsystem.user.exceptions.InvalidPhoneFormatException.INVALID_PHONE_NUMBER_FORMAT_S;
 import static pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException.THERE_IS_NO_USER_WITH_USERNAME_S;
 
@@ -453,9 +452,22 @@ public class UserServiceTest {
 		verify(userRepository, times(1)).findUserByUsername(username);
 		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
 	}
+	@Test
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest1() {
+		// Given
+		String username = "johndoe";
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = null;
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest))
+				.isInstanceOf(InvalidPhoneFormatException.class)
+				.hasMessageContaining("Phone number request is null");
+		verify(userRepository, never()).save(any(User.class));
+	}
 
 	@Test
-	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest() {
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest2() {
 		// Given
 		String username = "johndoe";
 		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest(null);
@@ -464,12 +476,12 @@ public class UserServiceTest {
 		// Then
 		assertThatThrownBy(() -> serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest))
 				.isInstanceOf(InvalidPhoneFormatException.class)
-				.hasMessageContaining("Phone number is null");
+				.hasMessageContaining(INVALID_PHONE_NUMBER_FORMAT_S, null);
 		verify(userRepository, never()).save(any(User.class));
 	}
 
 	@Test
-	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest2() {
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest3() {
 		// Given
 		String username = "johndoe";
 		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("");
@@ -483,7 +495,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest3() {
+	void shouldThrowInvalidPhoneFormatExceptionWhenAddInvalidPhoneRequest4() {
 		// Given
 		String username = "johndoe";
 		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("12312312300");
@@ -499,6 +511,7 @@ public class UserServiceTest {
 	@Test
 	void shouldAddPhoneNumberToUser1() {
 		// Given
+		String phoneNumberString = "+48 123 123 123";
 		String username = "johndoe";
 		User givenUser = User.builder()
 				.id(2L)
@@ -510,20 +523,180 @@ public class UserServiceTest {
 				.role(Role.MERCHANT)
 				.accountNonLocked(true)
 				.build();
-		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("+48 123 123 123");
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest(phoneNumberString);
 		// When
-		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(givenUser));
+		when(userRepository.findUserByUsername(username)).thenReturn(Optional.ofNullable(givenUser));
 		// Then
 		UserDTO actualUserDTO = serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest);
 
+		givenUser.setPhone(PhoneNumber.builder()
+						.number("123123123")
+						.user(givenUser)
+				.build());
 
-		UserDTO expectedUserDTO = UserDTO.builder()
-				.id(2L)
-				.username(username).phoneNumber(new PhoneNumberDTO("+48 123123123"))
-				.build();
+		UserDTO expectedUserDTO = userDTOMapper.apply(givenUser);
+
 
 		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
 		verify(userRepository, times(1)).save(any(User.class));
 	}
+
+	@Test
+	void shouldAddPhoneNumberToUser2() {
+		// Given
+		String phoneNumberString = "+48123123123";
+
+		String username = "johndoe";
+		User givenUser = User.builder()
+				.id(2L)
+				.username("johndoe")
+				.firstName("John")
+				.lastName("Doe")
+				.password("password")
+				.email("johndoe@gmail.com")
+				.role(Role.MERCHANT)
+				.accountNonLocked(true)
+				.build();
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest(phoneNumberString);
+		// When
+		when(userRepository.findUserByUsername(username)).thenReturn(Optional.ofNullable(givenUser));
+		// Then
+		UserDTO actualUserDTO = serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest);
+
+		givenUser.setPhone(PhoneNumber.builder()
+				.number("123123123")
+				.user(givenUser)
+				.build());
+
+		UserDTO expectedUserDTO = userDTOMapper.apply(givenUser);
+
+
+		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
+		verify(userRepository, times(1)).save(any(User.class));
+	}
+
+	@Test
+	void shouldAddPhoneNumberToUser3() {
+		// Given
+		String phoneNumberString = "123123123";
+
+		String username = "johndoe";
+		User givenUser = User.builder()
+				.id(2L)
+				.username("johndoe")
+				.firstName("John")
+				.lastName("Doe")
+				.password("password")
+				.email("johndoe@gmail.com")
+				.role(Role.MERCHANT)
+				.accountNonLocked(true)
+				.build();
+		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest(phoneNumberString);
+		// When
+		when(userRepository.findUserByUsername(username)).thenReturn(Optional.ofNullable(givenUser));
+		// Then
+		UserDTO actualUserDTO = serviceUnderTest.addUserPhone(username, phoneNumberRegisterRequest);
+
+		givenUser.setPhone(PhoneNumber.builder()
+				.number("123123123")
+				.user(givenUser)
+				.build());
+
+		UserDTO expectedUserDTO = userDTOMapper.apply(givenUser);
+
+
+		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
+		verify(userRepository, times(1)).save(any(User.class));
+	}
+
+	@Test
+	void shouldThrowInvalidAddressFormatExceptionWhenAddInvalidAddressRequest() {
+		// Given
+		String username = "johndoe";
+		AddressRegisterRequest addressRegisterRequest = null;
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserAddress(username, addressRegisterRequest))
+				.isInstanceOf(InvalidAddressFormatException.class)
+				.hasMessageContaining("Address request is null");
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldThrowInvalidAddressFormatExceptionWhenAddInvalidAddressRequest2() {
+		// Given
+		String username = "johndoe";
+		AddressRegisterRequest addressRegisterRequest = new AddressRegisterRequest(
+				"", "", "", "", "", "");
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserAddress(username, addressRegisterRequest))
+				.isInstanceOf(InvalidAddressFormatException.class)
+				.hasMessageContaining(String.format(INVALID_ADDRESS_FORMAT_S, ""));
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldThrowInvalidAddressFormatExceptionWhenAddInvalidAddressRequest3() {
+		// Given
+		String username = "johndoe";
+		AddressRegisterRequest addressRegisterRequest = new AddressRegisterRequest(
+				"Some street", "some address", "12345", "city", "state", "non-found-country");
+		// When
+		given(userRepository.findUserByUsername(username)).willReturn(Optional.of(new User()));
+		// Then
+		assertThatThrownBy(() -> serviceUnderTest.addUserAddress(username, addressRegisterRequest))
+				.isInstanceOf(InvalidAddressFormatException.class)
+				.hasMessageContaining(String.format(INVALID_ADDRESS_FORMAT_S, "non-found-country not supported"));
+		verify(userRepository, never()).save(any(User.class));
+	}
+
+	@Test
+	void shouldAddAddressToUser1() {
+		// Given
+		String username = "johndoe";
+		User givenUser = User.builder()
+				.id(2L)
+				.username("johndoe")
+				.firstName("John")
+				.lastName("Doe")
+				.password("password")
+				.email("johndoe@gmail.com")
+				.role(Role.MERCHANT)
+				.accountNonLocked(true)
+				.build();
+		AddressRegisterRequest addressRegisterRequest = new AddressRegisterRequest(
+				"Some street",
+				"Apartment 123",
+				"12345",
+				"Cityville",
+				"State",
+				"Poland");
+		// When
+		when(userRepository.findUserByUsername(username)).thenReturn(Optional.ofNullable(givenUser));
+		// Then
+		UserDTO actualUserDTO = serviceUnderTest.addUserAddress(username, addressRegisterRequest);
+
+		givenUser.setAddress(
+				Address.builder()
+						.user(givenUser)
+						.addressLine1("Some street")
+						.addressLine2("Apartment 123")
+						.postalCode("12345")
+						.city("Cityville")
+						.state("State")
+						.country(Country.POLAND)
+						.build()
+		);
+
+		UserDTO expectedUserDTO = userDTOMapper.apply(givenUser);
+
+		assertThat(actualUserDTO).isEqualTo(expectedUserDTO);
+		verify(userRepository, times(1)).save(any(User.class));
+	}
+
+
 
 }

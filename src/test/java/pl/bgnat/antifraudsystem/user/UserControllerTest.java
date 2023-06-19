@@ -92,7 +92,7 @@ public class UserControllerTest {
 		given(userService.addUserPhone("johndoe",phoneNumberRegisterRequest)).willReturn(userDTO);
 
 		// When Then
-		mockMvc.perform(patch(userApi+"/johndoe/phone")
+		mockMvc.perform(patch(userApi+"/johndoe/phone/register")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonPhone)
 						.with(csrf()))
@@ -131,7 +131,7 @@ public class UserControllerTest {
 		given(userService.addUserAddress("johndoe",addressRegisterRequest)).willReturn(userDTO);
 
 		// When Then
-		mockMvc.perform(patch(userApi+"/johndoe/address")
+		mockMvc.perform(patch(userApi+"/johndoe/address/register")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(jsonAddress)
 						.with(csrf()))

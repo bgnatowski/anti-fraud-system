@@ -6,10 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -19,10 +18,6 @@ import java.util.List;
 @Entity(name = "Account")
 @Table(name = "account",
 		uniqueConstraints = {
-				@UniqueConstraint(
-						name = "account_card_number_constraint",
-						columnNames = "card_number"
-				),
 				@UniqueConstraint(
 						name = "account_iban_constraint",
 						columnNames = "iban"
@@ -45,13 +40,10 @@ class Account {
 	)
 	private User owner;
 
-	@Column(name = "card_number", nullable = false, length = 15, unique = true)
-	private String cardNumber;
-
 	@OneToMany(mappedBy = "account",
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+			cascade = CascadeType.ALL
 	)
-	private final List<CreditCard> cards = new ArrayList<>();
+	private final Set<CreditCard> creditCards = new HashSet<>();
 
 	@Column(name = "iban", nullable = false, length = 34, unique = true)
 	private String iban;

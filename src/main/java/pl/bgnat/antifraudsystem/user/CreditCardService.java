@@ -13,12 +13,11 @@ class CreditCardService {
 		this.creditCardRepository = creditCardRepository;
 	}
 
-	private CreditCard createCardForUser(User user){
+	CreditCard createCreditCard(){
 		String cardNumber = CardNumberGenerator.generateCreditCardNumber();
 		CreditCard newCreditCard = CreditCard.builder()
 				.createdAt(LocalDateTime.now())
 				.cardNumber(cardNumber)
-				.account(user.getAccount())
 				.isActive(false)
 				.build();
 		return creditCardRepository.save(newCreditCard);
