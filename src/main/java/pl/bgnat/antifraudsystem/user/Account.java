@@ -53,4 +53,15 @@ class Account {
 	private LocalDateTime createDate;
 	@Column(name = "is_active", nullable = false)
 	private boolean isActive;
+
+	@Override
+	public String toString() {
+		return "Account{" +
+				"id=" + id +
+				", iban='" + iban + '\'' +
+				", balance=" + balance +
+				", createDate=" + createDate +
+				", isActive=" + isActive +
+				'}';
+	}
 }

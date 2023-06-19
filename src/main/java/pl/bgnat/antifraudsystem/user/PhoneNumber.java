@@ -35,4 +35,12 @@ class PhoneNumber {
 	public String getFullNumber() {
 		return "+48 " + number;
 	}
+
+	@Override
+	public String toString() {
+		return "PhoneNumber{" +
+				"id=" + id +
+				", number='" + number + '\'' +
+				'}';
+	}
 }

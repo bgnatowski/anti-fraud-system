@@ -44,4 +44,17 @@ class Address {
 	@Column(name = "country", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Country country;
+
+	@Override
+	public String toString() {
+		return "Address{" +
+				"id=" + id +
+				", addressLine1='" + addressLine1 + '\'' +
+				", addressLine2='" + addressLine2 + '\'' +
+				", postalCode='" + postalCode + '\'' +
+				", city='" + city + '\'' +
+				", state='" + state + '\'' +
+				", country=" + country +
+				'}';
+	}
 }

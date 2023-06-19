@@ -114,18 +114,42 @@ class UserService {
 	UserDTO addCreditCardToUser(String username, CreditCard newCreditCard) {
 		User user = findUserByUsername(username);
 
+		validUserAccount(user);
+
 		if(user.getAccount()==null)
 			throw new CreditCardWithoutAccountException();
 
 		newCreditCard.setOwner(user);
 		newCreditCard.setAccount(user.getAccount());
 
-		if(user.getCreditCards().contains(newCreditCard))
-			throw new CreditCardAlreadyAssignedException(newCreditCard.getCardNumber());
-		user.getCreditCards().add(newCreditCard);
+//		if(user.getCreditCards().contains(newCreditCard))
+//			throw new CreditCardAlreadyAssignedException(newCreditCard.getCardNumber());
+//		user.getCreditCards().add(newCreditCard);
 
 		userRepository.save(user);
 		return userDTOMapper.apply(user);
+	}
+
+	UserDTO addAccountToUser(String username, Account newAccount) {
+		User user = findUserByUsername(username);
+
+		validUserAccount(user);
+		if(user.getAccount()!=null && user.getAccount().equals(newAccount))
+			throw new AccountAlreadyAssignedException(newAccount.toString());
+
+		newAccount.setOwner(user);
+		userRepository.save(user);
+
+		return userDTOMapper.apply(user);
+	}
+
+	private static void validUserAccount(User user) {
+		if(!user.isAccountNonLocked())
+			throw new UserLockedException();
+		if(user.getPhone() == null)
+			throw new UserIncompletePhoneException();
+		if(user.getAddress() == null)
+			throw new UserIncompleteAddressException();
 	}
 
 	UserDeleteResponse deleteUserByUsername(String username) {
@@ -213,7 +237,6 @@ class UserService {
 	private boolean isSupportOrMerchant(Role role) {
 		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
 	}
-
 	private boolean isValidRequestJsonFormat(UserRegistrationRequest userRegistrationRequest) {
 		return Stream.of(userRegistrationRequest.firstName(),
 						userRegistrationRequest.lastName(),
@@ -222,6 +245,7 @@ class UserService {
 						userRegistrationRequest.password())
 				.noneMatch(Objects::isNull);
 	}
+
 	private boolean isValidChangeLockRequest(String username, String operation) {
 		return operation == null || username == null;
 	}
@@ -247,10 +271,10 @@ class UserService {
 		if (!isValidAddress(address))
 			throw new InvalidAddressFormatException(address.toString());
 	}
-
 	private static boolean isValidAddressRequest(AddressRegisterRequest address) {
 		return address != null;
 	}
+
 	private boolean isValidAddress(AddressRegisterRequest address) {
 		return Stream.of(
 								address.addressLine1(),

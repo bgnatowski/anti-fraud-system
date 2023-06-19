@@ -52,4 +52,13 @@ class CreditCard {
 	@Column(name = "is_active", nullable = false)
 	private boolean isActive;
 
+	@Override
+	public String toString() {
+		return "CreditCard{" +
+				"id=" + id +
+				", cardNumber='" + cardNumber + '\'' +
+				", createdAt=" + createdAt +
+				", isActive=" + isActive +
+				'}';
+	}
 }

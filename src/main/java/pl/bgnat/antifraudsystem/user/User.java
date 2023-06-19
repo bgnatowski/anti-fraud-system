@@ -47,21 +47,26 @@ class User implements UserDetails {
 
 	@OneToOne(mappedBy = "owner",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL)
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER
+	)
 	private Account account;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL)
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER)
 	private Address address;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL)
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER)
 	private PhoneNumber phone;
 
 	@OneToMany(mappedBy = "owner",
-			cascade = CascadeType.ALL
+			cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 
