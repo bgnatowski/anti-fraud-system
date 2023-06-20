@@ -39,6 +39,8 @@ public class UserServiceTest {
 	private UserRepository userRepository;
 	@Mock
 	private PasswordEncoder passwordEncoder;
+	@Mock
+	private EmailService emailService;
 	private UserService serviceUnderTest;
 	private final UserDTOMapper userDTOMapper = new UserDTOMapper(
 			new AddressDTOMapper(),
@@ -69,7 +71,8 @@ public class UserServiceTest {
 		serviceUnderTest = new UserService(
 				userRepository,
 				passwordEncoder,
-				userDTOMapper);
+				userDTOMapper,
+				emailService);
 	}
 
 	@Test

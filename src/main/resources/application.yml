@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: mail_credentials
   dataSource:
     url: jdbc:postgresql://localhost:5433/anti_fraud_system
     driverClassName: org.postgresql.Driver
@@ -29,3 +31,4 @@ management:
     web:
       exposure:
         include: "*"
+

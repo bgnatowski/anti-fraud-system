@@ -43,8 +43,13 @@ class User implements UserDetails {
 	private String username;
 	@Column(name = "password", nullable = false, columnDefinition = "TEXT")
 	private String password;
-	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique=true)
+	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
 	private String email;
+
+	@OneToOne(mappedBy = "user",
+			cascade = CascadeType.ALL,
+			fetch = FetchType.EAGER)
+	private TemporaryAuthorization temporaryAuthorization;
 
 	@OneToOne(mappedBy = "owner",
 			orphanRemoval = true,
@@ -122,11 +127,11 @@ class User implements UserDetails {
 	}
 
 
-	public void lockAccount(){
-		if(accountNonLocked) accountNonLocked = false;
+	public void lockAccount() {
+		if (accountNonLocked) accountNonLocked = false;
 	}
 
-	public void unlockAccount(){
-		if(!accountNonLocked) accountNonLocked = true;
+	public void unlockAccount() {
+		if (!accountNonLocked) accountNonLocked = true;
 	}
 }

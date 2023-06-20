@@ -12,6 +12,7 @@ import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.enums.Role;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -36,12 +37,14 @@ class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
+	private final EmailService emailService;
 	UserService(UserRepository userRepository,
 				PasswordEncoder passwordEncoder,
-				UserDTOMapper userDTOMapper) {
+				UserDTOMapper userDTOMapper, EmailService emailService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.userDTOMapper = userDTOMapper;
+		this.emailService = emailService;
 	}
 
 	List<UserDTO> getAllRegisteredUsers() {
@@ -71,9 +74,39 @@ class UserService {
 
 		User createdUser = createProperUser(userRegistrationRequest);
 
+		String confirmationCode = emailService.validateEmail(email);
+		createdUser.setTemporaryAuthorization(
+				TemporaryAuthorization.builder()
+						.user(createdUser)
+						.code(confirmationCode)
+						.expirationDate(LocalDateTime.now().plusHours(24))
+						.build()
+		);
+
 		User registeredUser = userRepository.save(createdUser);
 
 		return userDTOMapper.apply(registeredUser);
+	}
+
+	UserDTO confirmUserEmail(String username, String code) {
+		User user = findUserByUsername(username);
+
+		LocalDateTime now = LocalDateTime.now();
+		if(user.isAccountNonLocked())
+			throw new UserIsAlreadyUnlockException(username, user.getEmail());
+
+		TemporaryAuthorization temporaryAuthorization = user.getTemporaryAuthorization();
+		LocalDateTime expirationDate = temporaryAuthorization.getExpirationDate();
+
+		if(expirationDate.isBefore(now))
+			throw new TemporaryAuthorizationException();
+		if(!temporaryAuthorization.getCode().equals(code))
+			throw new InvalidConfirmationCode(code);
+
+		user.unlockAccount();
+		userRepository.save(user);
+
+		return userDTOMapper.apply(user);
 	}
 
 	UserDTO addUserPhone(String username, PhoneNumberRegisterRequest phone){
@@ -239,10 +272,10 @@ class UserService {
 	private boolean isTheSameRoleAlreadyAssigned(Role role, User user) {
 		return user.getRole().equals(role);
 	}
-
 	private boolean isSupportOrMerchant(Role role) {
 		return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
 	}
+
 	private boolean isValidRequestJsonFormat(UserRegistrationRequest userRegistrationRequest) {
 		return Stream.of(userRegistrationRequest.firstName(),
 						userRegistrationRequest.lastName(),
@@ -270,13 +303,13 @@ class UserService {
 	private static boolean isValidPhoneNumberRequest(PhoneNumberRegisterRequest phone) {
 		return phone != null;
 	}
-
 	private void checkAddressRequest(AddressRegisterRequest address) {
 		if(!isValidAddressRequest(address))
 			throw new InvalidAddressFormatException();
 		if (!isValidAddress(address))
 			throw new InvalidAddressFormatException(address.toString());
 	}
+
 	private static boolean isValidAddressRequest(AddressRegisterRequest address) {
 		return address != null;
 	}

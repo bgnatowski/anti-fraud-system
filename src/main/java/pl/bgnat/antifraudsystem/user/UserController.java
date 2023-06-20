@@ -2,6 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.bgnat.antifraudsystem.user.dto.*;
 
@@ -33,6 +34,13 @@ class UserController {
 										 @PathVariable("username") String username) {
 		UserDTO registeredUserWithPhone = userService.addUserPhone(username, phoneNumberRegisterRequest);
 		return new ResponseEntity<>(registeredUserWithPhone, HttpStatus.CREATED);
+	}
+
+	@PatchMapping("/user/{username}/email/confirm/{code}")
+	public ResponseEntity<UserDTO> confirmEmail(@PathVariable("username") String username,
+												@PathVariable("code") String code) {
+		UserDTO confirmedUser = userService.confirmUserEmail(username, code);
+		return new ResponseEntity<>(confirmedUser, HttpStatus.OK);
 	}
 
 	@PatchMapping("/user/{username}/address/register")
