@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem.user.dto;
 
 import lombok.Builder;
-import pl.bgnat.antifraudsystem.user.Role;
+import pl.bgnat.antifraudsystem.user.enums.Role;
 
 @Builder
 public record UserDTO(Long id,

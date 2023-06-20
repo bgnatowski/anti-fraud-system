@@ -8,7 +8,9 @@ import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.exceptions.*;
-import pl.bgnat.antifraudsystem.utils.PhoneNumberValidator;
+import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
+import pl.bgnat.antifraudsystem.user.enums.Country;
+import pl.bgnat.antifraudsystem.user.enums.Role;
 
 import java.util.Comparator;
 import java.util.List;
@@ -79,8 +81,12 @@ class UserService {
 
 		checkPhoneRequest(phone);
 
+		String number = PhoneNumberValidator.extractDigits(phone.number());
+		if(userRepository.existsUserByPhoneNumer(number))
+			throw new PhoneNumberDuplicatedException(number);
+
 		PhoneNumber userPhone = PhoneNumber.builder()
-				.number(PhoneNumberValidator.extractDigits(phone.number()))
+				.number(number)
 				.user(user)
 				.build();
 		user.setPhone(userPhone);

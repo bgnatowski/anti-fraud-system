@@ -11,7 +11,13 @@ import lombok.NoArgsConstructor;
 @Builder
 
 @Entity(name = "PhoneNumber")
-@Table(name = "phone_number")
+@Table(name = "phone_number",
+	uniqueConstraints = {
+			@UniqueConstraint(
+					name = "phone_number_constraint",
+					columnNames = "number"
+			)
+	})
 class PhoneNumber {
 	@Id
 	@SequenceGenerator(name = "phone_number_id_sequence", sequenceName = "phone_number_id_sequence", allocationSize = 1)

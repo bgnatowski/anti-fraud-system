@@ -1,5 +1,8 @@
 package pl.bgnat.antifraudsystem.user.dto;
 
+import lombok.Builder;
+
+@Builder
 public record AddressDTO(
 		String addressLine1,
 		String addressLine2,

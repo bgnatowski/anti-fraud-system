@@ -11,9 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.transaction.validation.exceptions.IllegalAmountException;
 import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.exceptions.*;
+import pl.bgnat.antifraudsystem.user.enums.Country;
+import pl.bgnat.antifraudsystem.user.enums.Role;
 
 import java.util.List;
 import java.util.Optional;

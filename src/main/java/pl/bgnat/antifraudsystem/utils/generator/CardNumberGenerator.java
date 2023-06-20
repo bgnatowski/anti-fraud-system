@@ -1,4 +1,6 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.generator;
+
+import pl.bgnat.antifraudsystem.utils.validator.CardNumberValidator;
 
 import java.util.Random;
 

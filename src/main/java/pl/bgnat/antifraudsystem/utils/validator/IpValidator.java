@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.validator;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;

@@ -8,7 +8,7 @@ import pl.bgnat.antifraudsystem.transaction.suspiciousIP.SuspiciousIPFacade;
 
 import java.time.LocalDateTime;
 
-import static pl.bgnat.antifraudsystem.utils.DateTimeParser.getOneHourAgoDateFromString;
+import static pl.bgnat.antifraudsystem.utils.parser.DateTimeParser.getOneHourAgoDateFromString;
 
 
 @Component

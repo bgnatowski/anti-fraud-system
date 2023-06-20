@@ -7,7 +7,7 @@ import pl.bgnat.antifraudsystem.transaction.stolenCards.dto.StolenCardRequest;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.CardNumberFormatException;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.DuplicatedStolenCardException;
 import pl.bgnat.antifraudsystem.transaction.stolenCards.exceptions.StolenCardNotFound;
-import pl.bgnat.antifraudsystem.utils.CardNumberValidator;
+import pl.bgnat.antifraudsystem.utils.validator.CardNumberValidator;
 
 import java.util.Comparator;
 import java.util.List;

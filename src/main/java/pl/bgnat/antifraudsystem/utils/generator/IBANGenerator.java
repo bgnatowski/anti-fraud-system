@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.generator;
 
 import java.util.Random;
 

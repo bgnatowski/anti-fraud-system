@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.transaction.TransactionFacade;
 import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
 import pl.bgnat.antifraudsystem.transaction.validation.exceptions.DateFormatException;
-import pl.bgnat.antifraudsystem.utils.DateTimeParser;
+import pl.bgnat.antifraudsystem.utils.parser.DateTimeParser;
 
 import java.time.format.DateTimeParseException;
 import java.util.List;

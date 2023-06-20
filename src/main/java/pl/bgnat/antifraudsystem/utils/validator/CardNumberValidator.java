@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.validator;
 
 public class CardNumberValidator {
 	private static final int CHECKSUM_DIGIT_POSITION = 15;

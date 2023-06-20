@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.validator;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -7,7 +7,7 @@ import pl.bgnat.antifraudsystem.transaction.suspiciousIP.dto.SuspiciousIpDeleteR
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.DuplicatedSuspiciousIPException;
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.IpFormatException;
 import pl.bgnat.antifraudsystem.transaction.suspiciousIP.exceptions.SuspiciousIpAddressNotFound;
-import pl.bgnat.antifraudsystem.utils.IpValidator;
+import pl.bgnat.antifraudsystem.utils.validator.IpValidator;
 
 import java.util.Comparator;
 import java.util.List;

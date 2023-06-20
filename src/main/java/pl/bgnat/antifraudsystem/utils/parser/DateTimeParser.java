@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.utils;
+package pl.bgnat.antifraudsystem.utils.parser;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

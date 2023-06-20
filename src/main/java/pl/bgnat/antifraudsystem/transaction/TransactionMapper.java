@@ -6,7 +6,7 @@ import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
 
 import java.util.function.Function;
 
-import static pl.bgnat.antifraudsystem.utils.DateTimeParser.parseDate;
+import static pl.bgnat.antifraudsystem.utils.parser.DateTimeParser.parseDate;
 
 @Component
 class TransactionMapper implements Function<TransactionRequest, Transaction> {

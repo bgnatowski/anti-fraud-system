@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem.user;
 
 import org.springframework.stereotype.Service;
-import pl.bgnat.antifraudsystem.utils.CardNumberGenerator;
+import pl.bgnat.antifraudsystem.utils.generator.CardNumberGenerator;
 
 import java.time.LocalDateTime;
 

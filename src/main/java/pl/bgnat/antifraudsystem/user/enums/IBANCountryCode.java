@@ -1,9 +1,9 @@
-package pl.bgnat.antifraudsystem.user;
+package pl.bgnat.antifraudsystem.user.enums;
 
 import java.util.HashMap;
 import java.util.Map;
 
-enum IBANCountryCode {
+public enum IBANCountryCode {
 	// Africa
 	NG("Nigeria", "NG", "NGA", "566"),
 	ZA("South Africa", "ZA", "ZAF", "710"),

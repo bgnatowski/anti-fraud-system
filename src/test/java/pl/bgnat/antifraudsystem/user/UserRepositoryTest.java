@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import pl.bgnat.antifraudsystem.AbstractTestcontainers;
 import pl.bgnat.antifraudsystem.TestConfig;
+import pl.bgnat.antifraudsystem.user.enums.Role;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
