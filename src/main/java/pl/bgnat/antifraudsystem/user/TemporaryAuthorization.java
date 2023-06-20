@@ -36,4 +36,13 @@ class TemporaryAuthorization {
 
 	@Column(name = "code", length = 5)
 	private String code;
+
+	@Override
+	public String toString() {
+		return "TemporaryAuthorization{" +
+				"id=" + id +
+				", expirationDate=" + expirationDate +
+				", code='" + code + '\'' +
+				'}';
+	}
 }

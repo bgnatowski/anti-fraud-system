@@ -5,7 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.security.MailCredentialsConfig;
+import pl.bgnat.antifraudsystem.config.MailCredentialsConfig;
 import pl.bgnat.antifraudsystem.user.exceptions.EmailSendingError;
 import pl.bgnat.antifraudsystem.user.exceptions.InvalidEmailFormatException;
 import pl.bgnat.antifraudsystem.utils.generator.MailConfirmationCodeGenerator;
@@ -14,7 +14,7 @@ import pl.bgnat.antifraudsystem.utils.generator.MailConfirmationCodeGenerator;
 public class EmailService {
 	private final JavaMailSender mailSender;
 	private final MailCredentialsConfig mailCredentialsConfig;
-	public EmailService(JavaMailSender mailSender, MailCredentialsConfig mailCredentialsConfig) {
+	EmailService(JavaMailSender mailSender, MailCredentialsConfig mailCredentialsConfig) {
 		this.mailSender = mailSender;
 		this.mailCredentialsConfig = mailCredentialsConfig;
 	}

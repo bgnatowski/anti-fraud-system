@@ -9,8 +9,4 @@ public class InvalidPhoneFormatException extends RequestValidationException {
 	public InvalidPhoneFormatException(String number) {
 		super(String.format(INVALID_PHONE_NUMBER_FORMAT_S, number));
 	}
-
-	public InvalidPhoneFormatException() {
-		super("Phone number request is null");
-	}
 }

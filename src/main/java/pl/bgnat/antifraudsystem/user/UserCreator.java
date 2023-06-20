@@ -7,7 +7,13 @@ import pl.bgnat.antifraudsystem.user.enums.Role;
 
 @Component
 class UserCreator {
-	static User createAdministrator(UserRegistrationRequest userRegistrationRequest, PasswordEncoder passwordEncoder) {
+	private final PasswordEncoder passwordEncoder;
+
+	UserCreator(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	User createAdministrator(UserRegistrationRequest userRegistrationRequest) {
 		return User.builder()
 				.firstName(userRegistrationRequest.firstName())
 				.lastName(userRegistrationRequest.lastName())
@@ -18,7 +24,7 @@ class UserCreator {
 				.accountNonLocked(true)
 				.build();
 	}
-	static User createMerchant(UserRegistrationRequest userRegistrationRequest, PasswordEncoder passwordEncoder) {
+	User createMerchant(UserRegistrationRequest userRegistrationRequest) {
 		return User.builder()
 				.firstName(userRegistrationRequest.firstName())
 				.lastName(userRegistrationRequest.lastName())

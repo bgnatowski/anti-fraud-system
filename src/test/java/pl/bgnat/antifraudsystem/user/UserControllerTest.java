@@ -51,7 +51,7 @@ public class UserControllerTest {
 		// Given
 		UserRegistrationRequest registrationRequest =
 				new UserRegistrationRequest(
-				"John", "Doe", "johndoe@gmail.com", "johndoe", "password");
+				"John", "Doe", "johndoe@gmail.com", "johndoe", "password", "123123123");
 		String jsonUser = new ObjectMapper().writeValueAsString(registrationRequest);
 		UserDTO userDTO = new UserDTO(1L,
 				"John",
@@ -71,33 +71,7 @@ public class UserControllerTest {
 						.with(csrf()))
 				.andExpect(status().isCreated());
 	}
-
-	@SneakyThrows
-	@Test
-	@WithUserDetails
-	public void testRegisterUserPhone() {
-		// Given
-		PhoneNumberRegisterRequest phoneNumberRegisterRequest = new PhoneNumberRegisterRequest("123123123");
-		String jsonPhone = new ObjectMapper().writeValueAsString(phoneNumberRegisterRequest);
-
-		UserDTO userDTO = new UserDTO(1L,
-				"John",
-				"Doe",
-				"johndoe",
-				"johndoe@gmail.com",
-				Role.ADMINISTRATOR,
-				true,
-				AddressDTO.emptyAddress(),
-				new PhoneNumberDTO("+48123123123"));
-		given(userService.addUserPhone("johndoe",phoneNumberRegisterRequest)).willReturn(userDTO);
-
-		// When Then
-		mockMvc.perform(patch(userApi+"/johndoe/phone/register")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(jsonPhone)
-						.with(csrf()))
-				.andExpect(status().isCreated());
-	}
+	
 
 	@SneakyThrows
 	@Test

@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.security;
+package pl.bgnat.antifraudsystem.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;

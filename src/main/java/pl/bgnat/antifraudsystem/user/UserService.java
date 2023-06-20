@@ -1,17 +1,18 @@
 package pl.bgnat.antifraudsystem.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.DuplicateResourceException;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.*;
-import pl.bgnat.antifraudsystem.user.exceptions.*;
-import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.enums.Role;
+import pl.bgnat.antifraudsystem.user.exceptions.*;
+import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -21,10 +22,9 @@ import java.util.stream.Stream;
 
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.INVALID_REQUEST;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
-import static pl.bgnat.antifraudsystem.user.UserCreator.createAdministrator;
-import static pl.bgnat.antifraudsystem.user.UserCreator.createMerchant;
 
 @Service
+@RequiredArgsConstructor
 class UserService {
 	private static final long ADMINISTRATOR_ID = 1L;
 	static final String CANNOT_BLOCK_ADMINISTRATOR = "Cannot block administrator!";
@@ -35,17 +35,10 @@ class UserService {
 	static final String DELETED_SUCCESSFULLY_RESPONSE = "Deleted successfully!";
 	static final String USER_UNLOCK_RESPONSE = "User %s %s";
 	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final UserDTOMapper userDTOMapper;
 	private final EmailService emailService;
-	UserService(UserRepository userRepository,
-				PasswordEncoder passwordEncoder,
-				UserDTOMapper userDTOMapper, EmailService emailService) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.userDTOMapper = userDTOMapper;
-		this.emailService = emailService;
-	}
+	private final UserCreator userCreator;
+	private final Clock clock;
 
 	List<UserDTO> getAllRegisteredUsers() {
 		Page<User> page = userRepository.findAll(Pageable.ofSize(100));
@@ -66,20 +59,33 @@ class UserService {
 
 		String username = userRegistrationRequest.username();
 		String email = userRegistrationRequest.email();
+		String phone = userRegistrationRequest.phoneNumber();
 
 		if (isUserWithUsernameExists(username))
 			throw new DuplicatedUsernameException(username);
 		if (existsUserWithEmail(email))
 			throw new DuplicatedUserEmailException(email);
+		if (!PhoneNumberValidator.isValid(phone))
+			throw new InvalidPhoneFormatException(phone);
+
+		String number = PhoneNumberValidator.extractDigits(phone);
+		if(userRepository.existsUserByPhoneNumer(number))
+			throw new DuplicatedUserPhoneNumberException(number);
 
 		User createdUser = createProperUser(userRegistrationRequest);
+
+		PhoneNumber userPhone = PhoneNumber.builder()
+				.number(number)
+				.user(createdUser)
+				.build();
+		createdUser.setPhone(userPhone);
 
 		String confirmationCode = emailService.validateEmail(email);
 		createdUser.setTemporaryAuthorization(
 				TemporaryAuthorization.builder()
 						.user(createdUser)
 						.code(confirmationCode)
-						.expirationDate(LocalDateTime.now().plusHours(24))
+						.expirationDate(LocalDateTime.now(clock).plusHours(24))
 						.build()
 		);
 
@@ -91,7 +97,7 @@ class UserService {
 	UserDTO confirmUserEmail(String username, String code) {
 		User user = findUserByUsername(username);
 
-		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime now = LocalDateTime.now(clock);
 		if(user.isAccountNonLocked())
 			throw new UserIsAlreadyUnlockException(username, user.getEmail());
 
@@ -99,31 +105,13 @@ class UserService {
 		LocalDateTime expirationDate = temporaryAuthorization.getExpirationDate();
 
 		if(expirationDate.isBefore(now))
-			throw new TemporaryAuthorizationException();
+			throw new TemporaryAuthorizationException(username);
 		if(!temporaryAuthorization.getCode().equals(code))
 			throw new InvalidConfirmationCode(code);
 
 		user.unlockAccount();
 		userRepository.save(user);
 
-		return userDTOMapper.apply(user);
-	}
-
-	UserDTO addUserPhone(String username, PhoneNumberRegisterRequest phone){
-		User user = findUserByUsername(username);
-
-		checkPhoneRequest(phone);
-
-		String number = PhoneNumberValidator.extractDigits(phone.number());
-		if(userRepository.existsUserByPhoneNumer(number))
-			throw new PhoneNumberDuplicatedException(number);
-
-		PhoneNumber userPhone = PhoneNumber.builder()
-				.number(number)
-				.user(user)
-				.build();
-		user.setPhone(userPhone);
-		userRepository.save(user);
 		return userDTOMapper.apply(user);
 	}
 
@@ -185,8 +173,6 @@ class UserService {
 	private static void validUserAccount(User user) {
 		if(!user.isAccountNonLocked())
 			throw new UserLockedException();
-		if(user.getPhone() == null)
-			throw new UserIncompletePhoneException();
 		if(user.getAddress() == null)
 			throw new UserIncompleteAddressException();
 	}
@@ -252,8 +238,8 @@ class UserService {
 
 	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!doesTheAdministratorExist())
-			return createAdministrator(userRegistrationRequest, passwordEncoder);
-		return createMerchant(userRegistrationRequest, passwordEncoder);
+			return userCreator.createAdministrator(userRegistrationRequest);
+		return userCreator.createMerchant(userRegistrationRequest);
 	}
 
 	private boolean doesTheAdministratorExist() {
@@ -281,7 +267,8 @@ class UserService {
 						userRegistrationRequest.lastName(),
 						userRegistrationRequest.email(),
 						userRegistrationRequest.username(),
-						userRegistrationRequest.password())
+						userRegistrationRequest.password(),
+						userRegistrationRequest.phoneNumber())
 				.noneMatch(Objects::isNull);
 	}
 
@@ -291,17 +278,6 @@ class UserService {
 
 	private boolean isAdministrator(User user) {
 		return Role.ADMINISTRATOR.equals(user.getRole());
-	}
-
-	private void checkPhoneRequest(PhoneNumberRegisterRequest phone) {
-		if(!isValidPhoneNumberRequest(phone))
-			throw new InvalidPhoneFormatException();
-		if (!PhoneNumberValidator.isValid(phone.number()))
-			throw new InvalidPhoneFormatException(phone.number());
-	}
-
-	private static boolean isValidPhoneNumberRequest(PhoneNumberRegisterRequest phone) {
-		return phone != null;
 	}
 	private void checkAddressRequest(AddressRegisterRequest address) {
 		if(!isValidAddressRequest(address))

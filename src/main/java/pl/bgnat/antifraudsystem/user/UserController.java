@@ -29,13 +29,6 @@ class UserController {
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/{username}/phone/register")
-	ResponseEntity<UserDTO> registerUserPhone(@RequestBody PhoneNumberRegisterRequest phoneNumberRegisterRequest,
-										 @PathVariable("username") String username) {
-		UserDTO registeredUserWithPhone = userService.addUserPhone(username, phoneNumberRegisterRequest);
-		return new ResponseEntity<>(registeredUserWithPhone, HttpStatus.CREATED);
-	}
-
 	@PatchMapping("/user/{username}/email/confirm/{code}")
 	public ResponseEntity<UserDTO> confirmEmail(@PathVariable("username") String username,
 												@PathVariable("code") String code) {
