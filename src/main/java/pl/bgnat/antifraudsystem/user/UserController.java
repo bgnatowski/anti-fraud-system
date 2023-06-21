@@ -21,6 +21,12 @@ import java.util.List;
 class UserController {
 	private final UserManager userManager;
 
+	@GetMapping("/users/list")
+	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){
+		List<UserDTO> allRegisteredUsers = userManager.getAllRegisteredUsers();
+		return ResponseEntity.ok(allRegisteredUsers);
+	}
+
 	@PostMapping("/user")
 	ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest user) {
 		UserDTO registeredUser = userManager.registerUser(user);
@@ -53,32 +59,26 @@ class UserController {
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 
-	@GetMapping("/user/{username}")
+	@GetMapping("/user/{username}/details")
 	ResponseEntity<UserDTO> getUserDetails(@PathVariable("username") String username){
 		UserDTO userDTO = userManager.getUserByUsername(username);
 		return new ResponseEntity<>(userDTO, HttpStatus.OK);
 	}
 
-	@GetMapping("/list")
-	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){
-		List<UserDTO> allRegisteredUsers = userManager.getAllRegisteredUsers();
-		return ResponseEntity.ok(allRegisteredUsers);
-	}
-
-	@DeleteMapping("/user/{username}")
+	@DeleteMapping("/user/{username}/delete")
 	ResponseEntity<UserDeleteResponse> deleteUser(
 			@PathVariable("username") String username){
 		UserDeleteResponse userDeleteResponse = userManager.deleteUserByUsername(username);
 		return ResponseEntity.ok(userDeleteResponse);
 	}
 
-	@PutMapping("/role")
+	@PutMapping("/user/role")
 	ResponseEntity<UserDTO> changeRole(@RequestBody UserUpdateRoleRequest updateRequest){
 		UserDTO updatedUser = userManager.changeRole(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
 
-	@PutMapping("/access")
+	@PutMapping("/user/access")
 	ResponseEntity<UserUnlockResponse> changeAccess(@RequestBody UserUnlockRequest updateRequest){
 		UserUnlockResponse updatedUser = userManager.changeLock(updateRequest);
 		return ResponseEntity.ok(updatedUser);

@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest.LOCK;
+import static pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest.UNLOCK;
 import static pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse.DELETED_SUCCESSFULLY_RESPONSE;
 import static pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse.MESSAGE_PATTERN;
 
@@ -141,15 +143,15 @@ class UserService {
 			throw new AdministratorCannotBeLockException();
 
 		switch (operation) {
-			case "LOCK" -> user.lockAccount();
-			case "UNLOCK" -> user.unlockAccount();
+			case LOCK -> user.lockAccount();
+			case UNLOCK -> user.unlockAccount();
 			default -> throw new IllegalChangeLockOperationException(operation);
 		}
 
 		//update
 		userRepository.save(user);
 
-		String operationResult = "LOCK".equals(operation) ? "locked!" : "unlocked!";
+		String operationResult = LOCK.equals(operation) ? "locked!" : "unlocked!";
 		String statusMessage = String.format(MESSAGE_PATTERN, username, operationResult);
 		return UserUnlockResponse.builder()
 				.status(statusMessage)

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
+import static pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest.UNLOCK;
+import static pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse.EMAIL_CONFIRMED_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -29,10 +31,10 @@ class UserManager {
 	UserEmailConfirmedResponse confirmUserEmail(String username, String code) {
 		UserDTO user = userService.getUserByUsername(username);
 		emailService.confirmEmail(user, code);
-		changeLock(new UserUnlockRequest(username, "UNLOCK"));
+		changeLock(new UserUnlockRequest(username, UNLOCK));
 		return UserEmailConfirmedResponse
 				.builder()
-				.message("User email confirmed")
+				.message(EMAIL_CONFIRMED_MESSAGE)
 				.build();
 	}
 
