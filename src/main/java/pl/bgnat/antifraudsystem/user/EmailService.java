@@ -10,18 +10,18 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class EmailService {
+class EmailService {
 	private final EmailSender emailSender;
 	private final Clock clock;
 
-	public void sendConfirmationEmail(UserDTO userDTO){
+	void sendConfirmationEmail(UserDTO userDTO){
 		String email = userDTO.email();
 		String code = userDTO.temporaryAuthorization().code();
 
 		emailSender.sendEmail(email, code);
 	}
 
-	public void confirmEmail(UserDTO user, String code) {
+	void confirmEmail(UserDTO user, String code) {
 		LocalDateTime now = LocalDateTime.now(clock);
 		String username = user.username();
 		String confirmationCode = user.temporaryAuthorization().code();
