@@ -1,29 +1,27 @@
 package pl.bgnat.antifraudsystem.user;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.config.MailCredentialsConfig;
-import pl.bgnat.antifraudsystem.user.exceptions.EmailSendingError;
-import pl.bgnat.antifraudsystem.user.exceptions.InvalidEmailFormatException;
+import pl.bgnat.antifraudsystem.user.dto.UserDTO;
+import pl.bgnat.antifraudsystem.user.exceptions.*;
 import pl.bgnat.antifraudsystem.utils.generator.MailConfirmationCodeGenerator;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 @Component
+@RequiredArgsConstructor
 public class EmailService {
-	private final JavaMailSender mailSender;
-	private final MailCredentialsConfig mailCredentialsConfig;
-	EmailService(JavaMailSender mailSender, MailCredentialsConfig mailCredentialsConfig) {
-		this.mailSender = mailSender;
-		this.mailCredentialsConfig = mailCredentialsConfig;
+	private final EmailSender emailSender;
+	private final Clock clock;
+
+	public String getConfirmationCode(String email) {
+		validEmailFormat(email);
+		return MailConfirmationCodeGenerator.generateConfirmationCode();
 	}
 
-	public String validateEmail(String email) {
-		validEmailFormat(email);
-		String confirmationCode = MailConfirmationCodeGenerator.generateConfirmationCode();
-		sendConfirmationEmail(email, confirmationCode);
-		return confirmationCode;
+	public void sendConfirmationEmail(String email, String confirmationCode){
+		emailSender.sendEmail(email, confirmationCode);
 	}
 
 	private static void validEmailFormat(String email) {
@@ -32,17 +30,17 @@ public class EmailService {
 			throw new InvalidEmailFormatException(email);
 	}
 
-	private void sendConfirmationEmail(String email, String code) {
-		try {
-			MimeMessage message = mailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(message, true);
-			helper.setFrom(mailCredentialsConfig.getFromEmail());
-			helper.setTo(email);
-			helper.setSubject("Potwierdzenie rejestracji w PiggsyBank!");
-			helper.setText("Witaj! Dziękujemy za rejestrację. Kod potwierdzający: " + code);
-			mailSender.send(message);
-		} catch (MessagingException e) {
-			throw new EmailSendingError(e.getMessage());
-		}
+	public void confirmEmail(UserDTO user, String code) {
+		LocalDateTime now = LocalDateTime.now(clock);
+		String username = user.username();
+		String confirmationCode = user.temporaryAuthorization().code();
+		LocalDateTime expirationDate = user.temporaryAuthorization().expirationDate();
+
+		if (user.isActive())
+			throw new UserIsAlreadyUnlockException(username, user.email());
+		if (expirationDate.isBefore(now))
+			throw new TemporaryAuthorizationException(username);
+		if (!code.equals(confirmationCode))
+			throw new InvalidConfirmationCode(code);
 	}
 }

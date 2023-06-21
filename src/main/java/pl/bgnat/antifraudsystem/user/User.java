@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.bgnat.antifraudsystem.user.enums.Role;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -45,6 +46,8 @@ class User implements UserDetails {
 	private String password;
 	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
 	private String email;
+	@Column(name = "date_of_birth", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIMEZONE")
+	private LocalDate dateOfBirth;
 
 	@OneToOne(mappedBy = "user",
 			cascade = CascadeType.ALL,
@@ -134,4 +137,6 @@ class User implements UserDetails {
 	public void unlockAccount() {
 		if (!accountNonLocked) accountNonLocked = true;
 	}
+
+
 }

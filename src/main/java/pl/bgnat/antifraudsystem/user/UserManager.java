@@ -2,10 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.bgnat.antifraudsystem.user.dto.*;
-import pl.bgnat.antifraudsystem.user.exceptions.InvalidConfirmationCode;
-import pl.bgnat.antifraudsystem.user.exceptions.TemporaryAuthorizationException;
-import pl.bgnat.antifraudsystem.user.exceptions.UserIsAlreadyUnlockException;
+import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
 import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
@@ -14,35 +11,20 @@ import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-class AuthManager {
+class UserManager {
 	private final UserService userService;
+	private final EmailService emailService;
 	private final CreditCardService creditCardService;
 	private final AccountService accountService;
-	private final Clock clock;
 
 	UserEmailConfirmedResponse confirmUserEmail(String username, String code) {
 		UserDTO user = userService.getUserByUsername(username);
-
-		LocalDateTime now = LocalDateTime.now(clock);
-		if (user.isActive())
-			throw new UserIsAlreadyUnlockException(username, user.email());
-
-		TemporaryAuthorizationDTO temporaryAuthorizationDTO = user.temporaryAuthorization();
-		LocalDateTime expirationDate = temporaryAuthorizationDTO.expirationDate();
-
-		if (expirationDate.isBefore(now))
-			throw new TemporaryAuthorizationException(username);
-		if (!temporaryAuthorizationDTO.code().equals(code))
-			throw new InvalidConfirmationCode(code);
-
+		emailService.confirmEmail(user, code);
 		changeLock(new UserUnlockRequest(username, "UNLOCK"));
-
 		return UserEmailConfirmedResponse
 				.builder()
 				.message("User email confirmed")
@@ -50,7 +32,13 @@ class AuthManager {
 	}
 
 	UserDTO registerUser(UserRegistrationRequest user) {
-		return userService.registerUser(user);
+
+
+
+		String confirmationCode = emailService.getConfirmationCode(user.email());
+		UserDTO userDTO = userService.registerUser(user, confirmationCode);
+		emailService.sendConfirmationEmail(userDTO.email(), confirmationCode);
+		return userDTO;
 	}
 
 	UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {

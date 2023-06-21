@@ -19,68 +19,68 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/")
 class UserController {
-	private final AuthManager authManager;
+	private final UserManager userManager;
 
 	@PostMapping("/user")
 	ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequest user) {
-		UserDTO registeredUser = authManager.registerUser(user);
+		UserDTO registeredUser = userManager.registerUser(user);
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
 	@PatchMapping("/user/{username}/email/confirm/{code}")
 	public ResponseEntity<UserEmailConfirmedResponse> confirmEmail(@PathVariable("username") String username,
 																   @PathVariable("code") String code) {
-		UserEmailConfirmedResponse confirmedResponse = authManager.confirmUserEmail(username, code);
+		UserEmailConfirmedResponse confirmedResponse = userManager.confirmUserEmail(username, code);
 		return new ResponseEntity<>(confirmedResponse, HttpStatus.OK);
 	}
 
 	@PatchMapping("/user/{username}/address/register")
 	ResponseEntity<UserDTO> registerUserAddress(@RequestBody AddressRegisterRequest addressRegisterRequest,
 										 @PathVariable("username") String username) {
-		UserDTO registeredUserWithAddress = authManager.addUserAddress(username, addressRegisterRequest);
+		UserDTO registeredUserWithAddress = userManager.addUserAddress(username, addressRegisterRequest);
 		return new ResponseEntity<>(registeredUserWithAddress, HttpStatus.CREATED);
 	}
 
 	@PatchMapping("/user/{username}/creditcard/create")
 	ResponseEntity<UserDTO> createCreditCard(@PathVariable("username") String username) {
-		UserDTO userWithCard = authManager.addCreditCardToUser(username);
+		UserDTO userWithCard = userManager.addCreditCardToUser(username);
 		return new ResponseEntity<>(userWithCard, HttpStatus.CREATED);
 	}
 
 	@PatchMapping("/user/{username}/account/create")
 	ResponseEntity<UserDTO> createAccount(@PathVariable("username") String username) {
-		UserDTO userWithAccount = authManager.addAccountToUser(username);
+		UserDTO userWithAccount = userManager.addAccountToUser(username);
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/user/{username}")
 	ResponseEntity<UserDTO> getUserDetails(@PathVariable("username") String username){
-		UserDTO userDTO = authManager.getUserByUsername(username);
+		UserDTO userDTO = userManager.getUserByUsername(username);
 		return new ResponseEntity<>(userDTO, HttpStatus.OK);
 	}
 
 	@GetMapping("/list")
 	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){
-		List<UserDTO> allRegisteredUsers = authManager.getAllRegisteredUsers();
+		List<UserDTO> allRegisteredUsers = userManager.getAllRegisteredUsers();
 		return ResponseEntity.ok(allRegisteredUsers);
 	}
 
 	@DeleteMapping("/user/{username}")
 	ResponseEntity<UserDeleteResponse> deleteUser(
 			@PathVariable("username") String username){
-		UserDeleteResponse userDeleteResponse = authManager.deleteUserByUsername(username);
+		UserDeleteResponse userDeleteResponse = userManager.deleteUserByUsername(username);
 		return ResponseEntity.ok(userDeleteResponse);
 	}
 
 	@PutMapping("/role")
 	ResponseEntity<UserDTO> changeRole(@RequestBody UserUpdateRoleRequest updateRequest){
-		UserDTO updatedUser = authManager.changeRole(updateRequest);
+		UserDTO updatedUser = userManager.changeRole(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
 
 	@PutMapping("/access")
 	ResponseEntity<UserUnlockResponse> changeAccess(@RequestBody UserUnlockRequest updateRequest){
-		UserUnlockResponse updatedUser = authManager.changeLock(updateRequest);
+		UserUnlockResponse updatedUser = userManager.changeLock(updateRequest);
 		return ResponseEntity.ok(updatedUser);
 	}
 

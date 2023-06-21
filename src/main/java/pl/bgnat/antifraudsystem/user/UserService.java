@@ -42,7 +42,6 @@ class UserService {
 	static final String USER_UNLOCK_RESPONSE = "User %s %s";
 	private final UserRepository userRepository;
 	private final UserDTOMapper userDTOMapper;
-	private final EmailService emailService;
 	private final UserCreator userCreator;
 	private final Clock clock;
 
@@ -59,7 +58,7 @@ class UserService {
 		return userDTOMapper.apply(findUserByUsername(username));
 	}
 
-	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest, String confirmationCode) {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
@@ -86,7 +85,6 @@ class UserService {
 				.build();
 		createdUser.setPhone(userPhone);
 
-		String confirmationCode = emailService.validateEmail(email);
 		createdUser.setTemporaryAuthorization(
 				TemporaryAuthorization.builder()
 						.user(createdUser)

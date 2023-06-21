@@ -22,6 +22,7 @@ class UserDTOMapper implements Function<User, UserDTO> {
 				user.getLastName(),
 				user.getUsername(),
 				user.getEmail(),
+				user.getDateOfBirth(),
 				user.getRole(),
 				user.isAccountNonLocked(),
 				addressDTOMapper.apply(user.getAddress()),
