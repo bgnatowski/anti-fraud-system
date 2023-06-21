@@ -49,4 +49,17 @@ class PhoneNumber {
 				", number='" + number + '\'' +
 				'}';
 	}
+
+	public static String extractDigits(String phoneNumber) {
+		// Remove any spaces from the phone number
+		String sanitizedPhoneNumber = phoneNumber.replaceAll("\\s", "");
+
+		// Remove the leading "+48" if present
+		sanitizedPhoneNumber = sanitizedPhoneNumber.replaceAll("^\\+48", "");
+
+		// Remove any non-digit characters
+		sanitizedPhoneNumber = sanitizedPhoneNumber.replaceAll("\\D", "");
+
+		return sanitizedPhoneNumber;
+	}
 }

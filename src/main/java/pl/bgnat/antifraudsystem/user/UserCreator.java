@@ -20,6 +20,7 @@ class UserCreator {
 				.username(userRegistrationRequest.username())
 				.email(userRegistrationRequest.email())
 				.password(passwordEncoder.encode(userRegistrationRequest.password()))
+				.dateOfBirth(userRegistrationRequest.dateOfBirth())
 				.role(Role.ADMINISTRATOR)
 				.accountNonLocked(true)
 				.build();
@@ -31,6 +32,7 @@ class UserCreator {
 				.username(userRegistrationRequest.username())
 				.email(userRegistrationRequest.email())
 				.password(passwordEncoder.encode(userRegistrationRequest.password()))
+				.dateOfBirth(userRegistrationRequest.dateOfBirth())
 				.role(Role.MERCHANT)
 				.accountNonLocked(false)
 				.build();

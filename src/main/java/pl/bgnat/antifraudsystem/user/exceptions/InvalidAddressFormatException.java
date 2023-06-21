@@ -9,7 +9,4 @@ public class InvalidAddressFormatException extends RequestValidationException {
 	public InvalidAddressFormatException(String address) {
 		super(String.format(INVALID_ADDRESS_FORMAT_S, address));
 	}
-	public InvalidAddressFormatException() {
-		super("Address request is null");
-	}
 }

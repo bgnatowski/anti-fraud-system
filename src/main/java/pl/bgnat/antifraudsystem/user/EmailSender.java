@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.config.MailCredentialsConfig;
-import pl.bgnat.antifraudsystem.user.exceptions.EmailSendingError;
+import pl.bgnat.antifraudsystem.user.exceptions.SendingEmailException;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ class EmailSender {
 			helper.setText("Witaj! Dziękujemy za rejestrację. Kod potwierdzający: " + code);
 			mailSender.send(message);
 		} catch (MessagingException e) {
-			throw new EmailSendingError(e.getMessage());
+			throw new SendingEmailException(e.getMessage());
 		}
 	}
 }

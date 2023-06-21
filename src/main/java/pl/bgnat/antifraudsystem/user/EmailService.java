@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.user.exceptions.*;
-import pl.bgnat.antifraudsystem.utils.generator.MailConfirmationCodeGenerator;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -15,19 +14,11 @@ public class EmailService {
 	private final EmailSender emailSender;
 	private final Clock clock;
 
-	public String getConfirmationCode(String email) {
-		validEmailFormat(email);
-		return MailConfirmationCodeGenerator.generateConfirmationCode();
-	}
+	public void sendConfirmationEmail(UserDTO userDTO){
+		String email = userDTO.email();
+		String code = userDTO.temporaryAuthorization().code();
 
-	public void sendConfirmationEmail(String email, String confirmationCode){
-		emailSender.sendEmail(email, confirmationCode);
-	}
-
-	private static void validEmailFormat(String email) {
-		String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-		if (!email.matches(emailRegex))
-			throw new InvalidEmailFormatException(email);
+		emailSender.sendEmail(email, code);
 	}
 
 	public void confirmEmail(UserDTO user, String code) {
@@ -39,8 +30,8 @@ public class EmailService {
 		if (user.isActive())
 			throw new UserIsAlreadyUnlockException(username, user.email());
 		if (expirationDate.isBefore(now))
-			throw new TemporaryAuthorizationException(username);
+			throw new TemporaryAuthorizationExpiredException(username);
 		if (!code.equals(confirmationCode))
-			throw new InvalidConfirmationCode(code);
+			throw new InvalidConfirmationCodeException(code);
 	}
 }

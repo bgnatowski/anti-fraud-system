@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem.user.exceptions;
 
-public class TemporaryAuthorizationException extends RuntimeException {
-	public TemporaryAuthorizationException(String username) {
+public class TemporaryAuthorizationExpiredException extends RuntimeException {
+	public TemporaryAuthorizationExpiredException(String username) {
 		super(String.format(
 				"Verification code is expired. " +
 						"If you want to confirm user email generate new code on: " +

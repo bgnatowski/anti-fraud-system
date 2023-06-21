@@ -46,7 +46,7 @@ class User implements UserDetails {
 	private String password;
 	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
 	private String email;
-	@Column(name = "date_of_birth", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIMEZONE")
+	@Column(name = "date_of_birth", nullable = false)
 	private LocalDate dateOfBirth;
 
 	@OneToOne(mappedBy = "user",

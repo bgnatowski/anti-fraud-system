@@ -2,6 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
 import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
@@ -10,8 +11,12 @@ import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
 import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
+import pl.bgnat.antifraudsystem.user.exceptions.InvalidAddressFormatException;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 
 @Service
 @RequiredArgsConstructor
@@ -31,24 +36,27 @@ class UserManager {
 				.build();
 	}
 
-	UserDTO registerUser(UserRegistrationRequest user) {
+	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+		if (!isValidRequestJsonFormat(userRegistrationRequest))
+			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
+		UserDTO userDTO = userService.registerUser(userRegistrationRequest);
+		emailService.sendConfirmationEmail(userDTO);
 
-
-		String confirmationCode = emailService.getConfirmationCode(user.email());
-		UserDTO userDTO = userService.registerUser(user, confirmationCode);
-		emailService.sendConfirmationEmail(userDTO.email(), confirmationCode);
 		return userDTO;
 	}
 
 	UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
+		if (!isValidAddressRequest(addressRegisterRequest))
+			throw new InvalidAddressFormatException(addressRegisterRequest.toString());
+
 		return userService.addUserAddress(username, addressRegisterRequest);
 	}
 
 
 	UserDTO addCreditCardToUser(String username) {
 		CreditCard newCreditCard = creditCardService.createCreditCard();
-		return userService.addCreditCardToUser(username,newCreditCard);
+		return userService.addCreditCardToUser(username, newCreditCard);
 	}
 
 	UserDTO getUserByUsername(String username) {
@@ -74,6 +82,38 @@ class UserManager {
 	}
 
 	UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
+		if (isValidChangeLockRequest(updateRequest))
+			throw new RequestValidationException(String.format(WRONG_JSON_FORMAT));
+
 		return userService.changeLock(updateRequest);
 	}
+
+
+	private boolean isValidRequestJsonFormat(UserRegistrationRequest userRegistrationRequest) {
+		return Stream.of(userRegistrationRequest.firstName(),
+						userRegistrationRequest.lastName(),
+						userRegistrationRequest.email(),
+						userRegistrationRequest.username(),
+						userRegistrationRequest.password(),
+						userRegistrationRequest.phoneNumber(),
+						userRegistrationRequest.dateOfBirth())
+				.noneMatch(Objects::isNull);
+	}
+
+	private static boolean isValidAddressRequest(AddressRegisterRequest addressRegisterRequest) {
+		return Stream.of(
+						addressRegisterRequest.addressLine1(),
+						addressRegisterRequest.country(),
+						addressRegisterRequest.city(),
+						addressRegisterRequest.postalCode(),
+						addressRegisterRequest.state())
+				.noneMatch(s -> s == null || s.isEmpty());
+	}
+
+	private boolean isValidChangeLockRequest(UserUnlockRequest updateRequest) {
+		return Stream.of(updateRequest.operation(),
+						updateRequest.username())
+				.noneMatch(s -> s == null || s.isEmpty());
+	}
+
 }
