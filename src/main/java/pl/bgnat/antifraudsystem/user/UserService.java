@@ -10,6 +10,12 @@ import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.enums.Role;
 import pl.bgnat.antifraudsystem.user.exceptions.*;
+import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
+import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
+import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
 import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
 
 import java.time.Clock;

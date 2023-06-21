@@ -12,5 +12,6 @@ public record UserDTO(Long id,
 					  Role role,
 					  boolean isActive,
 					  AddressDTO address,
-					  PhoneNumberDTO phoneNumber) {
+					  PhoneNumberDTO phoneNumber,
+					  TemporaryAuthorizationDTO temporaryAuthorization) {
 }

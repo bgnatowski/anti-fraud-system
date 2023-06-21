@@ -2,7 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.user.dto.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.user.enums.Role;
 
 @Component

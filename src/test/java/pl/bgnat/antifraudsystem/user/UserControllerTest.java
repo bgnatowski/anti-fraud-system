@@ -15,6 +15,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.bgnat.antifraudsystem.user.dto.*;
 import pl.bgnat.antifraudsystem.user.enums.Role;
+import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
+import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
+import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
 
 import java.util.ArrayList;
 
@@ -71,7 +77,7 @@ public class UserControllerTest {
 						.with(csrf()))
 				.andExpect(status().isCreated());
 	}
-	
+
 
 	@SneakyThrows
 	@Test

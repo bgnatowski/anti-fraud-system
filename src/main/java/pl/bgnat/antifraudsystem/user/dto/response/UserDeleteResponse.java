@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.user.dto;
+package pl.bgnat.antifraudsystem.user.dto.response;
 
 import lombok.Builder;
 
