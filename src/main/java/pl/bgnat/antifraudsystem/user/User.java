@@ -138,5 +138,4 @@ class User implements UserDetails {
 		if (!accountNonLocked) accountNonLocked = true;
 	}
 
-
 }

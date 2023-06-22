@@ -15,14 +15,16 @@ interface UserRepository extends JpaRepository<User, Long>
 	boolean existsUserByUsername(String username);
 	boolean existsUserByEmail(String email);
 
-	@Query("""
-			SELECT 
-				CASE
-				WHEN count(u.id) > 0 THEN true
-				ELSE false END
-			FROM User u
-			WHERE u.phone.number = ?1
-				""")
-	boolean existsUserByPhoneNumer(String number);
+//	@Query("""
+//			SELECT
+//				CASE
+//				WHEN count(u.id) > 0 THEN true
+//				ELSE false END
+//			FROM User u
+//			WHERE u.phone.number = ?1
+//				""")
+//	boolean existsUserByPhoneNumer(String number);
+
+	boolean existsUserByPhone_Number(String phone_number);
 	void deleteUserByUsername(String username);
 }

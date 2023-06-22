@@ -12,7 +12,9 @@ import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
 import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
 import pl.bgnat.antifraudsystem.user.enums.Role;
-import pl.bgnat.antifraudsystem.user.exceptions.*;
+import pl.bgnat.antifraudsystem.user.exceptions.AdministratorCannotBeLockException;
+import pl.bgnat.antifraudsystem.user.exceptions.IllegalChangeLockOperationException;
+import pl.bgnat.antifraudsystem.user.exceptions.UserNotFoundException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -57,7 +59,8 @@ class UserService {
 		PhoneNumber userPhone = phoneNumberCreator.createPhoneNumber(createdUser, phoneNumber);
 		createdUser.setPhone(userPhone);
 
-		TemporaryAuthorization temporaryAuthorization = temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
+		TemporaryAuthorization temporaryAuthorization =
+				temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
 		createdUser.setTemporaryAuthorization(temporaryAuthorization);
 
 		User registeredUser = userRepository.save(createdUser);
@@ -78,20 +81,6 @@ class UserService {
 
 	}
 
-	UserDTO addCreditCardToUser(String username, CreditCard newCreditCard) {
-		User user = findUserByUsername(username);
-
-		userValidator.validUserProfile(user);
-		userValidator.validAccountExists(user.getAccount());
-
-
-		newCreditCard.setOwner(user);
-		newCreditCard.setAccount(user.getAccount());
-
-		userRepository.save(user);
-		return userDTOMapper.apply(user);
-	}
-
 	UserDTO addAccountToUser(String username, Account newAccount) {
 		User user = findUserByUsername(username);
 
@@ -102,6 +91,20 @@ class UserService {
 
 		userRepository.save(user);
 
+		return userDTOMapper.apply(user);
+	}
+
+	UserDTO addCreditCardToUser(String username, CreditCard newCreditCard) {
+		User user = findUserByUsername(username);
+
+		userValidator.validUserProfile(user);
+		userValidator.validAccountExists(user.getAccount());
+
+		newCreditCard.setOwner(user);
+		newCreditCard.setAccount(user.getAccount());
+		newCreditCard.setCountry(user.getAccount().getCountry());
+
+		userRepository.save(user);
 		return userDTOMapper.apply(user);
 	}
 

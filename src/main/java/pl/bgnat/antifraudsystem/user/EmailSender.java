@@ -7,6 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.config.MailCredentialsConfig;
+import pl.bgnat.antifraudsystem.user.dto.EmailDTO;
 import pl.bgnat.antifraudsystem.user.exceptions.SendingEmailException;
 
 @Component
@@ -15,14 +16,14 @@ class EmailSender {
 	private final JavaMailSender mailSender;
 	private final MailCredentialsConfig mailCredentialsConfig;
 
-	void sendEmail(String email, String code) {
+	void sendEmail(EmailDTO email) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
 			helper.setFrom(mailCredentialsConfig.getFromEmail());
-			helper.setTo(email);
-			helper.setSubject("Potwierdzenie rejestracji w PiggsyBank!");
-			helper.setText("Witaj! Dziękujemy za rejestrację. Kod potwierdzający: " + code);
+			helper.setTo(email.to());
+			helper.setSubject(email.subject());
+			helper.setText(email.content());
 			mailSender.send(message);
 		} catch (MessagingException e) {
 			throw new SendingEmailException(e.getMessage());

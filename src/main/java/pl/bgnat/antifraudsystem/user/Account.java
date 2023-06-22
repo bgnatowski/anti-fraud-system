@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.bgnat.antifraudsystem.user.enums.Country;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -45,6 +46,10 @@ class Account {
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 
+	@Column(name = "country", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Country country;
+
 	@Column(name = "iban", nullable = false, length = 34, unique = true)
 	private String iban;
 	@Column(name = "balance", nullable = false)
@@ -53,6 +58,7 @@ class Account {
 	private LocalDateTime createDate;
 	@Column(name = "is_active", nullable = false)
 	private boolean isActive;
+
 
 	@Override
 	public String toString() {

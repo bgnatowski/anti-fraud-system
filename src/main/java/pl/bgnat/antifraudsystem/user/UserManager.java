@@ -3,6 +3,7 @@ package pl.bgnat.antifraudsystem.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.user.dto.TemporaryAuthorizationDTO;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
 import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
@@ -26,11 +27,19 @@ class UserManager {
 	private final UserService userService;
 	private final EmailService emailService;
 	private final CreditCardService creditCardService;
+	private final TemporaryAuthorizationService temporaryAuthorizationService;
 	private final AccountService accountService;
 
 	UserEmailConfirmedResponse confirmUserEmail(String username, String code) {
 		UserDTO user = userService.getUserByUsername(username);
-		emailService.confirmEmail(user, code);
+
+		if(user.isActive())
+			throw new RequestValidationException("user is already active");
+
+		TemporaryAuthorizationDTO userTemporaryAuthorization =
+				temporaryAuthorizationService.getTemporaryAuthorization(username);
+
+		emailService.confirmEmail(user, userTemporaryAuthorization, code);
 		changeLock(new UserUnlockRequest(username, UNLOCK));
 		return UserEmailConfirmedResponse
 				.builder()
@@ -42,10 +51,13 @@ class UserManager {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
-		UserDTO userDTO = userService.registerUser(userRegistrationRequest);
-		emailService.sendConfirmationEmail(userDTO);
+		UserDTO registeredUser = userService.registerUser(userRegistrationRequest);
+		TemporaryAuthorizationDTO temporaryAuthorizationDTO =
+				temporaryAuthorizationService.getTemporaryAuthorization(registeredUser.username());
 
-		return userDTO;
+		emailService.sendConfirmationEmail(registeredUser.email(), temporaryAuthorizationDTO.code());
+
+		return registeredUser;
 	}
 
 	UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
@@ -58,7 +70,9 @@ class UserManager {
 
 	UserDTO addCreditCardToUser(String username) {
 		CreditCard newCreditCard = creditCardService.createCreditCard();
-		return userService.addCreditCardToUser(username, newCreditCard);
+		UserDTO userDTO = userService.addCreditCardToUser(username, newCreditCard);
+		emailService.sendCreditCardPin(userDTO.email(), newCreditCard.getPin());
+		return userDTO;
 	}
 
 	UserDTO getUserByUsername(String username) {

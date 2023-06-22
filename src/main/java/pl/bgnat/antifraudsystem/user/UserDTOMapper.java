@@ -11,22 +11,19 @@ import java.util.function.Function;
 class UserDTOMapper implements Function<User, UserDTO> {
 	private final AddressDTOMapper addressDTOMapper;
 	private final PhoneNumberDTOMapper phoneNumberDTOMapper;
-	private final TemporaryAuthorizationDTOMapper temporaryAuthorizationDTOMapper;
-
-
 	@Override
 	public UserDTO apply(User user) {
-		return new UserDTO(
-				user.getId(),
-				user.getFirstName(),
-				user.getLastName(),
-				user.getUsername(),
-				user.getEmail(),
-				user.getDateOfBirth(),
-				user.getRole(),
-				user.isAccountNonLocked(),
-				addressDTOMapper.apply(user.getAddress()),
-				phoneNumberDTOMapper.apply(user.getPhone()),
-				temporaryAuthorizationDTOMapper.apply(user.getTemporaryAuthorization()));
+		return UserDTO.builder()
+				.id(user.getId())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.username(user.getUsername())
+				.email(user.getEmail())
+				.dateOfBirth(user.getDateOfBirth())
+				.role(user.getRole())
+				.isActive(user.isAccountNonLocked())
+				.address(addressDTOMapper.apply(user.getAddress()))
+				.phoneNumber(phoneNumberDTOMapper.apply(user.getPhone()))
+				.build();
 	}
 }

@@ -34,7 +34,7 @@ class UserValidator {
 	void validPhoneNumber(String phoneNumber) {
 		if (!PhoneNumberValidator.isValid(phoneNumber))
 			throw new InvalidPhoneFormatException(phoneNumber);
-		if(userRepository.existsUserByPhoneNumer(phoneNumber))
+		if(userRepository.existsUserByPhone_Number(phoneNumber))
 			throw new DuplicatedUserPhoneNumberException(phoneNumber);
 
 	}
