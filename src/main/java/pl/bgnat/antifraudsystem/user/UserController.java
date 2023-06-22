@@ -18,6 +18,7 @@ import java.util.List;
 class UserController {
 	private final UserManager userManager;
 
+	//TODO ACTIVE CARD, DELETE CARD, RESTRICT CARD
 	@GetMapping("/users/list")
 	ResponseEntity<List<UserDTO>> getAllRegisteredUsers(){
 		List<UserDTO> allRegisteredUsers = userManager.getAllRegisteredUsers();
@@ -51,7 +52,7 @@ class UserController {
 
 	@PatchMapping("/user/{username}/account/create")
 	ResponseEntity<UserDTO> createAccount(@PathVariable("username") String username) {
-		UserDTO userWithAccount = userManager.createAccountForUserWithUsename(username);
+		UserDTO userWithAccount = userManager.createAccountForUserWithUsername(username);
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 

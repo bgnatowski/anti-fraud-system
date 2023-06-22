@@ -14,6 +14,9 @@ public record UserDTO(Long id,
 					  LocalDate dateOfBirth,
 					  Role role,
 					  boolean isActive,
+					  boolean hasAccount,
+					  boolean hasAnyCreditCard,
+					  int numberOfCreditCards,
 					  AddressDTO address,
 					  PhoneNumberDTO phoneNumber) {
 }

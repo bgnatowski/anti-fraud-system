@@ -34,14 +34,12 @@ class EmailService {
 		emailSender.sendEmail(emailWithCreditCardPin);
 	}
 
-	void confirmEmail(User user, TemporaryAuthorization temporaryAuthorizationDTO, String code) {
+	void confirmEmail(TemporaryAuthorization temporaryAuthorization, String code) {
 		LocalDateTime now = LocalDateTime.now(clock);
-		String username = user.getUsername();
-		String confirmationCode = temporaryAuthorizationDTO.getCode();
-		LocalDateTime expirationDate = temporaryAuthorizationDTO.getExpirationDate();
+		String username = temporaryAuthorization.getUser().getUsername();
+		String confirmationCode = temporaryAuthorization.getCode();
+		LocalDateTime expirationDate = temporaryAuthorization.getExpirationDate();
 
-		if (user.isAccountNonLocked())
-			throw new UserIsAlreadyUnlockException(username, user.getEmail());
 		if (expirationDate.isBefore(now))
 			throw new TemporaryAuthorizationExpiredException(username);
 		if (!code.equals(confirmationCode))

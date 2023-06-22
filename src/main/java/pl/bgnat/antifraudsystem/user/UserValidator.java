@@ -70,9 +70,9 @@ class UserValidator {
 			throw new CreditCardWithoutAccountException();
 	}
 
-	void validAccountNonExist(User user, Account newAccount) {
-		if(user.getAccount()!=null && user.getAccount().equals(newAccount))
-			throw new DuplicatedAccountAssignmentException(newAccount.toString());
+	void validAccountNonExist(User user) {
+		if(user.getAccount()!=null && user.isHasAccount())
+			throw new DuplicatedAccountAssignmentException(user.getAccount().toString());
 	}
 	void validUserExistsByUsername(String username) {
 		if (!userRepository.existsUserByUsername(username))

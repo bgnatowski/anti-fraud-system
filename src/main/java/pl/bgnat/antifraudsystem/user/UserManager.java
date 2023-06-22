@@ -25,9 +25,8 @@ class UserManager {
 	private final UserService userService;
 	private final EmailService emailService;
 	private final CreditCardService creditCardService;
-	private final TemporaryAuthorizationService temporaryAuthorizationService;
 	private final AccountService accountService;
-
+	private final TemporaryAuthorizationService temporaryAuthorizationService;
 	UserEmailConfirmedResponse confirmUserEmail(ConfirmEmailRequest confirmEmailRequest) {
 		if (!isValidConfirmEmailRequest(confirmEmailRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
@@ -35,12 +34,10 @@ class UserManager {
 		String username = confirmEmailRequest.username();
 		String code = confirmEmailRequest.code();
 
-		User user = userService.getUserByUsername(username);
-
 		TemporaryAuthorization userTemporaryAuthorization =
-				temporaryAuthorizationService.getTemporaryAuthorizationByUsername(username);
+				temporaryAuthorizationService.getTemporaryAuthorization(username);
 
-		emailService.confirmEmail(user, userTemporaryAuthorization, code);
+		emailService.confirmEmail(userTemporaryAuthorization, code);
 		userService.changeLock(username, UNLOCK);
 		return UserEmailConfirmedResponse
 				.builder()
@@ -55,11 +52,8 @@ class UserManager {
 
 		User registeredUser = userService.registerUser(userRegistrationRequest);
 
-		if(registeredUser.getRole().equals(Role.MERCHANT) && !registeredUser.getUsername().equals("JohnDoe2")){
-			TemporaryAuthorization temporaryAuthorization =
-					temporaryAuthorizationService.getTemporaryAuthorizationByUsername(
-							registeredUser.getUsername()
-					);
+		if(registeredUser.getRole().equals(Role.MERCHANT) && !registeredUser.getUsername().equals("JohnDoe2")){ //todo delete and
+			TemporaryAuthorization temporaryAuthorization = registeredUser.getTemporaryAuthorization();
 			emailService.sendConfirmationEmail(registeredUser.getEmail(), temporaryAuthorization.getCode());
 		}
 
@@ -74,7 +68,7 @@ class UserManager {
 	}
 
 
-	UserDTO createAccountForUserWithUsename(String username) {
+	UserDTO createAccountForUserWithUsername(String username) {
 		User user = userService.getUserByUsername(username);
 		Account newAccount = accountService.createAccount(user.getAddress().getCountry());
 		userService.addAccountToUser(username, newAccount);
@@ -99,6 +93,7 @@ class UserManager {
 		return userService.getAllRegisteredUsers();
 	}
 
+	//TODO delete user with credit cards -> now dropping stackoverflow
 	UserDeleteResponse deleteUserByUsername(String username) {
 		return userService.deleteUserByUsername(username);
 	}

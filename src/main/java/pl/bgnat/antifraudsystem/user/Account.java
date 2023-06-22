@@ -31,7 +31,7 @@ class Account {
 	private Long id;
 
 	@OneToOne(
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER
 	)
 	@JoinColumn(
@@ -50,7 +50,7 @@ class Account {
 	@Enumerated(EnumType.STRING)
 	private Country country;
 
-	@Column(name = "iban", nullable = false, length = 34, unique = true)
+	@Column(name = "iban", nullable = false, length = 34)
 	private String iban;
 	@Column(name = "balance", nullable = false)
 	private Double balance;

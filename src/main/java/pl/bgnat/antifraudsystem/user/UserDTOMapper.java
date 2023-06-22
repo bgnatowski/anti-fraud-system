@@ -22,6 +22,9 @@ class UserDTOMapper implements Function<User, UserDTO> {
 				.dateOfBirth(user.getDateOfBirth())
 				.role(user.getRole())
 				.isActive(user.isAccountNonLocked())
+				.hasAccount(user.isHasAccount())
+				.hasAnyCreditCard(user.isHasAnyCreditCard())
+				.numberOfCreditCards(user.getNumberOfCreditCards())
 				.address(addressDTOMapper.apply(user.getAddress()))
 				.phoneNumber(phoneNumberDTOMapper.apply(user.getPhone()))
 				.build();

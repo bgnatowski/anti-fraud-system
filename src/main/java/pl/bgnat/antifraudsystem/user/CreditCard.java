@@ -45,7 +45,7 @@ class CreditCard {
 	)
 	private User owner;
 
-	@Column(name = "card_number", nullable = false, columnDefinition = "TEXT", length = 16, unique = true)
+	@Column(name = "card_number", nullable = false, columnDefinition = "TEXT", length = 16)
 	private String cardNumber;
 
 	@Column(name = "cvv", nullable = false, columnDefinition = "TEXT", length = 3)

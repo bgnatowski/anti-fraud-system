@@ -25,7 +25,7 @@ class PhoneNumber {
 	private Long id;
 
 	@OneToOne(
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER
 	)
 	@JoinColumn(
@@ -38,7 +38,7 @@ class PhoneNumber {
 	@Column(name = "areaCode", nullable = false)
 	private String areaCode;
 
-	@Column(name = "number", nullable = false, unique = true)
+	@Column(name = "number", nullable = false)
 	private String number;
 
 	@Override
@@ -51,18 +51,18 @@ class PhoneNumber {
 	}
 
 	public static String[] extractAreaCodeAndNumber(String phoneNumber) {
-		// Remove any spaces from the phone number
-		String sanitizedPhoneNumber = phoneNumber.replaceAll("\\s", "");
-
 		// Extract the area code
 		String areaCode = "";
-		if (sanitizedPhoneNumber.startsWith("+")) {
-			int areaCodeEndIndex = sanitizedPhoneNumber.indexOf(" ", 1);
+		String number = "";
+		if (phoneNumber.startsWith("+")) {
+			int areaCodeEndIndex = phoneNumber.indexOf(" ", 1);
 			if (areaCodeEndIndex != -1) {
-				areaCode = sanitizedPhoneNumber.substring(1, areaCodeEndIndex);
+				areaCode = phoneNumber.substring(0, areaCodeEndIndex);
+				number = phoneNumber.substring(areaCodeEndIndex);
 			}
 		}
-
+		// Remove any spaces from the phone number
+		String sanitizedPhoneNumber = number.replaceAll("\\s", "");
 		// Remove any non-digit characters
 		String extractedDigits = sanitizedPhoneNumber.replaceAll("\\D", "");
 

@@ -23,7 +23,7 @@ class Address {
 	private Long id;
 
 	@OneToOne(
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER
 	)
 	@JoinColumn(

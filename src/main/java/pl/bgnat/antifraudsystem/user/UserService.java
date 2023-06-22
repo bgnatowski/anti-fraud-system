@@ -30,10 +30,10 @@ class UserService {
 	private final UserRepository userRepository;
 	private final UserCreator userCreator;
 	private final UserDTOMapper userDTOMapper;
+	private final UserValidator userValidator;
 	private final PhoneNumberCreator phoneNumberCreator;
 	private final AddressCreator addressCreator;
 	private final TemporaryAuthorizationCreator temporaryAuthorizationCreator;
-	private final UserValidator userValidator;
 
 	List<UserDTO> getAllRegisteredUsers() {
 		Page<User> page = userRepository.findAll(Pageable.ofSize(100));
@@ -58,7 +58,7 @@ class UserService {
 		PhoneNumber userPhone = phoneNumberCreator.createPhoneNumber(createdUser, phoneNumber);
 		createdUser.setPhone(userPhone);
 
-		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){
+		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){ //todo delete and
 			TemporaryAuthorization temporaryAuthorization =
 					temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
 			createdUser.setTemporaryAuthorization(temporaryAuthorization);
@@ -71,7 +71,6 @@ class UserService {
 
 
 	User addUserAddress(String username, AddressRegisterRequest address) {
-
 		User user = getUserByUsername(username);
 		Address userAddress = addressCreator.createAddress(user, address);
 
@@ -86,9 +85,11 @@ class UserService {
 		User user = getUserByUsername(username);
 
 		userValidator.validUserProfile(user);
-		userValidator.validAccountNonExist(user, newAccount);
+		userValidator.validAccountNonExist(user);
 
 		newAccount.setOwner(user);
+		user.setHasAccount(true);
+
 		userRepository.save(user);
 
 		return user;
@@ -103,6 +104,10 @@ class UserService {
 		newCreditCard.setOwner(user);
 		newCreditCard.setAccount(user.getAccount());
 		newCreditCard.setCountry(user.getAccount().getCountry());
+
+		if(!user.isHasAnyCreditCard())
+			user.setHasAnyCreditCard(true);
+		user.increaseCreditCardNumber();
 
 		userRepository.save(user);
 		return user;

@@ -20,6 +20,8 @@ class UserCreator {
 				.dateOfBirth(userRegistrationRequest.dateOfBirth())
 				.role(Role.ADMINISTRATOR)
 				.accountNonLocked(true)
+				.hasAccount(false)
+				.hasAnyCreditCard(false)
 				.build();
 	}
 	User createMerchant(UserRegistrationRequest userRegistrationRequest) {
@@ -32,6 +34,8 @@ class UserCreator {
 				.dateOfBirth(userRegistrationRequest.dateOfBirth())
 				.role(Role.MERCHANT)
 				.accountNonLocked(false)
+				.hasAccount(false)
+				.hasAnyCreditCard(false)
 				.build();
 	}
 }

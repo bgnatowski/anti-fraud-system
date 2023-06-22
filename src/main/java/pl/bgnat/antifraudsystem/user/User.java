@@ -18,8 +18,8 @@ import java.util.*;
 @Setter
 @Builder
 
-@Entity(name = "User")
-@Table(name = "_user",
+@Table(
+		name = "_user",
 		uniqueConstraints = {
 				@UniqueConstraint(
 						name = "user_username_constraint",
@@ -29,7 +29,9 @@ import java.util.*;
 						name = "user_email_constraint",
 						columnNames = "email"
 				)
-		})
+		}
+)
+@Entity(name = "User")
 class User implements UserDetails {
 	@Id
 	@SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence", allocationSize = 1)
@@ -40,56 +42,74 @@ class User implements UserDetails {
 	private String firstName;
 	@Column(name = "last_name", nullable = false, columnDefinition = "TEXT")
 	private String lastName;
-	@Column(name = "username", nullable = false, columnDefinition = "TEXT", unique = true)
+	@Column(name = "username", nullable = false, columnDefinition = "TEXT")
 	private String username;
 	@Column(name = "password", nullable = false, columnDefinition = "TEXT")
 	private String password;
-	@Column(name = "email", nullable = false, columnDefinition = "TEXT", unique = true)
+	@Column(name = "email", nullable = false, columnDefinition = "TEXT")
 	private String email;
 	@Column(name = "date_of_birth", nullable = false)
 	private LocalDate dateOfBirth;
 
 	@OneToOne(mappedBy = "user",
-			cascade = CascadeType.ALL,
+			orphanRemoval = true,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER)
 	private TemporaryAuthorization temporaryAuthorization;
 
 	@OneToOne(mappedBy = "owner",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER
 	)
-	@JoinTable(name = "user_account",
+	@JoinTable(
+			name = "user_account",
 			joinColumns =
-					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
-			inverseJoinColumns =
-					{ @JoinColumn(name = "account_", referencedColumnName = "id") })
+			@JoinColumn(
+					name = "user_id",
+					referencedColumnName = "id"
+			),
+			inverseJoinColumns = @JoinColumn(
+					name = "account_id",
+					referencedColumnName = "id"
+			)
+	)
 	private Account account;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER)
 	@JoinTable(name = "user_address",
-			joinColumns =
-					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
-			inverseJoinColumns =
-					{ @JoinColumn(name = "address_id", referencedColumnName = "id") })
+			joinColumns = @JoinColumn(name = "user_id",
+					referencedColumnName = "id"
+			),
+			inverseJoinColumns = @JoinColumn(
+					name = "address_id",
+					referencedColumnName = "id"
+			)
+	)
 	private Address address;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER)
 	@JoinTable(name = "user_phone",
-			joinColumns =
-					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
-			inverseJoinColumns =
-					{ @JoinColumn(name = "phone_id", referencedColumnName = "id") })
+			joinColumns = @JoinColumn(
+					name = "user_id",
+					referencedColumnName = "id"
+			),
+			inverseJoinColumns = @JoinColumn(
+					name = "phone_id",
+					referencedColumnName = "id"
+			)
+	)
 	private PhoneNumber phone;
 
 	@OneToMany(mappedBy = "owner",
-			cascade = CascadeType.ALL,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+			orphanRemoval = true,
 			fetch = FetchType.LAZY
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
@@ -100,6 +120,12 @@ class User implements UserDetails {
 
 	@Column(name = "account_non_locked")
 	private boolean accountNonLocked;
+	@Column(name = "has_account")
+	private boolean hasAccount;
+	@Column(name = "has_any_credit_card")
+	private boolean hasAnyCreditCard;
+	@Column(name = "number_of_credit_cards")
+	private int numberOfCreditCards;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -136,21 +162,31 @@ class User implements UserDetails {
 		return true;
 	}
 
-	public Long getId() {
+	Long getId() {
 		return id;
 	}
 
-	public String getFirstName() {
+	String getFirstName() {
 		return firstName;
 	}
 
 
-	public void lockAccount() {
+	void lockAccount() {
 		if (accountNonLocked) accountNonLocked = false;
 	}
 
-	public void unlockAccount() {
+	void unlockAccount() {
 		if (!accountNonLocked) accountNonLocked = true;
 	}
 
+	void increaseCreditCardNumber() {
+		if(!hasAnyCreditCard) numberOfCreditCards = 1;
+		else numberOfCreditCards++;
+	}
+
+	void decreaseCreditCardNumber() {
+		if(numberOfCreditCards==0)
+			hasAnyCreditCard = false;
+		else numberOfCreditCards--;
+	}
 }
