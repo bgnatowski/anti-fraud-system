@@ -45,13 +45,13 @@ class UserController {
 
 	@PatchMapping("/user/{username}/creditcard/create")
 	ResponseEntity<UserDTO> createCreditCard(@PathVariable("username") String username) {
-		UserDTO userWithCard = userManager.addCreditCardToUser(username);
+		UserDTO userWithCard = userManager.createCreditCardForUserWithUsername(username);
 		return new ResponseEntity<>(userWithCard, HttpStatus.CREATED);
 	}
 
 	@PatchMapping("/user/{username}/account/create")
 	ResponseEntity<UserDTO> createAccount(@PathVariable("username") String username) {
-		UserDTO userWithAccount = userManager.addAccountToUser(username);//todo change to createAccount
+		UserDTO userWithAccount = userManager.createAccountForUserWithUsename(username);//todo change to createAccount
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 

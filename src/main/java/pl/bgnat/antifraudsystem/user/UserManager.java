@@ -74,7 +74,7 @@ class UserManager {
 	}
 
 
-	UserDTO addAccountToUser(String username) {
+	UserDTO createAccountForUserWithUsename(String username) {
 		User user = userService.getUserByUsername(username);
 		Account newAccount = accountService.createAccount(user.getAddress().getCountry());
 		userService.addAccountToUser(username, newAccount);
@@ -82,7 +82,7 @@ class UserManager {
 		return userService.mapToDto(user);
 	}
 
-	UserDTO addCreditCardToUser(String username) {
+	UserDTO createCreditCardForUserWithUsername(String username) {
 		User user = userService.getUserByUsername(username);
 		CreditCard newCreditCard = creditCardService.createCreditCard(user.getAccount().getCountry());
 		userService.addCreditCardToUser(username, newCreditCard);
