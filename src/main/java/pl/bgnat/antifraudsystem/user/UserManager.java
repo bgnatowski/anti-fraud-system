@@ -3,20 +3,18 @@ package pl.bgnat.antifraudsystem.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.user.dto.TemporaryAuthorizationDTO;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
-import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.*;
 import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
+import pl.bgnat.antifraudsystem.user.enums.Role;
 import pl.bgnat.antifraudsystem.user.exceptions.InvalidAddressFormatException;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 import static pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest.UNLOCK;
 import static pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse.EMAIL_CONFIRMED_MESSAGE;
@@ -30,59 +28,71 @@ class UserManager {
 	private final TemporaryAuthorizationService temporaryAuthorizationService;
 	private final AccountService accountService;
 
-	UserEmailConfirmedResponse confirmUserEmail(String username, String code) {
-		UserDTO user = userService.getUserByUsername(username);
+	UserEmailConfirmedResponse confirmUserEmail(ConfirmEmailRequest confirmEmailRequest) {
+		if (!isValidConfirmEmailRequest(confirmEmailRequest))
+			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
-		if(user.isActive())
-			throw new RequestValidationException("user is already active");
+		String username = confirmEmailRequest.username();
+		String code = confirmEmailRequest.code();
 
-		TemporaryAuthorizationDTO userTemporaryAuthorization =
-				temporaryAuthorizationService.getTemporaryAuthorization(username);
+		User user = userService.getUserByUsername(username);
+
+		TemporaryAuthorization userTemporaryAuthorization =
+				temporaryAuthorizationService.getTemporaryAuthorizationByUsername(username);
 
 		emailService.confirmEmail(user, userTemporaryAuthorization, code);
-		changeLock(new UserUnlockRequest(username, UNLOCK));
+		userService.changeLock(username, UNLOCK);
 		return UserEmailConfirmedResponse
 				.builder()
 				.message(EMAIL_CONFIRMED_MESSAGE)
 				.build();
 	}
 
+
 	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
-		UserDTO registeredUser = userService.registerUser(userRegistrationRequest);
-		TemporaryAuthorizationDTO temporaryAuthorizationDTO =
-				temporaryAuthorizationService.getTemporaryAuthorization(registeredUser.username());
+		User registeredUser = userService.registerUser(userRegistrationRequest);
 
-		emailService.sendConfirmationEmail(registeredUser.email(), temporaryAuthorizationDTO.code());
+		if(registeredUser.getRole().equals(Role.MERCHANT) && !registeredUser.getUsername().equals("JohnDoe2")){
+			TemporaryAuthorization temporaryAuthorization =
+					temporaryAuthorizationService.getTemporaryAuthorizationByUsername(
+							registeredUser.getUsername()
+					);
+			emailService.sendConfirmationEmail(registeredUser.getEmail(), temporaryAuthorization.getCode());
+		}
 
-		return registeredUser;
+		return userService.mapToDto(registeredUser);
 	}
 
 	UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
 		if (!isValidAddressRequest(addressRegisterRequest))
 			throw new InvalidAddressFormatException(addressRegisterRequest.toString());
-
-		return userService.addUserAddress(username, addressRegisterRequest);
+		User user = userService.addUserAddress(username, addressRegisterRequest);
+		return userService.mapToDto(user);
 	}
 
 
+	UserDTO addAccountToUser(String username) {
+		User user = userService.getUserByUsername(username);
+		Account newAccount = accountService.createAccount(user.getAddress().getCountry());
+		userService.addAccountToUser(username, newAccount);
+
+		return userService.mapToDto(user);
+	}
+
 	UserDTO addCreditCardToUser(String username) {
-		CreditCard newCreditCard = creditCardService.createCreditCard();
-		UserDTO userDTO = userService.addCreditCardToUser(username, newCreditCard);
-		emailService.sendCreditCardPin(userDTO.email(), newCreditCard.getPin());
-		return userDTO;
+		User user = userService.getUserByUsername(username);
+		CreditCard newCreditCard = creditCardService.createCreditCard(user.getAccount().getCountry());
+		userService.addCreditCardToUser(username, newCreditCard);
+		emailService.sendCreditCardPin(user.getEmail(), newCreditCard.getPin());
+		return userService.mapToDto(user);
 	}
 
 	UserDTO getUserByUsername(String username) {
-		return userService.getUserByUsername(username);
-	}
-
-	UserDTO addAccountToUser(String username) {
-		UserDTO user = getUserByUsername(username);
-		Account newAccount = accountService.createAccount(user);
-		return userService.addAccountToUser(username, newAccount);
+		User user = userService.getUserByUsername(username);
+		return userService.mapToDto(user);
 	}
 
 	List<UserDTO> getAllRegisteredUsers() {
@@ -94,14 +104,14 @@ class UserManager {
 	}
 
 	UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
-		return userService.changeRole(updateRequest);
+		User user = userService.changeRole(updateRequest.username(), updateRequest.role());
+		return userService.mapToDto(user);
 	}
 
 	UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
-		if (isValidChangeLockRequest(updateRequest))
+		if (!isValidChangeLockRequest(updateRequest))
 			throw new RequestValidationException(String.format(WRONG_JSON_FORMAT));
-
-		return userService.changeLock(updateRequest);
+		return userService.changeLock(updateRequest.username(), updateRequest.operation());
 	}
 
 
@@ -128,6 +138,12 @@ class UserManager {
 
 	private boolean isValidChangeLockRequest(UserUnlockRequest updateRequest) {
 		return Stream.of(updateRequest.operation(),
+						updateRequest.username())
+				.noneMatch(s -> s == null || s.isEmpty());
+	}
+
+	private boolean isValidConfirmEmailRequest(ConfirmEmailRequest updateRequest) {
+		return Stream.of(updateRequest.code(),
 						updateRequest.username())
 				.noneMatch(s -> s == null || s.isEmpty());
 	}

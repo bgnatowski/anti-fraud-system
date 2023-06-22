@@ -3,6 +3,8 @@ package pl.bgnat.antifraudsystem.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
+import pl.bgnat.antifraudsystem.user.dto.CreditCardDTO;
+import pl.bgnat.antifraudsystem.user.dto.TemporaryAuthorizationDTO;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.exceptions.CreditCardNotFoundException;
 import pl.bgnat.antifraudsystem.utils.generator.CreditCardDataGenerator;
@@ -15,8 +17,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 class CreditCardService {
 	private final CreditCardRepository creditCardRepository;
+	private final CreditCardDTOMapper creditCardDTOMapper;
 	private final Clock clock;
-	CreditCard createCreditCard(){
+	CreditCard createCreditCard(Country country){
 		String cardNumber = CreditCardDataGenerator.generateCreditCardNumber();
 		String pin = CreditCardDataGenerator.generatePin();
 		String cvv = CreditCardDataGenerator.generateCvv();
@@ -33,6 +36,7 @@ class CreditCardService {
 				.pin(pin)
 				.cvv(cvv)
 				.expirationDate(expiration)
+				.country(country)
 				.isActive(false)
 				.isBlocked(false)
 				.build();
@@ -64,6 +68,10 @@ class CreditCardService {
 			throw new RequestValidationException("Pins are same");
 
 		cardToChangePin.setPin(newPin);
+	}
+
+	CreditCardDTO mapToDto(CreditCard creditCard){
+		return creditCardDTOMapper.apply(creditCard);
 	}
 
 

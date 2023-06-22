@@ -42,7 +42,7 @@ class UserValidator {
 	void validUsername(String username) {
 		if (userRepository.existsUserByUsername(username))
 			throw new DuplicatedUserUsernameException(username);
-		if(UsernameValidator.isValid(username))
+		if(!UsernameValidator.isValid(username))
 			throw new InvalidUsernameFormatException(username);
 	}
 

@@ -35,31 +35,37 @@ class PhoneNumber {
 	)
 	private User user;
 
+	@Column(name = "areaCode", nullable = false)
+	private String areaCode;
+
 	@Column(name = "number", nullable = false, unique = true)
 	private String number;
-
-	public String getFullNumber() {
-		return "+48 " + number;
-	}
 
 	@Override
 	public String toString() {
 		return "PhoneNumber{" +
 				"id=" + id +
+				", areaCode='" + areaCode + '\'' +
 				", number='" + number + '\'' +
 				'}';
 	}
 
-	public static String extractDigits(String phoneNumber) {
+	public static String[] extractAreaCodeAndNumber(String phoneNumber) {
 		// Remove any spaces from the phone number
 		String sanitizedPhoneNumber = phoneNumber.replaceAll("\\s", "");
 
-		// Remove the leading "+48" if present
-		sanitizedPhoneNumber = sanitizedPhoneNumber.replaceAll("^\\+48", "");
+		// Extract the area code
+		String areaCode = "";
+		if (sanitizedPhoneNumber.startsWith("+")) {
+			int areaCodeEndIndex = sanitizedPhoneNumber.indexOf(" ", 1);
+			if (areaCodeEndIndex != -1) {
+				areaCode = sanitizedPhoneNumber.substring(1, areaCodeEndIndex);
+			}
+		}
 
 		// Remove any non-digit characters
-		sanitizedPhoneNumber = sanitizedPhoneNumber.replaceAll("\\D", "");
+		String extractedDigits = sanitizedPhoneNumber.replaceAll("\\D", "");
 
-		return sanitizedPhoneNumber;
+		return new String[] { areaCode, extractedDigits };
 	}
 }

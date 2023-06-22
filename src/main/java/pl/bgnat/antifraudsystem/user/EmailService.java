@@ -29,19 +29,19 @@ class EmailService {
 		EmailDTO emailWithCreditCardPin = EmailDTO.builder()
 				.to(emailTo)
 				.subject("[PiggsyBank] Pin aktywacyjny")
-				.content("Witaj! Dziękujemy za utworzenie karty. \n Oto twój pin aktywacyjny: " + pin)
+				.content("Witaj! Dziękujemy za utworzenie karty. \nOto twój pin aktywacyjny: " + pin)
 				.build();
 		emailSender.sendEmail(emailWithCreditCardPin);
 	}
 
-	void confirmEmail(UserDTO user, TemporaryAuthorizationDTO temporaryAuthorizationDTO, String code) {
+	void confirmEmail(User user, TemporaryAuthorization temporaryAuthorizationDTO, String code) {
 		LocalDateTime now = LocalDateTime.now(clock);
-		String username = user.username();
-		String confirmationCode = temporaryAuthorizationDTO.code();
-		LocalDateTime expirationDate = temporaryAuthorizationDTO.expirationDate();
+		String username = user.getUsername();
+		String confirmationCode = temporaryAuthorizationDTO.getCode();
+		LocalDateTime expirationDate = temporaryAuthorizationDTO.getExpirationDate();
 
-		if (user.isActive())
-			throw new UserIsAlreadyUnlockException(username, user.email());
+		if (user.isAccountNonLocked())
+			throw new UserIsAlreadyUnlockException(username, user.getEmail());
 		if (expirationDate.isBefore(now))
 			throw new TemporaryAuthorizationExpiredException(username);
 		if (!code.equals(confirmationCode))

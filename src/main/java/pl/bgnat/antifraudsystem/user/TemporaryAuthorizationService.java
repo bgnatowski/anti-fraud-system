@@ -10,9 +10,14 @@ import pl.bgnat.antifraudsystem.user.exceptions.TemporaryAuthorizationNotFoundEx
 public class TemporaryAuthorizationService {
 	private final TemporaryAuthorizationRepository temporaryAuthorizationRepository;
 	private final TemporaryAuthorizationDTOMapper temporaryAuthorizationDTOMapper;
-	public TemporaryAuthorizationDTO getTemporaryAuthorization(String username) {
+	public TemporaryAuthorization getTemporaryAuthorizationByUsername(String username) {
 		TemporaryAuthorization temporaryAuthorization = temporaryAuthorizationRepository.findTemporaryAuthorizationByUserUsername(username)
 				.orElseThrow(()-> new TemporaryAuthorizationNotFoundException(username));
+//		temporaryAuthorizationRepository.delete(temporaryAuthorization);
+		return temporaryAuthorization;
+	}
+
+	public TemporaryAuthorizationDTO mapToDto(TemporaryAuthorization temporaryAuthorization){
 		return temporaryAuthorizationDTOMapper.apply(temporaryAuthorization);
 	}
 }

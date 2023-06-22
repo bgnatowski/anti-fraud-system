@@ -59,18 +59,33 @@ class User implements UserDetails {
 			cascade = CascadeType.ALL,
 			fetch = FetchType.EAGER
 	)
+	@JoinTable(name = "user_account",
+			joinColumns =
+					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
+			inverseJoinColumns =
+					{ @JoinColumn(name = "account_", referencedColumnName = "id") })
 	private Account account;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
 			cascade = CascadeType.ALL,
 			fetch = FetchType.EAGER)
+	@JoinTable(name = "user_address",
+			joinColumns =
+					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
+			inverseJoinColumns =
+					{ @JoinColumn(name = "address_id", referencedColumnName = "id") })
 	private Address address;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
 			cascade = CascadeType.ALL,
 			fetch = FetchType.EAGER)
+	@JoinTable(name = "user_phone",
+			joinColumns =
+					{ @JoinColumn(name = "user_id", referencedColumnName = "id") },
+			inverseJoinColumns =
+					{ @JoinColumn(name = "phone_id", referencedColumnName = "id") })
 	private PhoneNumber phone;
 
 	@OneToMany(mappedBy = "owner",

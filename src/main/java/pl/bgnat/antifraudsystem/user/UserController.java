@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.bgnat.antifraudsystem.user.dto.*;
-import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
+import pl.bgnat.antifraudsystem.user.dto.request.*;
 import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserEmailConfirmedResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
@@ -33,10 +30,9 @@ class UserController {
 		return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/{username}/email/confirm/{code}")
-	public ResponseEntity<UserEmailConfirmedResponse> confirmEmail(@PathVariable("username") String username,
-																   @PathVariable("code") String code) {
-		UserEmailConfirmedResponse confirmedResponse = userManager.confirmUserEmail(username, code);
+	@PatchMapping("/user/email/confirm/")
+	public ResponseEntity<UserEmailConfirmedResponse> confirmEmail(@RequestBody ConfirmEmailRequest confirmEmailRequest) {
+		UserEmailConfirmedResponse confirmedResponse = userManager.confirmUserEmail(confirmEmailRequest);
 		return new ResponseEntity<>(confirmedResponse, HttpStatus.OK);
 	}
 
@@ -55,7 +51,7 @@ class UserController {
 
 	@PatchMapping("/user/{username}/account/create")
 	ResponseEntity<UserDTO> createAccount(@PathVariable("username") String username) {
-		UserDTO userWithAccount = userManager.addAccountToUser(username);
+		UserDTO userWithAccount = userManager.addAccountToUser(username);//todo change to createAccount
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 

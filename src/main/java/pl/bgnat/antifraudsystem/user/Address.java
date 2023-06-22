@@ -19,6 +19,7 @@ class Address {
 	@Id
 	@SequenceGenerator(name = "address_id_sequence", sequenceName = "address_id_sequence", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "address_id_sequence")
+	@Column(name = "id")
 	private Long id;
 
 	@OneToOne(

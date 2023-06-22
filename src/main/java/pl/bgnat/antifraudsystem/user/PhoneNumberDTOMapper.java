@@ -11,6 +11,9 @@ class PhoneNumberDTOMapper implements Function<PhoneNumber, PhoneNumberDTO> {
 	@Override
 	public PhoneNumberDTO apply(PhoneNumber number) {
 		if(number==null) return PhoneNumberDTO.emptyPhone();
-		return new PhoneNumberDTO(number.getFullNumber());
+		return PhoneNumberDTO.builder()
+				.areaCode(number.getAreaCode())
+				.number(number.getNumber())
+				.build();
 	}
 }

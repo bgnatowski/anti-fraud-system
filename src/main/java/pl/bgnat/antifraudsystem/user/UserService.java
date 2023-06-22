@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.user.dto.request.AddressRegisterRequest;
 import pl.bgnat.antifraudsystem.user.dto.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.user.dto.request.UserUpdateRoleRequest;
 import pl.bgnat.antifraudsystem.user.dto.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse;
 import pl.bgnat.antifraudsystem.user.enums.Role;
@@ -30,8 +28,8 @@ import static pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse.MESS
 class UserService {
 	private static final long ADMINISTRATOR_ID = 1L;
 	private final UserRepository userRepository;
-	private final UserDTOMapper userDTOMapper;
 	private final UserCreator userCreator;
+	private final UserDTOMapper userDTOMapper;
 	private final PhoneNumberCreator phoneNumberCreator;
 	private final AddressCreator addressCreator;
 	private final TemporaryAuthorizationCreator temporaryAuthorizationCreator;
@@ -46,56 +44,58 @@ class UserService {
 				.collect(Collectors.toList());
 	}
 
-	UserDTO getUserByUsername(String username) {
-		return userDTOMapper.apply(findUserByUsername(username));
+	User getUserByUsername(String username) {
+		return userRepository.findUserByUsername(username)
+				.orElseThrow(() -> new UserNotFoundException(username));
 	}
 
-	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+	User registerUser(UserRegistrationRequest userRegistrationRequest) {
 		userValidator.validRegistration(userRegistrationRequest);
 
 		User createdUser = createProperUser(userRegistrationRequest);
 
-		String phoneNumber = PhoneNumber.extractDigits(userRegistrationRequest.phoneNumber());
+		String[] phoneNumber = PhoneNumber.extractAreaCodeAndNumber(userRegistrationRequest.phoneNumber());
 		PhoneNumber userPhone = phoneNumberCreator.createPhoneNumber(createdUser, phoneNumber);
 		createdUser.setPhone(userPhone);
 
-		TemporaryAuthorization temporaryAuthorization =
-				temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
-		createdUser.setTemporaryAuthorization(temporaryAuthorization);
+		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){
+			TemporaryAuthorization temporaryAuthorization =
+					temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
+			createdUser.setTemporaryAuthorization(temporaryAuthorization);
+		}
 
 		User registeredUser = userRepository.save(createdUser);
 
-		return userDTOMapper.apply(registeredUser);
+		return registeredUser;
 	}
 
 
-	UserDTO addUserAddress(String username, AddressRegisterRequest address) {
+	User addUserAddress(String username, AddressRegisterRequest address) {
 
-		User user = findUserByUsername(username);
+		User user = getUserByUsername(username);
 		Address userAddress = addressCreator.createAddress(user, address);
 
 		user.setAddress(userAddress);
 		userRepository.save(user);
 
-		return userDTOMapper.apply(user);
+		return user;
 
 	}
 
-	UserDTO addAccountToUser(String username, Account newAccount) {
-		User user = findUserByUsername(username);
+	User addAccountToUser(String username, Account newAccount) {
+		User user = getUserByUsername(username);
 
 		userValidator.validUserProfile(user);
 		userValidator.validAccountNonExist(user, newAccount);
 
 		newAccount.setOwner(user);
-
 		userRepository.save(user);
 
-		return userDTOMapper.apply(user);
+		return user;
 	}
 
-	UserDTO addCreditCardToUser(String username, CreditCard newCreditCard) {
-		User user = findUserByUsername(username);
+	User addCreditCardToUser(String username, CreditCard newCreditCard) {
+		User user = getUserByUsername(username);
 
 		userValidator.validUserProfile(user);
 		userValidator.validAccountExists(user.getAccount());
@@ -105,7 +105,7 @@ class UserService {
 		newCreditCard.setCountry(user.getAccount().getCountry());
 
 		userRepository.save(user);
-		return userDTOMapper.apply(user);
+		return user;
 	}
 
 
@@ -119,11 +119,9 @@ class UserService {
 				.build();
 	}
 
-	UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
-		String username = updateRequest.username();
-		String roleString = updateRequest.role();
+	User changeRole(String username, String roleString) {
 
-		User user = findUserByUsername(username);
+		User user = getUserByUsername(username);
 		Role role = Role.parse(roleString);
 
 		userValidator.validChangeRole(role, user);
@@ -131,16 +129,12 @@ class UserService {
 		user.setRole(role);
 		userRepository.save(user);
 
-		return userDTOMapper.apply(user);
+		return user;
 
 	}
 
-
-	UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
-		String username = updateRequest.username();
-		String operation = updateRequest.operation();
-
-		User user = findUserByUsername(username);
+	UserUnlockResponse changeLock(String username, String operation) {
+		User user = getUserByUsername(username);
 
 		if (isAdministrator(user))
 			throw new AdministratorCannotBeLockException();
@@ -161,16 +155,16 @@ class UserService {
 				.build();
 	}
 
+	public UserDTO mapToDto(User user){
+		return userDTOMapper.apply(user);
+	}
+
 	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!userRepository.existsById(ADMINISTRATOR_ID))
 			return userCreator.createAdministrator(userRegistrationRequest);
 		return userCreator.createMerchant(userRegistrationRequest);
 	}
-
-	private User findUserByUsername(String username) {
-		return userRepository.findUserByUsername(username)
-				.orElseThrow(() -> new UserNotFoundException(username));
-	}
+	
 
 	private boolean isAdministrator(User user) {
 		return Role.ADMINISTRATOR.equals(user.getRole());
