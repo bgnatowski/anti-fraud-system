@@ -51,7 +51,7 @@ class UserController {
 
 	@PatchMapping("/user/{username}/account/create")
 	ResponseEntity<UserDTO> createAccount(@PathVariable("username") String username) {
-		UserDTO userWithAccount = userManager.createAccountForUserWithUsename(username);//todo change to createAccount
+		UserDTO userWithAccount = userManager.createAccountForUserWithUsename(username);
 		return new ResponseEntity<>(userWithAccount, HttpStatus.CREATED);
 	}
 
