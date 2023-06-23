@@ -2,9 +2,11 @@ package pl.bgnat.antifraudsystem.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import pl.bgnat.antifraudsystem.user.dto.AccountDTO;
 import pl.bgnat.antifraudsystem.user.dto.UserDTO;
 
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

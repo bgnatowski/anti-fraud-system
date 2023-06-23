@@ -4,6 +4,8 @@ import lombok.Builder;
 import pl.bgnat.antifraudsystem.user.enums.Role;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Builder
 public record UserDTO(Long id,
@@ -18,5 +20,6 @@ public record UserDTO(Long id,
 					  boolean hasAnyCreditCard,
 					  int numberOfCreditCards,
 					  AddressDTO address,
-					  PhoneNumberDTO phoneNumber) {
+					  PhoneNumberDTO phoneNumber
+) {
 }

@@ -10,7 +10,7 @@ class AddressDTOMapper implements Function<Address, AddressDTO> {
 	@Override
 	public AddressDTO apply(Address address) {
 		if(address == null)
-			return AddressDTO.emptyAddress();
+			return AddressDTO.emptyDto();
 
 		return new AddressDTO(
 				address.getAddressLine1(),

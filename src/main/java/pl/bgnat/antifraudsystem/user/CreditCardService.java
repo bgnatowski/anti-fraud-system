@@ -1,6 +1,8 @@
 package pl.bgnat.antifraudsystem.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.*;
@@ -11,6 +13,9 @@ import pl.bgnat.antifraudsystem.user.dto.response.CreditCardChangePinResponse;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.exceptions.CreditCardNotFoundException;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
@@ -102,8 +107,21 @@ class CreditCardService {
 				.build();
 	}
 
-	CreditCardDTO mapToDto(CreditCard creditCard) {
+	public List<CreditCardDTO> getAllCreditCards() {
+		Page<CreditCard> page = creditCardRepository.findAll(Pageable.ofSize(100));
+		return page.getContent()
+				.stream()
+				.map(creditCardDTOMapper)
+				.sorted(Comparator.comparingLong(CreditCardDTO::id))
+				.collect(Collectors.toList());
+	}
+
+	private CreditCardDTO mapToDto(CreditCard creditCard) {
 		return creditCardDTOMapper.apply(creditCard);
+	}
+
+	CreditCardDTO getCreditCardDTOByNumber(String cardNumber){
+		return mapToDto(getCreditCardByNumber(cardNumber));
 	}
 
 	private CreditCard getCreditCardByNumber(String cardNumber) {

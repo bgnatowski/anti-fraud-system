@@ -11,7 +11,7 @@ public record AddressDTO(
 		String state,
 		String country
 		) {
-	public static AddressDTO emptyAddress() {
+	public static AddressDTO emptyDto() {
 		return new AddressDTO("", "", "", "", "", "");
 	}
 }

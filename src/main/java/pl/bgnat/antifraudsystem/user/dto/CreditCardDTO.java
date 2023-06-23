@@ -6,6 +6,7 @@ import lombok.Builder;
 public record CreditCardDTO(
 		Long id,
 		UserDTO owner,
+		AccountDTO accountDTO,
 		String cardNumber
 ) {
 }

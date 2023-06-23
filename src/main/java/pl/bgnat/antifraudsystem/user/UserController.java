@@ -22,9 +22,7 @@ import java.util.Map;
 class UserController {
 	private final UserManager userManager;
 	private final Clock clock;
-
-	//TODO ACTIVE CARD, DELETE CARD, RESTRICT CARD <- in card controller
-	@GetMapping("/users/list")
+	@GetMapping("/users/list") // admin/support - kiedy chce sprawdzić czy np jest takie konto -> potem sobie filtruje
 	ResponseEntity<HttpResponse> getAllRegisteredUsers() {
 		List<UserDTO> allRegisteredUsers = userManager.getAllRegisteredUsers();
 
@@ -39,7 +37,7 @@ class UserController {
 		);
 	}
 
-	@PostMapping("/user")
+	@PostMapping("/user") // all - rejestracja każdego
 	ResponseEntity<HttpResponse> registerUser(@RequestBody UserRegistrationRequest user) {
 		UserDTO registeredUser = userManager.registerUser(user);
 
@@ -54,7 +52,7 @@ class UserController {
 				HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/email/confirm/")
+	@PatchMapping("/user/email/confirm") // all - kazdy moze potwierdzać email
 	public ResponseEntity<HttpResponse> confirmEmail(@RequestBody ConfirmEmailRequest confirmEmailRequest) {
 		UserEmailConfirmedResponse confirmedResponse = userManager.confirmUserEmail(confirmEmailRequest);
 		return ResponseEntity.ok().body(
@@ -68,7 +66,7 @@ class UserController {
 		);
 	}
 
-	@PatchMapping("/user/{username}/address/register")
+	@PatchMapping("/user/{username}/address/register") // merchant -  admin/support nie musi miec przypisanego
 	ResponseEntity<HttpResponse> registerUserAddress(@RequestBody AddressRegisterRequest addressRegisterRequest,
 													 @PathVariable("username") String username) {
 		UserDTO registeredUserWithAddress = userManager.addUserAddress(username, addressRegisterRequest);
@@ -83,7 +81,7 @@ class UserController {
 				HttpStatus.CREATED);
 	}
 
-	@PatchMapping("/user/{username}/credit-card/create") //todo to account controller
+	@PatchMapping("/user/{username}/credit-card/create") //todo to account controller to moze przeniesc do konta
 	ResponseEntity<HttpResponse> createCreditCard(@PathVariable("username") String username) {
 		UserDTO userWithCard = userManager.createCreditCardForUserWithUsername(username);
 		return new ResponseEntity<>(
@@ -126,8 +124,7 @@ class UserController {
 	}
 
 	@DeleteMapping("/user/{username}/delete")
-	ResponseEntity<HttpResponse> deleteUser(
-			@PathVariable("username") String username) {
+	ResponseEntity<HttpResponse> deleteUser(@PathVariable("username") String username) {
 		UserDeleteResponse userDeleteResponse = userManager.deleteUserByUsername(username);
 		return ResponseEntity.ok().body(
 				HttpResponse.builder()
@@ -140,7 +137,7 @@ class UserController {
 		);
 	}
 
-	@PutMapping("/user/role")
+	@PutMapping("/user/role") // manualna zmiana roli przez admina
 	ResponseEntity<HttpResponse> changeRole(@RequestBody UserUpdateRoleRequest updateRequest) {
 		UserDTO updatedUser = userManager.changeRole(updateRequest);
 		return ResponseEntity.ok().body(
@@ -154,7 +151,7 @@ class UserController {
 		);
 	}
 
-	@PutMapping("/user/access")
+	@PutMapping("/user/access") //manualne zablokowanie/odblokowanie konta przez admina/supporta
 	ResponseEntity<HttpResponse> changeAccess(@RequestBody UserUnlockRequest updateRequest) {
 		UserUnlockResponse updatedUser = userManager.changeLock(updateRequest);
 		return ResponseEntity.ok().body(
