@@ -19,7 +19,7 @@ class CreditCardDTOMapper implements Function<CreditCard, CreditCardDTO> {
 	public CreditCardDTO apply(CreditCard creditCard) {
 		return CreditCardDTO.builder()
 				.id(creditCard.getId())
-				.owner(userDTOMapper.apply(creditCard.getOwner()))
+				.owner(userDTOMapper.apply(creditCard.getAccount().getOwner()))
 				.cardNumber(creditCard.getCardNumber())
 				.build();
 	}

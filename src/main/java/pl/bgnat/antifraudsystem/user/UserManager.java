@@ -93,8 +93,12 @@ class UserManager {
 		return userService.getAllRegisteredUsers();
 	}
 
-	//TODO delete user with credit cards -> now dropping stackoverflow
 	UserDeleteResponse deleteUserByUsername(String username) {
+		User user = userService.getUserByUsername(username);
+
+		if(user.isHasAnyCreditCard())
+			creditCardService.deleteCreditCardsFromAccountByUsername(username);
+
 		return userService.deleteUserByUsername(username);
 	}
 

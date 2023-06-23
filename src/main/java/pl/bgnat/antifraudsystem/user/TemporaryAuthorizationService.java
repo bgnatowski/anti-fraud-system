@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class TemporaryAuthorizationService {
+class TemporaryAuthorizationService {
 	private final TemporaryAuthorizationRepository temporaryAuthorizationRepository;
 	private final Clock clock;
-	public TemporaryAuthorization getTemporaryAuthorization(String username) {
+	TemporaryAuthorization getTemporaryAuthorization(String username) {
 		TemporaryAuthorization temporaryAuthorization = findByUsername(username);
 
 		if(isExpired(temporaryAuthorization))

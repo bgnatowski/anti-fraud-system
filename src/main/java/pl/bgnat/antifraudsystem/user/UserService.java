@@ -1,5 +1,8 @@
 package pl.bgnat.antifraudsystem.user;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,7 @@ import static pl.bgnat.antifraudsystem.user.dto.response.UserUnlockResponse.MESS
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 class UserService {
 	private static final long ADMINISTRATOR_ID = 1L;
 	private final UserRepository userRepository;
@@ -101,7 +105,7 @@ class UserService {
 		userValidator.validUserProfile(user);
 		userValidator.validAccountExists(user.getAccount());
 
-		newCreditCard.setOwner(user);
+//		newCreditCard.setOwner(user);
 		newCreditCard.setAccount(user.getAccount());
 		newCreditCard.setCountry(user.getAccount().getCountry());
 
@@ -118,6 +122,7 @@ class UserService {
 		userValidator.validUserExistsByUsername(username);
 
 		userRepository.deleteUserByUsername(username);
+
 		return UserDeleteResponse.builder()
 				.username(username)
 				.status(DELETED_SUCCESSFULLY_RESPONSE)

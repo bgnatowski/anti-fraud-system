@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 import pl.bgnat.antifraudsystem.user.dto.CreditCardDTO;
-import pl.bgnat.antifraudsystem.user.dto.TemporaryAuthorizationDTO;
 import pl.bgnat.antifraudsystem.user.enums.Country;
 import pl.bgnat.antifraudsystem.user.exceptions.CreditCardNotFoundException;
 import pl.bgnat.antifraudsystem.utils.generator.CreditCardDataGenerator;
@@ -56,6 +55,10 @@ class CreditCardService {
 		cardToActive.setPin(customPin);
 
 		creditCardRepository.save(cardToActive);
+	}
+
+	void deleteCreditCardsFromAccountByUsername(String username){
+		creditCardRepository.deleteAllByAccountOwnerUsername(username);
 	}
 
 	void changePin(String cardNumber,String newPin){

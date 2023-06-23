@@ -37,14 +37,6 @@ class CreditCard {
 	)
 	private Account account;
 
-	@ManyToOne
-	@JoinColumn(
-			name = "owner_id",
-			referencedColumnName = "id",
-			foreignKey = @ForeignKey(name = "fk_user_credit_card")
-	)
-	private User owner;
-
 	@Column(name = "card_number", nullable = false, columnDefinition = "TEXT", length = 16)
 	private String cardNumber;
 
@@ -70,7 +62,6 @@ class CreditCard {
 	@Enumerated(EnumType.STRING)
 	private Country country;
 
-
 	@Override
 	public String toString() {
 		return "CreditCard{" +
@@ -80,5 +71,10 @@ class CreditCard {
 				", createdAt=" + createdAt +
 				", isActive=" + isActive +
 				'}';
+	}
+
+	@PreRemove
+	private void removeCreditCard() {
+		setAccount(null);
 	}
 }

@@ -45,9 +45,17 @@ class Account {
 			orphanRemoval = true,
 			fetch = FetchType.LAZY)
 	@JoinTable(
-			name="credit_cards",
-			joinColumns = @JoinColumn(name="account_id", referencedColumnName = "id"),
-			inverseJoinColumns = @JoinColumn( name="credit_card_id", referencedColumnName = "id")
+			name="account_credit_cards",
+			joinColumns = @JoinColumn(
+					name="account_id",
+					referencedColumnName = "id",
+					foreignKey = @ForeignKey(name = "fk_account_id_credit_card_id")
+			),
+			inverseJoinColumns = @JoinColumn(
+					name="credit_card_id",
+					referencedColumnName = "id",
+					foreignKey = @ForeignKey(name = "fk_credit_card_id_account_id")
+			)
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 
@@ -76,11 +84,7 @@ class Account {
 				'}';
 	}
 
-	@PreRemove
-	private void removeCreditCard() {
-		for (CreditCard creditCard : creditCards) {
-			creditCard.setOwner(null);
-			creditCard.setAccount(null);
-		}
+	private void removeCreditCards() {
+		creditCards.clear();
 	}
 }

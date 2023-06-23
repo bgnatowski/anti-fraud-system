@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TemporaryAuthorizationRepository extends JpaRepository<TemporaryAuthorization, Long> {
+interface TemporaryAuthorizationRepository extends JpaRepository<TemporaryAuthorization, Long> {
 	Optional<TemporaryAuthorization> findTemporaryAuthorizationByUserUsername(String user_username);
 }
