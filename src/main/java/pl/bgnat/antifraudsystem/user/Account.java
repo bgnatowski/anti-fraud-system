@@ -41,10 +41,13 @@ class Account {
 	)
 	private User owner;
 
-	@OneToMany(mappedBy = "account",
-			cascade = CascadeType.ALL,
+	@OneToMany(cascade = CascadeType.ALL,
 			orphanRemoval = true,
-			fetch = FetchType.LAZY
+			fetch = FetchType.LAZY)
+	@JoinTable(
+			name="credit_cards",
+			joinColumns = @JoinColumn(name="account_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn( name="credit_card_id", referencedColumnName = "id")
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 

@@ -62,17 +62,10 @@ class User implements UserDetails {
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER
 	)
-	@JoinTable(
-			name = "user_account",
-			joinColumns =
-			@JoinColumn(
-					name = "user_id",
-					referencedColumnName = "id"
-			),
-			inverseJoinColumns = @JoinColumn(
-					name = "account_id",
-					referencedColumnName = "id"
-			)
+	@JoinColumn(
+			name = "account_id",
+			referencedColumnName = "id"
+//			foreignKey = @ForeignKey(name = "fk_user_id_account_id")
 	)
 	private Account account;
 
@@ -80,37 +73,55 @@ class User implements UserDetails {
 			orphanRemoval = true,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER)
-	@JoinTable(name = "user_address",
-			joinColumns = @JoinColumn(name = "user_id",
-					referencedColumnName = "id"
-			),
-			inverseJoinColumns = @JoinColumn(
-					name = "address_id",
-					referencedColumnName = "id"
-			)
+	@JoinColumn(
+			name = "address_id",
+			referencedColumnName = "id"
+//			foreignKey = @ForeignKey(name = "fk_user_id_account_id")
 	)
+//	@JoinTable(name = "user_address",
+//			joinColumns = @JoinColumn(name = "user_id",
+//					referencedColumnName = "id"
+//			),
+//			inverseJoinColumns = @JoinColumn(
+//					name = "address_id",
+//					referencedColumnName = "id"
+//			)
+//	)
 	private Address address;
 
 	@OneToOne(mappedBy = "user",
 			orphanRemoval = true,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
 			fetch = FetchType.EAGER)
-	@JoinTable(name = "user_phone",
-			joinColumns = @JoinColumn(
-					name = "user_id",
-					referencedColumnName = "id"
-			),
-			inverseJoinColumns = @JoinColumn(
-					name = "phone_id",
-					referencedColumnName = "id"
-			)
+	@JoinColumn(
+			name = "phone_id",
+			referencedColumnName = "id"
+//			foreignKey = @ForeignKey(name = "fk_user_id_account_id")
 	)
+//	@JoinTable(name = "user_phone",
+//			joinColumns = @JoinColumn(
+//					name = "user_id",
+//					referencedColumnName = "id"
+//			),
+//			inverseJoinColumns = @JoinColumn(
+//					name = "phone_id",
+//					referencedColumnName = "id"
+//			)
+//	)
 	private PhoneNumber phone;
 
-	@OneToMany(mappedBy = "owner",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true,
-			fetch = FetchType.LAZY
+//	@OneToMany(mappedBy = "owner",
+//			cascade = CascadeType.ALL,
+//			orphanRemoval = true,
+//			fetch = FetchType.LAZY
+//	)
+	@OneToMany(cascade = CascadeType.ALL,
+	orphanRemoval = true,
+	fetch = FetchType.LAZY)
+	@JoinTable(
+			name="credit_cards",
+			joinColumns = @JoinColumn(name="user_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn( name="credit_card_id", referencedColumnName = "id")
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 
