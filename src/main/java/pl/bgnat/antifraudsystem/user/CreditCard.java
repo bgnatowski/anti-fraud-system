@@ -58,6 +58,9 @@ class CreditCard {
 	@Column(name = "is_blocked", nullable = false)
 	private boolean isBlocked;
 
+	@Column(name = "validation_attempt", nullable = false)
+	private int validationAttempt;
+
 	@Column(name = "country", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Country country;
@@ -76,5 +79,14 @@ class CreditCard {
 	@PreRemove
 	private void removeCreditCard() {
 		setAccount(null);
+	}
+
+	public void increaseValidationAttempt() {
+		if(validationAttempt>=3) isBlocked = true;
+		validationAttempt++;
+	}
+
+	public void restoreValidationAttempt(){
+		if(!isBlocked) validationAttempt = 0;
 	}
 }
