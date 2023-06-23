@@ -42,7 +42,9 @@ class Account {
 	private User owner;
 
 	@OneToMany(mappedBy = "account",
-			cascade = CascadeType.ALL
+			cascade = CascadeType.ALL,
+			orphanRemoval = true,
+			fetch = FetchType.LAZY
 	)
 	private final Set<CreditCard> creditCards = new HashSet<>();
 
@@ -69,5 +71,13 @@ class Account {
 				", createDate=" + createDate +
 				", isActive=" + isActive +
 				'}';
+	}
+
+	@PreRemove
+	private void removeCreditCard() {
+		for (CreditCard creditCard : creditCards) {
+			creditCard.setOwner(null);
+			creditCard.setAccount(null);
+		}
 	}
 }

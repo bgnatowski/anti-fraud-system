@@ -2,6 +2,7 @@ package pl.bgnat.antifraudsystem.user;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -26,5 +27,7 @@ interface UserRepository extends JpaRepository<User, Long>
 //	boolean existsUserByPhoneNumer(String number);
 
 	boolean existsUserByPhone_Number(String phone_number);
+	@Transactional
+	@Modifying
 	void deleteUserByUsername(String username);
 }

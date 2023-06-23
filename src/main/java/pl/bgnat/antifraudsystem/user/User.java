@@ -108,7 +108,7 @@ class User implements UserDetails {
 	private PhoneNumber phone;
 
 	@OneToMany(mappedBy = "owner",
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+			cascade = CascadeType.ALL,
 			orphanRemoval = true,
 			fetch = FetchType.LAZY
 	)
@@ -188,5 +188,13 @@ class User implements UserDetails {
 		if(numberOfCreditCards==0)
 			hasAnyCreditCard = false;
 		else numberOfCreditCards--;
+	}
+
+	@PreRemove
+	private void removeCreditCard() {
+		for (CreditCard creditCard : creditCards) {
+			creditCard.setOwner(null);
+			creditCard.setAccount(null);
+		}
 	}
 }
