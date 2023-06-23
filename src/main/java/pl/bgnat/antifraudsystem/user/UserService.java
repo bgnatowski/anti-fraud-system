@@ -105,7 +105,6 @@ class UserService {
 		userValidator.validUserProfile(user);
 		userValidator.validAccountExists(user.getAccount());
 
-//		newCreditCard.setOwner(user);
 		newCreditCard.setAccount(user.getAccount());
 		newCreditCard.setCountry(user.getAccount().getCountry());
 
