@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static pl.bgnat.antifraudsystem.user.enums.Role.*;
+import static pl.bgnat.antifraudsystem.bank.user.enums.Role.*;
 
 @Configuration
 @EnableWebSecurity

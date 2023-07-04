@@ -6,11 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.AbstractTestcontainers;
+import pl.bgnat.antifraudsystem.bank.transaction.validation.*;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
-import pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus;
-import pl.bgnat.antifraudsystem.transaction.validation.exceptions.IllegalAmountException;
+import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionResponse;
+import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.bank.transaction.validation.exceptions.IllegalAmountException;
 
 import java.util.ArrayList;
 import java.util.List;
