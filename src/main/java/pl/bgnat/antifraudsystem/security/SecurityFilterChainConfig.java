@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static pl.bgnat.antifraudsystem.user.Role.*;
+import static pl.bgnat.antifraudsystem.bank.user.enums.Role.*;
 
 @Configuration
 @EnableWebSecurity
@@ -61,6 +61,8 @@ public class SecurityFilterChainConfig {
 				.requestMatchers("/actuator/shutdown").permitAll()
 				.requestMatchers(HttpMethod.POST,
 						"/api/auth/user").permitAll() //Anonymous
+				.requestMatchers(HttpMethod.PATCH,
+						"/api/auth/user/**").permitAll() //
 				.anyRequest()
 				.authenticated()
 				.and()

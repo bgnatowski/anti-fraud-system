@@ -6,6 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.bgnat.antifraudsystem.bank.user.MyUserDetailService;
+import pl.bgnat.antifraudsystem.bank.user.User;
+import pl.bgnat.antifraudsystem.bank.user.UserRepository;
 
 import java.util.Optional;
 

@@ -12,8 +12,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.bgnat.antifraudsystem.transaction.dto.TransactionRequest;
-import pl.bgnat.antifraudsystem.transaction.dto.TransactionResponse;
+import pl.bgnat.antifraudsystem.bank.transaction.TransactionController;
+import pl.bgnat.antifraudsystem.bank.transaction.TransactionService;
+import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionRequest;
+import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionResponse;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -21,7 +23,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static pl.bgnat.antifraudsystem.transaction.dto.TransactionStatus.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(TransactionController.class)

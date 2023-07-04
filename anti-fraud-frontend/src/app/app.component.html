@@ -1,0 +1,83 @@
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <a class="navbar-brand" href="#">
+      <img src="/assets/piggsy_logo.png" alt="PiggsyBank Logo" width="70" height="50"
+           class="d-inline-block align-text-top">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Zaloguj</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Utwórz konto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-5">
+  <h1 class="display-4">Witaj w PiggsyBank!</h1>
+  <p class="lead">Zadbaj o swoje finanse dzięki niezawodnemu systemowi bankowemu PiggsyBank. Oferujemy szeroki zakres
+    usług i możliwości, aby sprostać Twoim potrzebom finansowym.</p>
+  <p class="lead">Skorzystaj z naszych usług bankowych, zarządzaj swoimi kontami, otrzymuj szybkie transakcje i ciesz
+    się dogodną bankowością online.</p>
+
+
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <h2 class="fw-bold">Usługi bankowe</h2>
+      <ul>
+        <li>Konta osobiste</li>
+        <li>Kredyty hipoteczne</li>
+        <li>Karty kredytowe</li>
+        <li>Konta oszczędnościowe</li>
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <h2 class="fw-bold">Kontakt</h2>
+      <p>Skontaktuj się z nami, jeśli masz pytania lub potrzebujesz pomocy.</p>
+      <ul>
+        <li>Telefon: 123-456-789</li>
+        <li>Email: info@piggsybank.com</li>
+        <li>Adres: ul. Bankowa 1, 12345 Piggsyville</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-md-4">
+      <div class="card" style="background-color: #823426;">
+        <img src="../assets/security.jpg" class="card-img-top" alt="Obrazek 1">
+        <div class="card-body">
+          <h5 class="card-title text-white">Bezpieczeństwo</h5>
+          <p class="card-text text-white">Zadbaj o swoje finanse dzięki naszemu niezawodnemu systemowi zabezpieczeń.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="background-color: #F8D7DA;">
+        <img src="../assets/online_banking.jpg" class="card-img-top" alt="Obrazek 2">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Dogodna bankowość online</h5>
+          <p class="card-text text-dark">Korzystaj z naszych usług bankowych z dowolnego miejsca i o dowolnej porze.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card" style="background-color: #A59D95;">
+        <img src="../assets/fast_transactions.jpg" class="card-img-top" alt="Obrazek 3">
+        <div class="card-body">
+          <h5 class="card-title text-white">Szybkie transakcje</h5>
+          <p class="card-text text-white">Wykonuj płatności i przelewy w mgnieniu oka. Skorzystaj z pomocy wirtualnego asystenta</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<router-outlet></router-outlet>
