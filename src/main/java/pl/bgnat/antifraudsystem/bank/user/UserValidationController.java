@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.bgnat.antifraudsystem.bank.HttpResponse;
-import pl.bgnat.antifraudsystem.bank.user.domain.UserFacade;
+import pl.bgnat.antifraudsystem.bank.user.domain.UserManager;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.ConfirmEmailRequest;
 import pl.bgnat.antifraudsystem.bank.user.dto.response.UserEmailConfirmedResponse;
 
@@ -20,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/")
 class UserValidationController {
-	private final UserFacade userManager;
+	private final UserManager userManager;
 	private final Clock clock;
 
 	@PatchMapping("/user/email/confirm") // all - kazdy moze potwierdzać email

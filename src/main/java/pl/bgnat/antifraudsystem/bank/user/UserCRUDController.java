@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.bgnat.antifraudsystem.bank.HttpResponse;
-import pl.bgnat.antifraudsystem.bank.user.domain.UserFacade;
+import pl.bgnat.antifraudsystem.bank.user.domain.UserManager;
 import pl.bgnat.antifraudsystem.bank.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.*;
 import pl.bgnat.antifraudsystem.bank.user.dto.response.UserDeleteResponse;
@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/")
 class UserCRUDController {
-	private final UserFacade userManager;
+	private final UserManager userManager;
 	private final Clock clock;
 	@GetMapping("/users/list") // admin/support - kiedy chce sprawdzić czy np jest takie konto -> potem sobie filtruje
 	ResponseEntity<HttpResponse> getAllRegisteredUsers() {

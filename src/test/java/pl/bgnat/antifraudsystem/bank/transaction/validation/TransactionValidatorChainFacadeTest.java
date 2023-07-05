@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.transaction.validation;
+package pl.bgnat.antifraudsystem.bank.transaction.validation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

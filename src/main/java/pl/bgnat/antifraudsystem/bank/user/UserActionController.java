@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.bgnat.antifraudsystem.bank.HttpResponse;
-import pl.bgnat.antifraudsystem.bank.user.domain.UserFacade;
+import pl.bgnat.antifraudsystem.bank.user.domain.UserManager;
 import pl.bgnat.antifraudsystem.bank.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.UserUnlockRequest;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.UserUpdateRoleRequest;
@@ -23,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/")
 class UserActionController {
-	private final UserFacade userManager;
+	private final UserManager userManager;
 	private final Clock clock;
 	@PutMapping("/user/role") // manualna zmiana roli przez admina
 	ResponseEntity<HttpResponse> changeRole(@RequestBody UserUpdateRoleRequest updateRequest) {

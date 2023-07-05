@@ -19,13 +19,13 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 
 @Service
 @RequiredArgsConstructor
-class UserManager {
+public class UserManager {
 	private final UserService userService;
 	private final EmailService emailService;
 	private final CreditCardService creditCardService;
 	private final AccountService accountService;
 	private final TemporaryAuthorizationService temporaryAuthorizationService;
-	UserEmailConfirmedResponse confirmUserEmail(ConfirmEmailRequest confirmEmailRequest) {
+	public UserEmailConfirmedResponse confirmUserEmail(ConfirmEmailRequest confirmEmailRequest) {
 		if (!isValidConfirmEmailRequest(confirmEmailRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
@@ -44,7 +44,7 @@ class UserManager {
 	}
 
 
-	UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
+	public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
 		if (!isValidRequestJsonFormat(userRegistrationRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
 
@@ -58,7 +58,7 @@ class UserManager {
 		return userService.mapToDto(registeredUser);
 	}
 
-	UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
+	public UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
 		if (!isValidAddressRequest(addressRegisterRequest))
 			throw new InvalidAddressFormatException(addressRegisterRequest.toString());
 		User user = userService.addUserAddress(username, addressRegisterRequest);
@@ -66,7 +66,7 @@ class UserManager {
 	}
 
 
-	UserDTO createAccountForUserWithUsername(String username) {
+	public UserDTO createAccountForUserWithUsername(String username) {
 		User user = userService.getUserByUsername(username);
 		Account newAccount = accountService.createAccount(user.getAddress().getCountry());
 		userService.addAccountToUser(username, newAccount);
@@ -74,7 +74,7 @@ class UserManager {
 		return userService.mapToDto(user);
 	}
 
-	UserDTO createCreditCardForUserWithUsername(String username) {
+	public UserDTO createCreditCardForUserWithUsername(String username) {
 		User user = userService.getUserByUsername(username);
 		CreditCard newCreditCard = creditCardService.createCreditCard(user.getAccount().getCountry());
 		userService.addCreditCardToUser(username, newCreditCard);
@@ -82,16 +82,16 @@ class UserManager {
 		return userService.mapToDto(user);
 	}
 
-	UserDTO getUserByUsername(String username) {
+	public UserDTO getUserByUsername(String username) {
 		User user = userService.getUserByUsername(username);
 		return userService.mapToDto(user);
 	}
 
-	List<UserDTO> getAllRegisteredUsers() {
+	public List<UserDTO> getAllRegisteredUsers() {
 		return userService.getAllRegisteredUsers();
 	}
 
-	UserDeleteResponse deleteUserByUsername(String username) {
+	public UserDeleteResponse deleteUserByUsername(String username) {
 		User user = userService.getUserByUsername(username);
 
 		if(user.isHasAnyCreditCard())
@@ -100,12 +100,12 @@ class UserManager {
 		return userService.deleteUserByUsername(username);
 	}
 
-	UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
+	public UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
 		User user = userService.changeRole(updateRequest.username(), updateRequest.role());
 		return userService.mapToDto(user);
 	}
 
-	UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
+	public UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
 		if (!isValidChangeLockRequest(updateRequest))
 			throw new RequestValidationException(String.format(WRONG_JSON_FORMAT));
 		return userService.changeLock(updateRequest.username(), updateRequest.operation());

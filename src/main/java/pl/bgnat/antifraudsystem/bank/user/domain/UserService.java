@@ -56,7 +56,7 @@ class UserService {
 		PhoneNumber userPhone = phoneNumberCreator.createPhoneNumber(createdUser, phoneNumber);
 		createdUser.setPhone(userPhone);
 
-		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){ //todo delete and
+		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){ // todo delete and
 			TemporaryAuthorization temporaryAuthorization =
 					temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
 			createdUser.setTemporaryAuthorization(temporaryAuthorization);

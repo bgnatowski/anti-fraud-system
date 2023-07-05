@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.transaction;
+package pl.bgnat.antifraudsystem.bank.transaction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -12,8 +12,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.bgnat.antifraudsystem.bank.transaction.TransactionController;
-import pl.bgnat.antifraudsystem.bank.transaction.TransactionService;
 import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionRequest;
 import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionResponse;
 
@@ -23,6 +21,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionStatus.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(TransactionController.class)

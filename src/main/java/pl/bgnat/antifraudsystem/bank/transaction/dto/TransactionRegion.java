@@ -24,5 +24,4 @@ public enum TransactionRegion {
 	public String getDescription() {
 		return description;
 	}
-
 }
