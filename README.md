@@ -2,6 +2,8 @@
 
 This is a REST project based on Hyperskill course but with some changes in used technologies.
 
+Currently in development as a fake web bank app  
+
 ### Technologies:
 
 - Spring Boot 3
