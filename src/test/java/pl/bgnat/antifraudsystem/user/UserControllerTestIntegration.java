@@ -15,15 +15,10 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
-@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserControllerTestIntegration {
-	private final String transactionApi = "/api/antifraud/transaction";
-	private final String userApi = "/api/auth/user";
-	private final String userListApi = "/api/auth/list";
-	private final String lockApi = "/api/auth/access";
-	private final String roleApi = "/api/auth/role";
+	private final String USER_LIST_URL = "/api/auth/list";
 	@LocalServerPort
 	private int port;
 
@@ -41,7 +36,7 @@ public class UserControllerTestIntegration {
 		given()
 				.contentType(ContentType.JSON)
 				.when()
-				.get(userListApi)
+				.get(USER_LIST_URL)
 				.then()
 				.statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
@@ -60,17 +55,15 @@ public class UserControllerTestIntegration {
 
 		// przygotowanie nagłówka z autoryzacją
 
-
 		given()
 				.auth()
 				.basic("admin", "password")
 				.header("Accept", ContentType.JSON.getAcceptHeader())
 				.contentType(ContentType.JSON)
 				.when()
-				.get(userListApi)
+				.get(USER_LIST_URL)
 				.then()
 				.statusCode(HttpStatus.OK.value());
 	}
-
 }
 

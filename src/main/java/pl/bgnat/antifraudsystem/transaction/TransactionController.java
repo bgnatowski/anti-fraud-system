@@ -21,8 +21,5 @@ class TransactionController {
 	ResponseEntity<TransactionResponse> validTransaction(@RequestBody TransactionRequest transactionRequest) {
 		TransactionResponse response = transactionService.transferTransaction(transactionRequest);
 		return ResponseEntity.ok(response);
-
 	}
-
-
 }

@@ -25,7 +25,6 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @ExtendWith(MockitoExtension.class)
 public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers {
 
-//	@Autowired
 	@Mock private TransactionJsonFormatValidator jsonFormatValidator;
 	@Mock private TransactionAmountValidator amountValidator;
 	@Mock private TransactionIpValidator ipValidator;
