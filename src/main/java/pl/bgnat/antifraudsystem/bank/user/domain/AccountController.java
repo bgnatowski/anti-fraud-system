@@ -8,16 +8,12 @@ import java.time.Clock;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth/credit-card/")
+@RequestMapping("/api/auth/account/")
 class AccountController {
 	private final AccountService accountService;
-	private final Clock clock;
 
 	// get all accounts - admin
 	// get account for user by: username - merchant/support/admin
 	// pay into account merchant/support/admin
-	// withdraw(in window) //support
 	// transfer
-
-
 }

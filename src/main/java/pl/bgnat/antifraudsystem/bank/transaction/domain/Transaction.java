@@ -1,4 +1,4 @@
-package pl.bgnat.antifraudsystem.bank.transaction;
+package pl.bgnat.antifraudsystem.bank.transaction.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

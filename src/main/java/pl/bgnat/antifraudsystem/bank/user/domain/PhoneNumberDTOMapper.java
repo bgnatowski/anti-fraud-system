@@ -11,7 +11,6 @@ class PhoneNumberDTOMapper implements Function<PhoneNumber, PhoneNumberDTO> {
 	public PhoneNumberDTO apply(PhoneNumber number) {
 		if(number==null) return PhoneNumberDTO.emptyDto();
 		return PhoneNumberDTO.builder()
-				.areaCode(number.getAreaCode())
 				.number(number.getNumber())
 				.build();
 	}

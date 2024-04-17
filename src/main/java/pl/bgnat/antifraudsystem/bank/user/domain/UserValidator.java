@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.bank.user.enums.Role;
 import pl.bgnat.antifraudsystem.bank.user.exceptions.*;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 import pl.bgnat.antifraudsystem.utils.validator.BirthDateValidator;
 import pl.bgnat.antifraudsystem.utils.validator.EmailValidator;
 import pl.bgnat.antifraudsystem.utils.validator.PhoneNumberValidator;
@@ -17,7 +18,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 class UserValidator {
 	private final UserRepository userRepository;
-	private final Clock clock;
 
 	void validRegistration(UserRegistrationRequest userRegistrationRequest) {
 		validEmail(userRegistrationRequest.email());
@@ -61,7 +61,7 @@ class UserValidator {
 	}
 
 	void validDateOfBirth(LocalDate dateOfBirth) {
-		if(!BirthDateValidator.isValid(dateOfBirth, LocalDate.now(clock)))
+		if(!BirthDateValidator.isValid(dateOfBirth, DateTimeUtils.currentLocalDate()))
 			throw new UserAgeException();
 	}
 

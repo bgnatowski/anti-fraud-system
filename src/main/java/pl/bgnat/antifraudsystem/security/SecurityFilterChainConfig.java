@@ -34,10 +34,10 @@ public class SecurityFilterChainConfig {
 				.requestMatchers(HttpMethod.DELETE,
 						"/api/auth/user/*").hasAuthority(ADMINISTRATOR.name())
 				.requestMatchers(HttpMethod.GET,
-						"/api/auth/list").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
+						"/api/auth/users").hasAnyAuthority(ADMINISTRATOR.name(), SUPPORT.name())
 				.requestMatchers(HttpMethod.POST,
 						"/api/antifraud/transaction",
-						"/api/antifraud/transaction/").hasAuthority(MERCHANT.name())
+						"/api/antifraud/transaction/").hasAnyAuthority(MERCHANT.name(), SUPPORT.name(), ADMINISTRATOR.name())
 				.requestMatchers(HttpMethod.PUT,
 						"/api/auth/access",
 						"/api/auth/access/",
@@ -47,17 +47,29 @@ public class SecurityFilterChainConfig {
 						"api/antifraud/suspicious-ip",
 						"api/antifraud/suspicious-ip/",
 						"api/antifraud/stolencard",
-						"api/antifraud/stolencard/").hasAuthority(SUPPORT.name())
+						"api/antifraud/stolencard/",
+						"/api/antifraud/suspicious-ip",
+						"/api/antifraud/suspicious-ip/",
+						"/api/antifraud/stolencard",
+						"/api/antifraud/stolencard/").hasAnyAuthority(SUPPORT.name(), ADMINISTRATOR.name())
 				.requestMatchers(HttpMethod.DELETE,
 						"api/antifraud/suspicious-ip",
 						"api/antifraud/suspicious-ip/*",
 						"api/antifraud/stolencard",
-						"api/antifraud/stolencard/*").hasAuthority(SUPPORT.name())
+						"api/antifraud/stolencard/*",
+						"/api/antifraud/suspicious-ip",
+						"/api/antifraud/suspicious-ip/*",
+						"/api/antifraud/stolencard",
+						"/api/antifraud/stolencard/*").hasAnyAuthority(SUPPORT.name(), ADMINISTRATOR.name())
 				.requestMatchers(HttpMethod.GET,
 						"api/antifraud/suspicious-ip",
 						"api/antifraud/suspicious-ip/",
 						"api/antifraud/stolencard",
-						"api/antifraud/stolencard/").hasAuthority(SUPPORT.name())
+						"api/antifraud/stolencard/",
+						"/api/antifraud/suspicious-ip",
+						"/api/antifraud/suspicious-ip/",
+						"/api/antifraud/stolencard",
+						"/api/antifraud/stolencard/").hasAnyAuthority(SUPPORT.name(), ADMINISTRATOR.name())
 				.requestMatchers("/actuator/shutdown").permitAll()
 				.requestMatchers(HttpMethod.POST,
 						"/api/auth/user").permitAll() //Anonymous

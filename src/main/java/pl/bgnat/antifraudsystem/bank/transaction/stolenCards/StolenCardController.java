@@ -8,6 +8,7 @@ import pl.bgnat.antifraudsystem.bank.transaction.stolenCards.dto.StolenCardReque
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/antifraud/stolencard")
 class StolenCardController {
 	private final StolenCardService stolenCardService;
 
@@ -15,18 +16,18 @@ class StolenCardController {
 		this.stolenCardService = stolenCardService;
 	}
 
-	@PostMapping( "/api/antifraud/stolencard")
+	@PostMapping
 	ResponseEntity<StolenCard> addSuspiciousIp(@RequestBody StolenCardRequest stolenCardRequest){
 		StolenCard addedStolenCard = stolenCardService.addStolenCard(stolenCardRequest);
 		return ResponseEntity.ok(addedStolenCard);
 	}
 
-	@DeleteMapping("/api/antifraud/stolencard/{number}")
+	@DeleteMapping("/{number}")
 	ResponseEntity<StolenCardDeleteResponse> deleteSuspiciousIpByIpAddress(@PathVariable("number") String number){
 		return ResponseEntity.ok(stolenCardService.deleteStolenCardByNumber(number));
 	}
 
-	@GetMapping("/api/antifraud/stolencard")
+	@GetMapping
 	ResponseEntity<List<StolenCard>> getAllSuspiciousIPs(){
 		return ResponseEntity.ok(stolenCardService.getAllStolenCards());
 	}

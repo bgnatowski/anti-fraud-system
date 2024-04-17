@@ -1,22 +1,17 @@
-package pl.bgnat.antifraudsystem.bank.transaction;
+package pl.bgnat.antifraudsystem.bank.transaction.domain;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionRequest;
 import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionResponse;
 import pl.bgnat.antifraudsystem.bank.transaction.validation.TransactionValidatorFacade;
 
 @Service
+@RequiredArgsConstructor
 class TransactionService {
 	private final TransactionValidatorFacade validatorChainFacade;
 	private final TransactionRepository transactionRepository;
 	private final TransactionMapper transactionMapper;
-	TransactionService(TransactionValidatorFacade validatorChainFacade,
-					   TransactionRepository transactionRepository,
-					   TransactionMapper transactionMapper) {
-		this.validatorChainFacade = validatorChainFacade;
-		this.transactionRepository = transactionRepository;
-		this.transactionMapper = transactionMapper;
-	}
 
 	TransactionResponse transferTransaction(TransactionRequest transactionRequest) {
 		TransactionResponse transactionResponse = validatorChainFacade.valid(transactionRequest);

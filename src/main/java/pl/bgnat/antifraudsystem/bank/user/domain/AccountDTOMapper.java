@@ -10,14 +10,11 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 class AccountDTOMapper implements Function<Account, AccountDTO> {
-	private final UserDTOMapper userDTOMapper;
-
 	@Override
 	public AccountDTO apply(Account account) {
 		if(account==null) return null;
 		return AccountDTO.builder()
 				.id(account.getId())
-				.owner(userDTOMapper.apply(account.getOwner()))
 				.balance(account.getBalance())
 				.isActive(account.isActive())
 				.createDate(account.getCreateDate())

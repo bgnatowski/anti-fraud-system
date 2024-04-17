@@ -3,6 +3,7 @@ package pl.bgnat.antifraudsystem.bank.user.domain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.bank.user.exceptions.TemporaryAuthorizationNotFoundException;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 class TemporaryAuthorizationService {
 	private final TemporaryAuthorizationRepository temporaryAuthorizationRepository;
-	private final Clock clock;
 	TemporaryAuthorization getTemporaryAuthorization(String username) {
 		TemporaryAuthorization temporaryAuthorization = findByUsername(username);
 
@@ -23,7 +23,7 @@ class TemporaryAuthorizationService {
 	}
 
 	private boolean isExpired(TemporaryAuthorization temporaryAuthorization) {
-		return temporaryAuthorization.getExpirationDate().isBefore(LocalDateTime.now(clock));
+		return temporaryAuthorization.getExpirationDate().isBefore(DateTimeUtils.currentLocalDateTime());
 	}
 
 	private TemporaryAuthorization findByUsername(String username){

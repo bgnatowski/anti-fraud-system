@@ -2,7 +2,7 @@ package pl.bgnat.antifraudsystem.bank.transaction.validation;
 
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.bank.transaction.stolenCards.exceptions.CardNumberFormatException;
-import pl.bgnat.antifraudsystem.bank.transaction.TransactionFacade;
+import pl.bgnat.antifraudsystem.bank.transaction.domain.TransactionFacade;
 import pl.bgnat.antifraudsystem.bank.transaction.dto.TransactionRequest;
 
 import java.util.List;

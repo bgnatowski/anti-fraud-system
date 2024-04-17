@@ -35,9 +35,6 @@ class PhoneNumber {
 	)
 	private User user;
 
-	@Column(name = "areaCode", nullable = false)
-	private String areaCode;
-
 	@Column(name = "number", nullable = false)
 	private String number;
 
@@ -45,13 +42,11 @@ class PhoneNumber {
 	public String toString() {
 		return "PhoneNumber{" +
 				"id=" + id +
-				", areaCode='" + areaCode + '\'' +
 				", number='" + number + '\'' +
 				'}';
 	}
 
 	public static String[] extractAreaCodeAndNumber(String phoneNumber) {
-		// Extract the area code
 		String areaCode = "";
 		String number = "";
 		if (phoneNumber.startsWith("+")) {

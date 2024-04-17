@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.bank.user.dto.AccountDTO;
 import pl.bgnat.antifraudsystem.bank.user.enums.Country;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 import pl.bgnat.antifraudsystem.utils.generator.IBANGenerator;
 
 import java.time.Clock;
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 class AccountService {
 	private final AccountRepository accountRepository;
 	private final AccountDTOMapper accountDTOMapper;
-	private final Clock clock;
 
 	Account createAccount(Country country) {
 		String alpha2Code = country.getIbanCountryCode().getAlpha2Code();
@@ -27,7 +27,7 @@ class AccountService {
 		Account newAccount = Account.builder()
 				.balance(0d)
 				.iban(newIban)
-				.createDate(LocalDateTime.now(clock))
+				.createDate(DateTimeUtils.currentLocalDateTime())
 				.country(country)
 				.isActive(true)
 				.build();
@@ -38,8 +38,5 @@ class AccountService {
 	AccountDTO mapToDto(Account account){
 		return accountDTOMapper.apply(account);
 	}
-
-
-
 
 }

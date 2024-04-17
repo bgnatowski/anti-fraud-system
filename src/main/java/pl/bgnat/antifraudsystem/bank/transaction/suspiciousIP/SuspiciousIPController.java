@@ -8,25 +8,25 @@ import pl.bgnat.antifraudsystem.bank.transaction.suspiciousIP.dto.SuspiciousIpDe
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/antifraud/suspicious-ip")
 class SuspiciousIPController {
 	private final SuspiciousIPService ipService;
 
 	public SuspiciousIPController(SuspiciousIPService ipService) {
 		this.ipService = ipService;
 	}
-	@PostMapping( "/api/antifraud/suspicious-ip")
+	@PostMapping
 	ResponseEntity<SuspiciousIP> addSuspiciousIp(@RequestBody SuspiciousIPRequest suspiciousIPRequest){
 		SuspiciousIP addedSuspiciousIp = ipService.addSuspiciousIp(suspiciousIPRequest);
 		return ResponseEntity.ok(addedSuspiciousIp);
 	}
 
-	@DeleteMapping("/api/antifraud/suspicious-ip/{ip}")
+	@DeleteMapping("/{ip}")
 	ResponseEntity<SuspiciousIpDeleteResponse> deleteSuspiciousIpByIpAddress(@PathVariable("ip") String ipAddress){
 		return ResponseEntity.ok(ipService.deleteSuspiciousIpByIpAddress(ipAddress));
 	}
 
-	@GetMapping("/api/antifraud/suspicious-ip")
+	@GetMapping
 	ResponseEntity<List<SuspiciousIP>> getAllSuspiciousIPs(){
 		return ResponseEntity.ok(ipService.getAllSuspiciousIPs());
 	}

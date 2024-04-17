@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import pl.bgnat.antifraudsystem.bank.user.enums.Role;
 
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ interface UserRepository extends JpaRepository<User, Long>
 	Optional<User> findUserByUsername(String username);
 	boolean existsUserByUsername(String username);
 	boolean existsUserByEmail(String email);
+	boolean existsUserByRole(Role email);
 
 //	@Query("""
 //			SELECT

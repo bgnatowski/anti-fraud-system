@@ -54,7 +54,4 @@ public class MailCredentialsConfig {
 		props.put("mail.from.email", fromEmail);
 		return mailSender;
 	}
-
-
-
 }

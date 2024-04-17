@@ -4,16 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.bank.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.*;
-import pl.bgnat.antifraudsystem.bank.user.dto.response.UserDeleteResponse;
-import pl.bgnat.antifraudsystem.bank.user.dto.response.UserEmailConfirmedResponse;
-import pl.bgnat.antifraudsystem.bank.user.dto.response.UserUnlockResponse;
+import pl.bgnat.antifraudsystem.bank.user.dto.response.*;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class UserFacade {
-	private UserManager userManager;
+	private final UserManager userManager;
 
 	public List<UserDTO> getAllRegisteredUsers() {
 		return userManager.getAllRegisteredUsers();
@@ -27,15 +25,15 @@ public class UserFacade {
 		return userManager.confirmUserEmail(confirmEmailRequest);
 	}
 
-	public UserDTO addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
+	public UserWithAddressResponse addUserAddress(String username, AddressRegisterRequest addressRegisterRequest) {
 		return userManager.addUserAddress(username, addressRegisterRequest);
 	}
 
-	public UserDTO createCreditCardForUserWithUsername(String username) {
+	public UserCreditCardCreatedResponse createCreditCardForUserWithUsername(String username) {
 		return userManager.createCreditCardForUserWithUsername(username);
 	}
 
-	public UserDTO createAccountForUserWithUsername(String username) {
+	public UserAccountCreatedResponse createAccountForUserWithUsername(String username) {
 		return userManager.createAccountForUserWithUsername(username);
 	}
 

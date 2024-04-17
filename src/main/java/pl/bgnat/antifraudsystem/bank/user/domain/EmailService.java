@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.bank.user.dto.EmailDTO;
 import pl.bgnat.antifraudsystem.bank.user.exceptions.InvalidConfirmationCodeException;
 import pl.bgnat.antifraudsystem.bank.user.exceptions.TemporaryAuthorizationExpiredException;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 class EmailService {
 	private final EmailSender emailSender;
-	private final Clock clock;
 
 	void sendConfirmationEmail(String emailTo, String code){
 		EmailDTO confirmationEmail = EmailDTO.builder()
@@ -34,12 +34,11 @@ class EmailService {
 	}
 
 	void confirmEmail(TemporaryAuthorization temporaryAuthorization, String code) {
-		LocalDateTime now = LocalDateTime.now(clock);
 		String username = temporaryAuthorization.getUser().getUsername();
 		String confirmationCode = temporaryAuthorization.getCode();
 		LocalDateTime expirationDate = temporaryAuthorization.getExpirationDate();
 
-		if (expirationDate.isBefore(now))
+		if (expirationDate.isBefore(DateTimeUtils.currentLocalDateTime()))
 			throw new TemporaryAuthorizationExpiredException(username);
 		if (!code.equals(confirmationCode))
 			throw new InvalidConfirmationCodeException(code);

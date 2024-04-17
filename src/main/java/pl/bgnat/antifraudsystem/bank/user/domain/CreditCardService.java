@@ -25,11 +25,10 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 class CreditCardService {
 	private final CreditCardRepository creditCardRepository;
 	private final CreditCardDTOMapper creditCardDTOMapper;
-	private final CreditCardCreator creditCardCreator;
 	private final CreditCardValidator creditCardValidator;
 
 	CreditCard createCreditCard(Country country) {
-		CreditCard newCreditCard = creditCardCreator.createNewCreditCard(country);
+		CreditCard newCreditCard = CreditCardCreator.createNewCreditCard(country);
 		return creditCardRepository.save(newCreditCard);
 	}
 
@@ -74,10 +73,6 @@ class CreditCardService {
 				.build();
 	}
 
-	void deleteCreditCardsFromAccountByUsername(String username) {
-		creditCardRepository.deleteAllByAccountOwnerUsername(username);
-	}
-
 	CreditCardDeleteResponse delete(CreditCardDeleteRequest creditCardDeleteRequest) {
 		if (!isValidCreditCardDeleteRequest(creditCardDeleteRequest))
 			throw new RequestValidationException(WRONG_JSON_FORMAT);
@@ -107,7 +102,7 @@ class CreditCardService {
 				.build();
 	}
 
-	public List<CreditCardDTO> getAllCreditCards() {
+	List<CreditCardDTO> getAllCreditCards() {
 		Page<CreditCard> page = creditCardRepository.findAll(Pageable.ofSize(100));
 		return page.getContent()
 				.stream()
@@ -116,12 +111,16 @@ class CreditCardService {
 				.collect(Collectors.toList());
 	}
 
-	private CreditCardDTO mapToDto(CreditCard creditCard) {
+	CreditCardDTO mapToDto(CreditCard creditCard) {
 		return creditCardDTOMapper.apply(creditCard);
 	}
 
 	CreditCardDTO getCreditCardDTOByNumber(String cardNumber) {
 		return mapToDto(getCreditCardByNumber(cardNumber));
+	}
+
+	void deleteCreditCardsFromAccountByUsername(String username) {
+		creditCardRepository.deleteAllByAccountOwnerUsername(username);
 	}
 
 	private CreditCard getCreditCardByNumber(String cardNumber) {

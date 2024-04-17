@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.bank.user.dto.UserDTO;
 import pl.bgnat.antifraudsystem.bank.user.dto.request.AddressRegisterRequest;
@@ -24,14 +25,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 class UserService {
-	private static final long ADMINISTRATOR_ID = 1L;
 	private final UserRepository userRepository;
-	private final UserCreator userCreator;
 	private final UserDTOMapper userDTOMapper;
 	private final UserValidator userValidator;
-	private final PhoneNumberCreator phoneNumberCreator;
-	private final AddressCreator addressCreator;
-	private final TemporaryAuthorizationCreator temporaryAuthorizationCreator;
+	private final PasswordEncoder passwordEncoder;
 
 	List<UserDTO> getAllRegisteredUsers() {
 		Page<User> page = userRepository.findAll(Pageable.ofSize(100));
@@ -51,14 +48,14 @@ class UserService {
 		userValidator.validRegistration(userRegistrationRequest);
 
 		User createdUser = createProperUser(userRegistrationRequest);
+		createdUser.setPassword(passwordEncoder.encode(userRegistrationRequest.password()));
 
-		String[] phoneNumber = PhoneNumber.extractAreaCodeAndNumber(userRegistrationRequest.phoneNumber());
-		PhoneNumber userPhone = phoneNumberCreator.createPhoneNumber(createdUser, phoneNumber);
+		PhoneNumber userPhone = PhoneNumberCreator.createPhoneNumber(createdUser, userRegistrationRequest.phoneNumber());
 		createdUser.setPhone(userPhone);
 
 		if(createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")){ //todo delete and
 			TemporaryAuthorization temporaryAuthorization =
-					temporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
+					TemporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
 			createdUser.setTemporaryAuthorization(temporaryAuthorization);
 		}
 
@@ -67,10 +64,9 @@ class UserService {
 		return registeredUser;
 	}
 
-
 	User addUserAddress(String username, AddressRegisterRequest address) {
 		User user = getUserByUsername(username);
-		Address userAddress = addressCreator.createAddress(user, address);
+		Address userAddress = AddressCreator.createAddress(user, address);
 
 		user.setAddress(userAddress);
 		userRepository.save(user);
@@ -157,17 +153,15 @@ class UserService {
 				.status(statusMessage)
 				.build();
 	}
-
-	public UserDTO mapToDto(User user){
+	UserDTO mapToDto(User user){
 		return userDTOMapper.apply(user);
 	}
 
 	private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
-		if (!userRepository.existsById(ADMINISTRATOR_ID))
-			return userCreator.createAdministrator(userRegistrationRequest);
-		return userCreator.createMerchant(userRegistrationRequest);
+		if (!userRepository.existsUserByRole(Role.ADMINISTRATOR))
+			return UserCreator.createAdministrator(userRegistrationRequest);
+		return UserCreator.createMerchant(userRegistrationRequest);
 	}
-	
 
 	private boolean isAdministrator(User user) {
 		return Role.ADMINISTRATOR.equals(user.getRole());
