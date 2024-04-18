@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem.domain.transaction.validator;
 
-import pl.bgnat.antifraudsystem.dto.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.domain.request.TransactionRequest;
+import pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus;
 
 import java.util.List;
 

@@ -7,7 +7,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.domain.email.config.MailCredentialsConfig;
-import pl.bgnat.antifraudsystem.dto.EmailDTO;
 import pl.bgnat.antifraudsystem.domain.exceptions.SendingEmailException;
 
 @Component

@@ -8,6 +8,7 @@ import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorization;
 @RequiredArgsConstructor
 public class EmailFacade {
     private final EmailService emailService;
+
     public void sendConfirmationEmail(String email, String code) {
         emailService.sendConfirmationEmail(email, code);
     }

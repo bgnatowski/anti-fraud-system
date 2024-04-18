@@ -3,8 +3,8 @@ package pl.bgnat.antifraudsystem.domain.exceptions;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 
 public class CardNumberFormatException extends RequestValidationException {
-	public static final String  WRONG_CARD_NUMBER_FORMAT_S = "Wrong card number format: %s";
+	public static final String ERROR_MESSAGE_WRONG_CARD_NUMBER_FORMAT_S = "[fieldName: %s , errorMessage: Wrong card number format: %s]";
 	public CardNumberFormatException(String number) {
-		super(String.format(WRONG_CARD_NUMBER_FORMAT_S, number));
+		super(ERROR_MESSAGE_WRONG_CARD_NUMBER_FORMAT_S.formatted("number",number));
 	}
 }

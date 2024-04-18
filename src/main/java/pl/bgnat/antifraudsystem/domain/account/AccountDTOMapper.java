@@ -1,24 +1,42 @@
 
 package pl.bgnat.antifraudsystem.domain.account;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.dto.AccountDTO;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import pl.bgnat.antifraudsystem.utils.Mapper;
 
-import java.util.function.Function;
 
-@Component
-@RequiredArgsConstructor
-class AccountDTOMapper implements Function<Account, AccountDTO> {
-	@Override
-	public AccountDTO apply(Account account) {
-		if(account==null) return null;
-		return AccountDTO.builder()
-				.id(account.getId())
-				.balance(account.getBalance())
-				.isActive(account.isActive())
-				.createDate(account.getCreateDate())
-				.iban(account.getIban())
-				.build();
-	}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+class AccountDTOMapper implements Mapper<Account, AccountDTO> {
+    private static Mapper<Account, AccountDTO> instance;
+
+    static Mapper<Account, AccountDTO> getMapper() {
+        if (instance == null) {
+            instance = new AccountDTOMapper();
+        }
+        return instance;
+    }
+
+    @Override
+    public AccountDTO apply(Account account) {
+        if (account == null) return null;
+
+        AccountDTO.AccountDTOBuilder builder = AccountDTO.builder()
+                .id(account.getId())
+                .balance(account.getBalance())
+                .isActive(account.isActive())
+                .createDate(account.getCreateDate())
+                .country(account.getCountry())
+                .iban(account.getIban());
+
+        if (account.getOwner() != null)
+            builder.ownerId(account.getOwner().getId());
+
+        return builder.build();
+    }
+
+    @Override
+    public AccountDTO map(Account model) {
+        return apply(model);
+    }
 }

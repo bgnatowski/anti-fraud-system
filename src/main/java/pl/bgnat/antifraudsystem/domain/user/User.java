@@ -57,7 +57,7 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user",
             orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            cascade = {CascadeType.ALL},
             fetch = FetchType.EAGER)
     private TemporaryAuthorization temporaryAuthorization;
 
@@ -143,11 +143,11 @@ public class User implements UserDetails {
         return true;
     }
 
-    Long getId() {
+    public Long getId() {
         return id;
     }
 
-    String getFirstName() {
+    public String getFirstName() {
         return firstName;
     }
 
@@ -160,12 +160,12 @@ public class User implements UserDetails {
         if (!accountNonLocked) accountNonLocked = true;
     }
 
-    void increaseCreditCardNumber() {
+    public void increaseNumberOfCreditCards() {
         if (!hasAnyCreditCard) numberOfCreditCards = 1;
         else numberOfCreditCards++;
     }
 
-    void decreaseCreditCardNumber() {
+    public void decreaseNumberOfCreditCards() {
         if (numberOfCreditCards == 0)
             hasAnyCreditCard = false;
         else numberOfCreditCards--;

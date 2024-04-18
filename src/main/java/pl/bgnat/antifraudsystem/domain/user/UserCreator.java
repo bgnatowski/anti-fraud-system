@@ -1,7 +1,8 @@
 package pl.bgnat.antifraudsystem.domain.user;
 
 import pl.bgnat.antifraudsystem.domain.enums.Role;
-import pl.bgnat.antifraudsystem.dto.request.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.domain.request.UserRegistrationRequest;
+import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorization;
 
 class UserCreator {
     static User createAdministrator(UserRegistrationRequest userRegistrationRequest) {
@@ -18,7 +19,7 @@ class UserCreator {
                 .build();
     }
 
-    static User createMerchant(UserRegistrationRequest userRegistrationRequest) {
+    static User createMerchant(UserRegistrationRequest userRegistrationRequest, TemporaryAuthorization temporaryAuthorization) {
         return User.builder()
                 .firstName(userRegistrationRequest.firstName())
                 .lastName(userRegistrationRequest.lastName())
@@ -29,6 +30,7 @@ class UserCreator {
                 .accountNonLocked(false)
                 .hasAccount(false)
                 .hasAnyCreditCard(false)
+                .temporaryAuthorization(temporaryAuthorization)
                 .build();
     }
 }

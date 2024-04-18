@@ -3,16 +3,14 @@ package pl.bgnat.antifraudsystem.domain.address;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.domain.user.User;
-import pl.bgnat.antifraudsystem.dto.AddressDTO;
-import pl.bgnat.antifraudsystem.dto.request.AddressRegisterRequest;
+import pl.bgnat.antifraudsystem.domain.request.AddressRegisterRequest;
 
 @Component
 @RequiredArgsConstructor
 public class AddressFacade {
-    private final AddressService addressService;
 
     public AddressDTO mapToDto(Address address) {
-        return addressService.mapToDto(address);
+        return AddressDTO.MAPPER.map(address);
     }
 
     public Address assignAddress(User user, AddressRegisterRequest addressRegisterRequest) {

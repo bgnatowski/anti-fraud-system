@@ -5,7 +5,7 @@ public class TemporaryAuthorizationExpiredException extends RuntimeException {
 		super(String.format(
 				"Verification code is expired. " +
 						"If you want to confirm user email generate new code on: " +
-						"http://localhost:4200/user/%s/auth/generatecode", username
+						"http://localhost:1102/api/auth/user/%s/regenerate-activation-code", username
 		));
 	}
 }

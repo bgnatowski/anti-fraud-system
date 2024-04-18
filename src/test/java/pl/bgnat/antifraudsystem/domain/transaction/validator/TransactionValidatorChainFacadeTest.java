@@ -7,12 +7,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.bgnat.antifraudsystem.AbstractTestcontainers;
 import pl.bgnat.antifraudsystem.exception.RequestValidationException;
-import pl.bgnat.antifraudsystem.dto.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.dto.response.TransactionResponse;
-import pl.bgnat.antifraudsystem.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.domain.request.TransactionRequest;
+import pl.bgnat.antifraudsystem.domain.response.TransactionResponse;
+import pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus;
 import pl.bgnat.antifraudsystem.domain.exceptions.IllegalAmountException;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,12 +27,9 @@ import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRON
 @ExtendWith(MockitoExtension.class)
 public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers {
 
-//	@Autowired
-	@Mock private TransactionJsonFormatValidator jsonFormatValidator;
 	@Mock private TransactionAmountValidator amountValidator;
 	@Mock private TransactionIpValidator ipValidator;
 	@Mock private TransactionCardNumberValidator cardNumberValidator;
-	@Mock private TransactionDateFormatValidator dateFormatValidator;
 	@Mock private TransactionRegionFormatValidator regionFormatValidator;
 
 	@Mock private PreStatusValidator preStatusValidator;
@@ -46,7 +45,7 @@ public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers 
 	@BeforeEach
 	void setUp() {
 		transactionValidatorChain = new TransactionValidatorChain(
-				jsonFormatValidator, amountValidator, ipValidator, cardNumberValidator, dateFormatValidator, regionFormatValidator
+				amountValidator, ipValidator, cardNumberValidator, regionFormatValidator
 		);
 		statusValidatorChain = new StatusValidatorChain(
 				preStatusValidator, regionValidator, uniqueIpValidator, amountStatusValidator);
@@ -62,7 +61,7 @@ public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers 
 				"192.168.1.1",
 				"4000008449433403",
 				"EAP",
-				"2022-12-22T16:07:00"
+				DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00")
 		);
 		List<String> info = List.of("none");
 		// when then
@@ -100,7 +99,7 @@ public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers 
 				"192.168.1.1",
 				"4000008449433403",
 				"EAP",
-				"2022-12-22T16:07:00");
+				DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00"));
 		// when then
 		when(transactionValidatorChain.getTransactionValidationFilterChain().valid(eq(transactionRequest), anyList()))
 				.thenThrow(new IllegalAmountException(-20L));
@@ -118,7 +117,7 @@ public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers 
 				"192.168.1.1",
 				"4000008449433403",
 				"EAP",
-				"2022-12-22T16:07:00");
+				DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00"));
 		List<String> info = List.of("amount");
 		// When
 		when(transactionValidatorChain.getTransactionValidationFilterChain().valid(transactionRequest, new ArrayList<>())).
@@ -131,5 +130,4 @@ public class TransactionValidatorChainFacadeTest extends AbstractTestcontainers 
 		TransactionResponse actual = underTest.valid(transactionRequest);
 		assertThat(actual).isEqualTo(expected);
 	}
-
 }

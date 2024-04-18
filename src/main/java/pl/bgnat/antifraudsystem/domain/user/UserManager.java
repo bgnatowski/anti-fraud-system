@@ -1,28 +1,27 @@
 package pl.bgnat.antifraudsystem.domain.user;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.domain.account.Account;
+import pl.bgnat.antifraudsystem.domain.account.AccountDTO;
 import pl.bgnat.antifraudsystem.domain.account.AccountFacade;
 import pl.bgnat.antifraudsystem.domain.address.Address;
 import pl.bgnat.antifraudsystem.domain.address.AddressFacade;
-import pl.bgnat.antifraudsystem.domain.creditcard.CreditCard;
-import pl.bgnat.antifraudsystem.domain.creditcard.CreditCardFacade;
+import pl.bgnat.antifraudsystem.domain.cards.creditcard.CreditCard;
+import pl.bgnat.antifraudsystem.domain.cards.creditcard.CreditCardDTO;
+import pl.bgnat.antifraudsystem.domain.cards.creditcard.CreditCardFacade;
 import pl.bgnat.antifraudsystem.domain.email.EmailFacade;
 import pl.bgnat.antifraudsystem.domain.enums.Role;
-import pl.bgnat.antifraudsystem.domain.exceptions.InvalidAddressFormatException;
+import pl.bgnat.antifraudsystem.domain.exceptions.AdministratorCannotBeLockException;
+import pl.bgnat.antifraudsystem.domain.exceptions.IllegalChangeLockOperationException;
+import pl.bgnat.antifraudsystem.domain.request.*;
+import pl.bgnat.antifraudsystem.domain.response.*;
 import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorization;
 import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorizationFacade;
-import pl.bgnat.antifraudsystem.dto.UserDTO;
-import pl.bgnat.antifraudsystem.dto.request.*;
-import pl.bgnat.antifraudsystem.dto.response.*;
-import pl.bgnat.antifraudsystem.exception.RequestValidationException;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-
-import static pl.bgnat.antifraudsystem.exception.RequestValidationException.WRONG_JSON_FORMAT;
 
 @Service
 @RequiredArgsConstructor
@@ -34,37 +33,55 @@ class UserManager {
     private final AddressFacade addressFacade;
     private final TemporaryAuthorizationFacade temporaryAuthorizationFacade;
 
+    @Transactional
     UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
-        if (!isValidRequestJsonFormat(userRegistrationRequest))
-            throw new RequestValidationException(WRONG_JSON_FORMAT);
-
-        User registeredUser = userService.registerUser(userRegistrationRequest);
-
-        if (registeredUser.getRole().equals(Role.MERCHANT) && !registeredUser.getUsername().equals("JohnDoe2")) { //todo delete and
-            TemporaryAuthorization temporaryAuthorization = registeredUser.getTemporaryAuthorization();
+        TemporaryAuthorization temporaryAuthorization = temporaryAuthorizationFacade.createTemporaryAuthorization();
+        User registeredUser = userService.registerUser(userRegistrationRequest, temporaryAuthorization);
+        if(isMerchant(registeredUser)){
             emailFacade.sendConfirmationEmail(registeredUser.getEmail(), temporaryAuthorization.getCode());
         }
-
-        return userService.mapToDto(registeredUser);
+        return UserDTO.MAPPER.map(registeredUser);
     }
 
     UserDTO getUserByUsername(String username) {
         User user = userService.getUserByUsername(username);
-        return userService.mapToDto(user);
+        return UserDTO.MAPPER.map(user);
     }
 
+    @Transactional
     UserDTO changeRole(UserUpdateRoleRequest updateRequest) {
-        User user = userService.changeRole(updateRequest.username(), updateRequest.role());
-        return userService.mapToDto(user);
+        User user = userService.getUserByUsername(updateRequest.username());
+        Role role = Role.parse(updateRequest.role());
+        userService.changeRole(user, role);
+        return UserDTO.MAPPER.map(user);
+    }
+
+    @Transactional
+    UserDTO addAddress(String username, AddressRegisterRequest addressRegisterRequest) {
+        User user = userService.getUserByUsername(username);
+        Address userAddress = addressFacade.assignAddress(user, addressRegisterRequest);
+        user.setAddress(userAddress);
+//        User updatedUser = userService.saveOrUpdateUser(user);
+        return UserDTO.MAPPER.map(user);
     }
 
     List<UserDTO> getAllRegisteredUsers() {
-        return userService.getAllRegisteredUsers();
+        return userService.getAllRegisteredUsers()
+                .stream()
+                .map(UserDTO.MAPPER)
+                .sorted(Comparator.comparingLong(UserDTO::id))
+                .toList();
     }
 
+    @Transactional
     UserEmailConfirmedResponse confirmUserEmail(ConfirmEmailRequest confirmEmailRequest) {
-        if (!isValidConfirmEmailRequest(confirmEmailRequest))
-            throw new RequestValidationException(WRONG_JSON_FORMAT);
+        User user = userService.getUserByUsername(confirmEmailRequest.username());
+
+        if (user.isAccountNonLocked())
+            return UserEmailConfirmedResponse
+                    .builder()
+                    .message(UserEmailConfirmedResponse.EMAIL_ALREADY_CONFIRMED_MESSAGE)
+                    .build();
 
         String username = confirmEmailRequest.username();
         String code = confirmEmailRequest.code();
@@ -73,7 +90,7 @@ class UserManager {
                 temporaryAuthorizationFacade.getTemporaryAuthorization(username);
 
         emailFacade.confirmEmail(userTemporaryAuthorization, code);
-        userService.changeLock(username, UserUnlockRequest.UNLOCK);
+        user.unlockAccount();
 
         return UserEmailConfirmedResponse
                 .builder()
@@ -81,48 +98,64 @@ class UserManager {
                 .build();
     }
 
-    UserWithAddressResponse addAddress(String username, AddressRegisterRequest addressRegisterRequest) {
-        if (!isValidAddressRequest(addressRegisterRequest))
-            throw new InvalidAddressFormatException(addressRegisterRequest.toString());
-
+    @Transactional
+    String regenerateCodeForUser(String username) {
         User user = userService.getUserByUsername(username);
-        Address userAddress = addressFacade.assignAddress(user, addressRegisterRequest);
-        user.setAddress(userAddress);
-        User updatedUser = userService.updateUser(user);
+        if(user.isAccountNonLocked())
+            return "Cannot regenerate code. Already activated user";
 
-        return UserWithAddressResponse.builder()
-                .userDTO(userService.mapToDto(updatedUser))
-                .addressDTO(addressFacade.mapToDto(userAddress))
-                .build();
+        TemporaryAuthorization tempAuth = temporaryAuthorizationFacade.createTemporaryAuthorization();
+        tempAuth.setUser(user);
+        user.setTemporaryAuthorization(tempAuth);
+        emailFacade.sendConfirmationEmail(user.getEmail(), tempAuth.getCode());
+
+        return "Code has been sent for user: %s".formatted(user.getEmail());
     }
 
+    @Transactional
     UserAccountCreatedResponse createAccountForUserWithUsername(String username) {
         User user = userService.getUserByUsername(username);
-        Account newAccount = accountFacade.createAccount(user.getAddress().getCountry());
-        user = userService.addAccountToUser(username, newAccount);
-        user = userService.updateUser(user);
+        Account newAccount = accountFacade.createAccount(user);
+        userService.validUserForAccount(user);
+
+        user.setAccount(newAccount);
+        newAccount.setOwner(user);
+        user.setHasAccount(true);
 
         return UserAccountCreatedResponse.builder()
-                .userDTO(userService.mapToDto(user))
-                .accountDTO(accountFacade.mapToDto(newAccount))
+                .userDTO(UserDTO.MAPPER.map(user))
+                .accountDTO(AccountDTO.MAPPER.map(user.getAccount()))
                 .build();
     }
 
+    @Transactional
     UserCreditCardCreatedResponse createCreditCardForUserWithUsername(String username) {
         User user = userService.getUserByUsername(username);
-        CreditCard newCreditCard = creditCardFacade.createCreditCard(user.getAccount().getCountry());
-        user = userService.addCreditCardToUser(username, newCreditCard);
-        user = userService.updateUser(user);
+        CreditCard newCreditCard = creditCardFacade.createCreditCardForUser(user);
+
+        userService.validUserForCreditCard(user);
+
+        newCreditCard.setAccount(user.getAccount());
+        newCreditCard.setCountry(user.getAccount().getCountry());
+//        user.getAccount().getCreditCards();
+//        if(user.getAccount().getCreditCards()==null){
+//            user.getAccount().setCre
+//        }
+
+        if (!user.isHasAnyCreditCard())
+            user.setHasAnyCreditCard(true);
+        user.increaseNumberOfCreditCards();
 
         emailFacade.sendCreditCardPin(user.getEmail(), newCreditCard.getPin());
 
         return UserCreditCardCreatedResponse.builder()
-                .userDTO(userService.mapToDto(user))
-                .accountDTO(accountFacade.mapToDto(user.getAccount()))
-                .creditCardDTO(creditCardFacade.mapToDto(newCreditCard))
+                .userDTO(UserDTO.MAPPER.map(user))
+                .accountDTO(AccountDTO.MAPPER.map(user.getAccount()))
+                .creditCardDTO(CreditCardDTO.MAPPER.map(newCreditCard))
                 .build();
     }
 
+    @Transactional
     UserDeleteResponse deleteUserByUsername(String username) {
         User user = userService.getUserByUsername(username);
 
@@ -131,46 +164,40 @@ class UserManager {
         if (user.isHasAccount())
             accountFacade.deleteAccountForUser(username);
 
-        return userService.deleteUserByUsername(username);
+        userService.deleteUserByUsername(username);
+
+        return UserDeleteResponse.builder()
+                .username(username)
+                .status(UserDeleteResponse.DELETED_SUCCESSFULLY_RESPONSE)
+                .build();
     }
 
+    @Transactional
     UserUnlockResponse changeLock(UserUnlockRequest updateRequest) {
-        if (!isValidChangeLockRequest(updateRequest))
-            throw new RequestValidationException(String.format(WRONG_JSON_FORMAT));
-        return userService.changeLock(updateRequest.username(), updateRequest.operation());
+        User user = userService.getUserByUsername(updateRequest.username());
+        String operation = updateRequest.operation();
+        boolean isLockOperation = UserUnlockRequest.LOCK.equals(operation);
+        UserUnlockResponse.UserUnlockResponseBuilder responseBuilder = UserUnlockResponse.builder();
+
+        if (isAdministrator(user) && isLockOperation)
+            throw new AdministratorCannotBeLockException();
+        if (user.isAccountNonLocked() && isLockOperation) {
+            user.lockAccount();
+            responseBuilder.status(String.format(UserUnlockResponse.MESSAGE_PATTERN, user.getUsername(), "locked!"));
+        } else if (!user.isAccountNonLocked() && !isLockOperation) {
+            user.unlockAccount();
+            responseBuilder.status(String.format(UserUnlockResponse.MESSAGE_PATTERN, user.getUsername(), "unlocked!"));
+        } else {
+            throw new IllegalChangeLockOperationException(operation);
+        }
+        return responseBuilder.build();
     }
 
-
-    private boolean isValidRequestJsonFormat(UserRegistrationRequest userRegistrationRequest) {
-        return Stream.of(userRegistrationRequest.firstName(),
-                        userRegistrationRequest.lastName(),
-                        userRegistrationRequest.email(),
-                        userRegistrationRequest.username(),
-                        userRegistrationRequest.password(),
-                        userRegistrationRequest.phoneNumber(),
-                        userRegistrationRequest.dateOfBirth())
-                .noneMatch(Objects::isNull);
+    private boolean isAdministrator(User user) {
+        return Role.ADMINISTRATOR.equals(user.getRole());
     }
 
-    private static boolean isValidAddressRequest(AddressRegisterRequest addressRegisterRequest) {
-        return Stream.of(
-                        addressRegisterRequest.addressLine1(),
-                        addressRegisterRequest.country(),
-                        addressRegisterRequest.city(),
-                        addressRegisterRequest.postalCode(),
-                        addressRegisterRequest.state())
-                .noneMatch(s -> s == null || s.isEmpty());
-    }
-
-    private boolean isValidChangeLockRequest(UserUnlockRequest updateRequest) {
-        return Stream.of(updateRequest.operation(),
-                        updateRequest.username())
-                .noneMatch(s -> s == null || s.isEmpty());
-    }
-
-    private boolean isValidConfirmEmailRequest(ConfirmEmailRequest updateRequest) {
-        return Stream.of(updateRequest.code(),
-                        updateRequest.username())
-                .noneMatch(s -> s == null || s.isEmpty());
+    private boolean isMerchant(User user) {
+        return Role.MERCHANT.equals(user.getRole());
     }
 }

@@ -1,7 +1,7 @@
 package pl.bgnat.antifraudsystem.domain.address;
 
 import pl.bgnat.antifraudsystem.domain.user.User;
-import pl.bgnat.antifraudsystem.dto.request.AddressRegisterRequest;
+import pl.bgnat.antifraudsystem.domain.request.AddressRegisterRequest;
 import pl.bgnat.antifraudsystem.domain.enums.Country;
 import pl.bgnat.antifraudsystem.domain.exceptions.InvalidAddressFormatException;
 

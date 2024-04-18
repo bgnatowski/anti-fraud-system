@@ -3,13 +3,13 @@ package pl.bgnat.antifraudsystem.domain.transaction.validator;
 
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.domain.transaction.TransactionFacade;
-import pl.bgnat.antifraudsystem.dto.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.domain.request.TransactionRequest;
+import pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus;
 
 import java.util.List;
 
-import static pl.bgnat.antifraudsystem.dto.TransactionStatus.ALLOWED;
-import static pl.bgnat.antifraudsystem.dto.TransactionStatus.PROHIBITED;
+import static pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus.ALLOWED;
+import static pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus.PROHIBITED;
 
 @Component
 abstract class AbstractStatusValidator implements StatusValidator{

@@ -2,16 +2,15 @@ package pl.bgnat.antifraudsystem.domain.account;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.domain.enums.Country;
-import pl.bgnat.antifraudsystem.dto.AccountDTO;
+import pl.bgnat.antifraudsystem.domain.user.User;
 
 @Component
 @RequiredArgsConstructor
 public class AccountFacade {
     private final AccountService accountService;
 
-    public Account createAccount(Country country) {
-        return accountService.createAccount(country);
+    public Account createAccount(User user) {
+        return accountService.createAccount(user);
     }
 
     public AccountDTO mapToDto(Account newAccount) {

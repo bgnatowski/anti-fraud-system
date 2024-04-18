@@ -1,22 +1,19 @@
 package pl.bgnat.antifraudsystem.domain.transaction.validator;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.bgnat.antifraudsystem.dto.request.TransactionRequest;
-import pl.bgnat.antifraudsystem.dto.response.TransactionResponse;
-import pl.bgnat.antifraudsystem.dto.TransactionStatus;
+import pl.bgnat.antifraudsystem.domain.request.TransactionRequest;
+import pl.bgnat.antifraudsystem.domain.response.TransactionResponse;
+import pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class TransactionValidatorFacade {
 	private final TransactionValidatorChain transactionValidatorChain;
 	private final StatusValidatorChain statusValidatorChain;
-
-	public TransactionValidatorFacade(TransactionValidatorChain transactionValidatorChain, StatusValidatorChain statusValidatorChain) {
-		this.transactionValidatorChain = transactionValidatorChain;
-		this.statusValidatorChain = statusValidatorChain;
-	}
 
 	public TransactionResponse valid(TransactionRequest transactionRequest) {
 		TransactionValidator transactionValidator = transactionValidatorChain.getTransactionValidationFilterChain();

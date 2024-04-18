@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorization;
 import pl.bgnat.antifraudsystem.domain.exceptions.InvalidConfirmationCodeException;
 import pl.bgnat.antifraudsystem.domain.exceptions.TemporaryAuthorizationExpiredException;
-import pl.bgnat.antifraudsystem.dto.EmailDTO;
 import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
 import java.time.LocalDateTime;

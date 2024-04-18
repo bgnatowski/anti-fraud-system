@@ -1,11 +1,20 @@
 # Anti-Fraud-System
 
-This is a REST project based on Hyperskill course but with some changes in used technologies.
+This is a REST API project based on Hyperskill course (transaction logic and validation) 
+with changes in tech stack.
 
-### Technologies:
-
-- Spring Boot 3
-- PostgreSQL
+### Tech stack:
+- Spring Boot 3.2.4
+- Spring Validation
 - Spring Security 6
 - Spring Data JPA
-- Docker (containerization and deployment) 
+- Lombok
+- PostgreSQL
+
+- Docker
+- Spock
+
+
+
+
+

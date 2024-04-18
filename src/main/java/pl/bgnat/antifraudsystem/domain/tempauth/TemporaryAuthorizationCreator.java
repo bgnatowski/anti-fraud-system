@@ -1,17 +1,22 @@
 package pl.bgnat.antifraudsystem.domain.tempauth;
 
-import pl.bgnat.antifraudsystem.domain.user.User;
 import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
-import pl.bgnat.antifraudsystem.utils.generator.MailConfirmationCodeGenerator;
 
-public class TemporaryAuthorizationCreator {
-    static final int EXPIRATION_TIME_IN_MINUTES = 15;
+import java.util.Random;
 
-    public static TemporaryAuthorization createTemporaryAuthorization(User createdUser) {
+class TemporaryAuthorizationCreator {
+    static final int EXPIRATION_TIME_IN_MINUTES = 1;
+
+    static TemporaryAuthorization createTemporaryAuthorization() {
         return TemporaryAuthorization.builder()
-                .user(createdUser)
-                .code(MailConfirmationCodeGenerator.generateConfirmationCode())
+                .code(generateConfirmationCode())
                 .expirationDate(DateTimeUtils.currentLocalDateTime().plusMinutes(EXPIRATION_TIME_IN_MINUTES))
                 .build();
+    }
+
+    static String generateConfirmationCode() {
+        Random random = new Random();
+        int code = random.nextInt(90000) + 10000;
+        return String.valueOf(code);
     }
 }

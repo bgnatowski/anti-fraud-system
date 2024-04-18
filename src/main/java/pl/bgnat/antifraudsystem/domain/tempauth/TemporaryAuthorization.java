@@ -22,7 +22,7 @@ public class TemporaryAuthorization {
     private Long id;
 
     @OneToOne(
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            cascade = {CascadeType.ALL},
             fetch = FetchType.EAGER
     )
     @JoinColumn(

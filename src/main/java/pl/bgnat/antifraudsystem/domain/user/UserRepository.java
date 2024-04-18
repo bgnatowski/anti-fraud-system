@@ -33,5 +33,5 @@ interface UserRepository extends JpaRepository<User, Long> {
 
     @Transactional
     @Modifying
-    void deleteUserByUsername(String username);
+    User deleteUserByUsername(String username);
 }

@@ -11,4 +11,8 @@ public class TemporaryAuthorizationFacade {
     public TemporaryAuthorization getTemporaryAuthorization(String username) {
         return temporaryAuthorizationService.getTemporaryAuthorization(username);
     }
+
+    public TemporaryAuthorization createTemporaryAuthorization() {
+        return TemporaryAuthorizationCreator.createTemporaryAuthorization();
+    }
 }

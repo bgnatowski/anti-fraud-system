@@ -1,47 +1,42 @@
 package pl.bgnat.antifraudsystem.domain.user;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.bgnat.antifraudsystem.domain.account.Account;
-import pl.bgnat.antifraudsystem.domain.creditcard.CreditCard;
 import pl.bgnat.antifraudsystem.domain.enums.Role;
-import pl.bgnat.antifraudsystem.domain.exceptions.AdministratorCannotBeLockException;
-import pl.bgnat.antifraudsystem.domain.exceptions.IllegalChangeLockOperationException;
-import pl.bgnat.antifraudsystem.domain.exceptions.UserNotFoundException;
+import pl.bgnat.antifraudsystem.domain.exceptions.*;
 import pl.bgnat.antifraudsystem.domain.phone.PhoneNumber;
-import pl.bgnat.antifraudsystem.domain.phone.PhoneNumberCreator;
+import pl.bgnat.antifraudsystem.domain.request.UserRegistrationRequest;
 import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorization;
-import pl.bgnat.antifraudsystem.domain.tempauth.TemporaryAuthorizationCreator;
-import pl.bgnat.antifraudsystem.dto.UserDTO;
-import pl.bgnat.antifraudsystem.dto.request.UserRegistrationRequest;
-import pl.bgnat.antifraudsystem.dto.request.UserUnlockRequest;
-import pl.bgnat.antifraudsystem.dto.response.UserDeleteResponse;
-import pl.bgnat.antifraudsystem.dto.response.UserUnlockResponse;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
-import java.util.Comparator;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 class UserService {
     private final UserRepository userRepository;
-    private final UserDTOMapper userDTOMapper;
-    private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
 
-    List<UserDTO> getAllRegisteredUsers() {
-        Page<User> page = userRepository.findAll(Pageable.ofSize(100));
-        return page.getContent()
-                .stream()
-                .map(userDTOMapper)
-                .sorted(Comparator.comparingLong(UserDTO::id))
-                .collect(Collectors.toList());
+    User registerUser(UserRegistrationRequest userRegistrationRequest, TemporaryAuthorization temporaryAuthorization) {
+        validRegistration(userRegistrationRequest);
+
+        User createdUser = createProperUser(userRegistrationRequest, temporaryAuthorization);
+        createdUser.setPassword(passwordEncoder.encode(userRegistrationRequest.password()));
+
+        PhoneNumber userPhone = PhoneNumber.builder()
+                .user(createdUser)
+                .number(userRegistrationRequest.phoneNumber())
+                .build();
+        createdUser.setPhone(userPhone);
+
+        createdUser = userRepository.save(createdUser);
+        temporaryAuthorization.setUser(createdUser);
+        return createdUser;
     }
 
     User getUserByUsername(String username) {
@@ -49,114 +44,99 @@ class UserService {
                 .orElseThrow(() -> new UserNotFoundException(username));
     }
 
-    User registerUser(UserRegistrationRequest userRegistrationRequest) {
-        userValidator.validRegistration(userRegistrationRequest);
-
-        User createdUser = createProperUser(userRegistrationRequest);
-        createdUser.setPassword(passwordEncoder.encode(userRegistrationRequest.password()));
-
-        PhoneNumber userPhone = PhoneNumberCreator.createPhoneNumber(createdUser, userRegistrationRequest.phoneNumber());
-        createdUser.setPhone(userPhone);
-
-        if (createdUser.getRole().equals(Role.MERCHANT) && !createdUser.getUsername().equals("JohnDoe2")) { //todo delete and
-            TemporaryAuthorization temporaryAuthorization =
-                    TemporaryAuthorizationCreator.createTemporaryAuthorization(createdUser);
-            createdUser.setTemporaryAuthorization(temporaryAuthorization);
-        }
-
-        User registeredUser = userRepository.save(createdUser);
-
-        return registeredUser;
+    List<User> getAllRegisteredUsers() {
+        Page<User> page = userRepository.findAll(Pageable.ofSize(100));
+        return page.getContent();
     }
 
-    User addAccountToUser(String username, Account newAccount) {
-        User user = getUserByUsername(username);
-
-        userValidator.validUserProfile(user);
-        userValidator.validAccountNonExist(user);
-
-        newAccount.setOwner(user);
-        user.setHasAccount(true);
-
-        return user;
+    void validUserForAccount(User user) {
+        validUserProfile(user);
+        validAccountNonExist(user);
     }
 
-    User addCreditCardToUser(String username, CreditCard newCreditCard) {
-        User user = getUserByUsername(username);
-
-        userValidator.validUserProfile(user);
-        userValidator.validAccountExists(user.getAccount());
-
-        newCreditCard.setAccount(user.getAccount());
-        newCreditCard.setCountry(user.getAccount().getCountry());
-
-        if (!user.isHasAnyCreditCard())
-            user.setHasAnyCreditCard(true);
-        user.increaseCreditCardNumber();
-
-        return user;
+    void validUserForCreditCard(User user) {
+        validUserProfile(user);
+        validAccountExists(user.getAccount());
     }
 
-
-    User changeRole(String username, String roleString) {
-        User user = getUserByUsername(username);
-        Role role = Role.parse(roleString);
-
-        userValidator.validChangeRole(role, user);
-
+    void changeRole(User user, Role role) {
+        validChangeRole(role, user);
         user.setRole(role);
-        userRepository.save(user);
-
-        return user;
-
     }
 
-    UserDeleteResponse deleteUserByUsername(String username) {
-        userValidator.validUserExistsByUsername(username);
+    void deleteUserByUsername(String username) {
+        validUserExistsByUsername(username);
         userRepository.deleteUserByUsername(username);
-
-        return UserDeleteResponse.builder()
-                .username(username)
-                .status(UserDeleteResponse.DELETED_SUCCESSFULLY_RESPONSE)
-                .build();
     }
 
-    UserUnlockResponse changeLock(String username, String operation) {
-        User user = getUserByUsername(username);
-
-        if (isAdministrator(user))
-            throw new AdministratorCannotBeLockException();
-
-        switch (operation) {
-            case UserUnlockRequest.LOCK -> user.lockAccount();
-            case UserUnlockRequest.UNLOCK -> user.unlockAccount();
-            default -> throw new IllegalChangeLockOperationException(operation);
-        }
-
-        //update
-        userRepository.save(user);
-
-        String operationResult = UserUnlockRequest.LOCK.equals(operation) ? "locked!" : "unlocked!";
-        String statusMessage = String.format(UserUnlockResponse.MESSAGE_PATTERN, username, operationResult);
-        return UserUnlockResponse.builder()
-                .status(statusMessage)
-                .build();
-    }
-    User updateUser(User user) {
-        return userRepository.save(user);
-    }
-
-    UserDTO mapToDto(User user) {
-        return userDTOMapper.apply(user);
-    }
-
-    private User createProperUser(UserRegistrationRequest userRegistrationRequest) {
+    private User createProperUser(UserRegistrationRequest userRegistrationRequest, TemporaryAuthorization temporaryAuthorization) {
         if (!userRepository.existsUserByRole(Role.ADMINISTRATOR))
             return UserCreator.createAdministrator(userRegistrationRequest);
-        return UserCreator.createMerchant(userRegistrationRequest);
+        return UserCreator.createMerchant(userRegistrationRequest, temporaryAuthorization);
     }
 
-    private boolean isAdministrator(User user) {
-        return Role.ADMINISTRATOR.equals(user.getRole());
+    private void validRegistration(UserRegistrationRequest userRegistrationRequest) {
+        validEmail(userRegistrationRequest.email());
+        validUsername(userRegistrationRequest.username());
+        validPhoneNumber(userRegistrationRequest.phoneNumber());
+        validDateOfBirth(userRegistrationRequest.dateOfBirth());
     }
+
+    private void validUserProfile(User user) {
+        if (!user.isAccountNonLocked())
+            throw new UserLockedException();
+        if (user.getAddress() == null)
+            throw new UserIncompleteAddressException();
+    }
+
+    private void validPhoneNumber(String phoneNumber) {
+        if (userRepository.existsUserByPhone_Number(phoneNumber))
+            throw new DuplicatedUserPhoneNumberException(phoneNumber);
+    }
+
+    private void validUsername(String username) {
+        if (userRepository.existsUserByUsername(username))
+            throw new DuplicatedUserUsernameException(username);
+    }
+
+    private void validEmail(String email) {
+        if (userRepository.existsUserByEmail(email))
+            throw new DuplicatedUserEmailException(email);
+    }
+
+    private void validChangeRole(Role role, User user) {
+        if (!isSupportOrMerchant(role))
+            throw new AdministratorRoleCannotBeChangedException();
+        if (isTheSameRoleAlreadyAssigned(role, user))
+            throw new DuplicatedUserRoleException(user.getRole().name(), user.getUsername());
+    }
+
+    private void validDateOfBirth(LocalDate dateOfBirth) {
+        if (!DateTimeUtils.isAdult(dateOfBirth, DateTimeUtils.currentLocalDate()))
+            throw new UserAgeException();
+    }
+
+    private void validAccountExists(Account account) {
+        if (account == null)
+            throw new CreditCardWithoutAccountException();
+    }
+
+    private void validAccountNonExist(User user) {
+        if (user.getAccount() != null && user.isHasAccount())
+            throw new DuplicatedAccountAssignmentException(user.getAccount().toString());
+    }
+
+    private void validUserExistsByUsername(String username) {
+        if (!userRepository.existsUserByUsername(username))
+            throw new UserNotFoundException(username);
+    }
+
+    private boolean isTheSameRoleAlreadyAssigned(Role role, User user) {
+        return user.getRole().equals(role);
+    }
+
+    private boolean isSupportOrMerchant(Role role) {
+        return Role.SUPPORT.equals(role) || Role.MERCHANT.equals(role);
+    }
+
 }

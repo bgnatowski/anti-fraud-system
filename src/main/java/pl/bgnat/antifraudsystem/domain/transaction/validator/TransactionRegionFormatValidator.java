@@ -3,8 +3,8 @@ package pl.bgnat.antifraudsystem.domain.transaction.validator;
 import org.springframework.stereotype.Component;
 import pl.bgnat.antifraudsystem.domain.exceptions.InvalidRegionException;
 import pl.bgnat.antifraudsystem.domain.transaction.TransactionFacade;
-import pl.bgnat.antifraudsystem.dto.TransactionRegion;
-import pl.bgnat.antifraudsystem.dto.request.TransactionRequest;
+import pl.bgnat.antifraudsystem.domain.transaction.TransactionRegion;
+import pl.bgnat.antifraudsystem.domain.request.TransactionRequest;
 
 import java.util.List;
 
