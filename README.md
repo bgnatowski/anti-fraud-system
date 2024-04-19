@@ -13,8 +13,3 @@ with changes in tech stack.
 
 - Docker
 - Spock
-
-
-
-
-
