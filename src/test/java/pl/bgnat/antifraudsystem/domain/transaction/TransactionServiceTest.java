@@ -51,7 +51,7 @@ public class TransactionServiceTest {
                 .amount(120L)
                 .ip("192.168.1.1")
                 .number("4000008449433402")
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
         given(validator.valid(transactionRequest))
@@ -70,7 +70,7 @@ public class TransactionServiceTest {
                 .amount(120L)
                 .ip("192.168.356.1")
                 .number("4000008449433403")
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
 
@@ -88,7 +88,7 @@ public class TransactionServiceTest {
                 .amount(-20L)
                 .ip("192.168.1.1")
                 .number("4000008449433403")
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
         given(validator.valid(transactionRequest)).willThrow(new RequestValidationException("Wrong request! Amount have to be positive number!"));
@@ -107,7 +107,7 @@ public class TransactionServiceTest {
                 .amount(150L)
                 .ip(ip)
                 .number(cardNumber)
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
         TransactionResponse expectedResponse = new TransactionResponse(TransactionStatus.ALLOWED, "none");
@@ -129,7 +129,7 @@ public class TransactionServiceTest {
                 .amount(800L)
                 .ip(ip)
                 .number(cardNumber)
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
 
@@ -152,7 +152,7 @@ public class TransactionServiceTest {
                 .amount(1800L)
                 .ip(ip)
                 .number(cardNumber)
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
 
@@ -175,7 +175,7 @@ public class TransactionServiceTest {
                 .amount(200L)
                 .ip(ip)
                 .number(cardNumber)
-                .region("PL")
+                .region("ECA")
                 .date(DateTimeUtils.currentLocalDateTime())
                 .build();
 

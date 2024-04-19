@@ -1,6 +1,8 @@
 package pl.bgnat.antifraudsystem.domain.transaction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +30,11 @@ import static pl.bgnat.antifraudsystem.domain.transaction.TransactionStatus.*;
 @WebMvcTest(TransactionController.class)
 public class TransactionControllerTest {
     private static final String TRANSACTION_URL = "/api/antifraud/transaction";
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Jdk8Module());
+    }
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -47,7 +54,7 @@ public class TransactionControllerTest {
                 DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00")
         );
 
-        String json = new ObjectMapper().writeValueAsString(transactionRequest);
+        String json = objectMapper.writeValueAsString(transactionRequest);
 
         TransactionResponse expectedResponse = new TransactionResponse(ALLOWED, "none");
         given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
@@ -76,7 +83,7 @@ public class TransactionControllerTest {
                 DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00")
         );
 
-        String json = new ObjectMapper().writeValueAsString(transactionRequest);
+        String json = objectMapper.writeValueAsString(transactionRequest);
 
         TransactionResponse expectedResponse = new TransactionResponse(MANUAL_PROCESSING, "amount");
         given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
@@ -105,7 +112,7 @@ public class TransactionControllerTest {
                 DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00")
         );
 
-        String json = new ObjectMapper().writeValueAsString(transactionRequest);
+        String json = objectMapper.writeValueAsString(transactionRequest);
 
         TransactionResponse expectedResponse = new TransactionResponse(PROHIBITED, "amount, ip");
         given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
@@ -134,7 +141,7 @@ public class TransactionControllerTest {
                 DateTimeUtils.parseLocalDateTime("2022-12-22T16:07:00")
         );
 
-        String json = new ObjectMapper().writeValueAsString(transactionRequest);
+        String json = objectMapper.writeValueAsString(transactionRequest);
 
         TransactionResponse expectedResponse = new TransactionResponse(ALLOWED, "none");
         given(transactionService.transferTransaction(transactionRequest)).willReturn(expectedResponse);
@@ -145,6 +152,4 @@ public class TransactionControllerTest {
                         .content(json))
                 .andExpect(status().isForbidden());
     }
-
-
 }

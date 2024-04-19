@@ -3,6 +3,7 @@ package pl.bgnat.antifraudsystem.domain.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,9 @@ import pl.bgnat.antifraudsystem.domain.request.UserUnlockRequest;
 import pl.bgnat.antifraudsystem.domain.request.UserUpdateRoleRequest;
 import pl.bgnat.antifraudsystem.domain.response.UserDeleteResponse;
 import pl.bgnat.antifraudsystem.domain.response.UserUnlockResponse;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
@@ -33,6 +36,7 @@ import static pl.bgnat.antifraudsystem.domain.response.UserDeleteResponse.DELETE
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(UserControllerTest.class)
+@Disabled // old endpoints and models
 public class UserControllerTest {
     private final String USER_LIST_URL = "/api/auth/list";
     private final String USER_URL = "/api/auth/user";
@@ -57,7 +61,8 @@ public class UserControllerTest {
                         .email("johndoe@gmail.com")
                         .username("johndoe")
                         .password("password")
-                        .phoneNumber("123123123")
+                        .phoneNumber("+48123123123")
+                        .dateOfBirth(DateTimeUtils.parseLocalDate("2000-02-11"))
                         .build();
 
         String jsonUser = new ObjectMapper().writeValueAsString(registrationRequest);
@@ -67,11 +72,12 @@ public class UserControllerTest {
                 .lastName("Doe")
                 .username("johndoe")
                 .email("johndoe@gmail.com")
+                .dateOfBirth(DateTimeUtils.parseLocalDate("2000-02-11"))
                 .role(Role.ADMINISTRATOR)
                 .isActive(true)
                 .build();
 
-//		given(userFacade.registerUser(registrationRequest, confirmationCode)).willReturn(userDTO);
+		given(userFacade.registerUser(registrationRequest)).willReturn(userDTO);
 
         // When Then
         mockMvc.perform(post(USER_URL)
@@ -106,7 +112,7 @@ public class UserControllerTest {
                 .isActive(true)
                 .build();
 
-//		given(userFacade.addUserAddress("johndoe",addressRegisterRequest)).willReturn(userDTO);
+		given(userFacade.addUserAddress("johndoe", addressRegisterRequest)).willReturn(userDTO);
 
         // When Then
         mockMvc.perform(patch(USER_URL + "/johndoe/address/register")

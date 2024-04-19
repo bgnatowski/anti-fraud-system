@@ -12,6 +12,9 @@ import pl.bgnat.antifraudsystem.TestConfig;
 import pl.bgnat.antifraudsystem.domain.enums.Role;
 import pl.bgnat.antifraudsystem.domain.user.User;
 import pl.bgnat.antifraudsystem.domain.user.UserRepository;
+import pl.bgnat.antifraudsystem.utils.date.DateTimeUtils;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,12 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserRepositoryTest extends AbstractTestcontainers {
 	@Autowired
 	private UserRepository repositoryUnderTest;
-
 	@Autowired
 	private ApplicationContext applicationContext;
-
 	private User user;
-
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
@@ -36,6 +36,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 				.password("password")
 				.email("user@gmail.com")
 				.role(Role.ADMINISTRATOR)
+				.dateOfBirth(DateTimeUtils.parseLocalDate("2000-02-11"))
 				.build();
 
 		repositoryUnderTest.deleteAll();
@@ -127,10 +128,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 		// When
 		repositoryUnderTest.deleteUserByUsername(username);
 		// Then
-		boolean actual = repositoryUnderTest.findAll()
-				.stream()
-				.noneMatch(u -> u.getUsername().equals(username));
-		assertThat(actual).isTrue();
+		Optional<User> userByUsername = repositoryUnderTest.findUserByUsername(username);
+		assertThat(userByUsername.isEmpty()).isTrue();
 	}
-
 }

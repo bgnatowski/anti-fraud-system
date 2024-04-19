@@ -31,7 +31,6 @@ interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsUserByPhone_Number(String phone_number);
 
-    @Transactional
     @Modifying
-    User deleteUserByUsername(String username);
+    void deleteUserByUsername(String username);
 }

@@ -28,7 +28,11 @@ public final class DateTimeUtils {
         return years >= AGE_OF_CONSENT;
     }
 
-    public static LocalDateTime parseLocalDateTime(String dateString) {
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME);
+    public static LocalDateTime parseLocalDateTime(String dateTimeString) {
+        return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_DATE_TIME);
+    }
+
+    public static LocalDate parseLocalDate(String dateString) {
+        return LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
     }
 }

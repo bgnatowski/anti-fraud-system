@@ -19,15 +19,13 @@ public class StolenCardFacade {
         return this.stolenCardService.isBlacklisted(number);
     }
 
-    public String blacklist(String number) {
+    public void blacklist(String number) {
         StolenCardRequest request = new StolenCardRequest(number);
-        StolenCard stolenCard = stolenCardService.addStolenCard(request);
-        return stolenCard.toString();
+        stolenCardService.addStolenCard(request);
     }
 
     public String delete(String number) {
         StolenCardDeleteResponse stolenCardDeleteResponse = stolenCardService.deleteStolenCardByNumber(number);
         return stolenCardDeleteResponse.status();
     }
-
 }
