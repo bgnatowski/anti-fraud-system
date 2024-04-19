@@ -13,3 +13,9 @@ with changes in tech stack.
 
 - Docker
 - Spock
+
+# todo
+* add swagger
+* connect transaction logic with user-account-card for better validation
+* create utility class for endpoints urls
+  
