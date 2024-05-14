@@ -1,6 +1,6 @@
 # Anti-Fraud-System
 
-This is a REST API project a'la banking system
+This is a REST API project a'la banking system in hexagonal architecture.
 
 ### Tech stack:
 - Spring Boot 3.2.4
