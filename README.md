@@ -1,7 +1,6 @@
 # Anti-Fraud-System
 
-This is a REST API project based on Hyperskill course (transaction logic and validation) 
-with changes in tech stack.
+This is a REST API project a'la banking system
 
 ### Tech stack:
 - Spring Boot 3.2.4
