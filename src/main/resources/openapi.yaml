@@ -1,0 +1,387 @@
+openapi: 3.0.0
+info:
+  title: anti-fraud-system
+  version: 1.0.0
+servers:
+  - url: http://localhost:1102
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+tags:
+  - name: User
+  - name: CreditCard
+  - name: Account
+    description: todo
+  - name: Transaction
+    description: >-
+      Transaction validation:
+
+
+      - Transactions with a sum of lower or equal to `200` are `ALLOWED`;
+          
+      - Transactions with a sum of greater than `200` but lower or equal than
+      `1500` require `MANUAL_PROCESSING`;
+          
+      - Transactions with a sum of greater than `1500` are `PROHIBITED`
+          
+
+      \+ When Stolen Card number: `PROHIBITED`
+
+
+      \+ When:
+
+
+      - ip-correlation (x1): `MANUAL_PROCESSING,`
+          
+      - ip-correlation `(x2): PROHIBITED,`
+          
+      - ip blacklisted: `PROHIBITED,`
+  - name: StolenCard
+  - name: SuspiciousIp
+paths:
+  /api/auth/user:
+    post:
+      tags:
+        - User
+      summary: register user for support (anonymous)
+      description: |-
+        Register 2nd user (in this example for changing his role to Support)
+
+        (pass real adress email or get an email confirmation code from console)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                firstName: John
+                lastName: Doe
+                email: johndoe_support@gmail.com
+                username: support
+                password: PaSSw0rd
+                phoneNumber: '+47333222111'
+                dateOfBirth: 02/11/2000
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/johndoe_user/address/create:
+    patch:
+      tags:
+        - User
+      summary: add address for user (by user)
+      description: Create address for existing user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                addressLine1: 1234 Main Street
+                addressLine2: Apartment 101
+                postalCode: '12345'
+                city: Anytown
+                state: Anystate
+                country: Poland
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/johndoe_user/account/create:
+    patch:
+      tags:
+        - User
+      summary: create account for user (by user)
+      description: Create bank account for existing user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: ''
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/johndoe_user/credit-card/create:
+    patch:
+      tags:
+        - User
+      summary: create credit-card for user (by user)
+      description: Create credit-card for an existing user bank account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: ''
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/list:
+    get:
+      tags:
+        - User
+      summary: fetch all users (by support)
+      description: Fetch all users stored in db by support account.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/johndoe_user/details:
+    get:
+      tags:
+        - User
+      summary: fetch user detail by username (by user)
+      description: Fetch all user details (own) by user account.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/johndoe_user:
+    delete:
+      tags:
+        - User
+      summary: delete by username (by user)
+      description: Delete user (own) account.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/role:
+    put:
+      tags:
+        - User
+      summary: change role to support (by admin)
+      description: Change existing user (for this case the 2nd one created) to support.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: support
+                role: SUPPORT
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/access:
+    put:
+      tags:
+        - User
+      summary: lock user manually (by support)
+      description: Lock User account (1st user created) manually by Support.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: johndoe
+                operation: LOCK
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/user/email/confirm:
+    patch:
+      tags:
+        - User
+      summary: regenerate activation code for user (anonymous)
+      description: Regenerate activation code for user by username. Send email with code.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: johndoe_user
+                code: '13498'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/credit-card/:
+    get:
+      tags:
+        - CreditCard
+      summary: fetch by number (by user)
+      description: Fetch user's credit cards.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/credit-card/list:
+    get:
+      tags:
+        - CreditCard
+      summary: fetch list (by admin)
+      description: Fetch users credit cards.
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/credit-card/activate:
+    patch:
+      tags:
+        - CreditCard
+      summary: activate (by user)
+      description: Activate credit card via activation pin (pin from email or console)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                cardNumber: '6642985562869074'
+                activationPin: '5068'
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/antifraud/transaction:
+    post:
+      tags:
+        - Transaction
+      summary: with wrong ip and card number (by user)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                amount: 10000
+                ip: 192.168.359.1
+                number: '4000008449433403'
+                region: EAP
+                date: '2024-04-17'
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/antifraud/stolencard:
+    post:
+      tags:
+        - StolenCard
+      summary: add stolen card (supp)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                number: '4000008449433403'
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - StolenCard
+      summary: fetch stolen card (supp)
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/antifraud/stolencard/4000008449433403:
+    delete:
+      tags:
+        - StolenCard
+      summary: delete stolen card(supp)
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/antifraud/suspicious-ip:
+    post:
+      tags:
+        - SuspiciousIp
+      summary: add sus ip (supp)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                ip: 192.168.1.1
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - SuspiciousIp
+      summary: fetch sus ips (supp)
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/antifraud/suspicious-ip/192.168.1.2:
+    delete:
+      tags:
+        - SuspiciousIp
+      summary: delete sus ip (supp)
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
