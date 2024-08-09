@@ -1,0 +1,1714 @@
+{
+	"info": {
+		"_postman_id": "91d8cfb0-030c-40fe-b9c7-0a5315908632",
+		"name": "anti-fraud-system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17621774"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "register admin (anonymous)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe_admin@gmail.com\",\r\n    \"username\": \"johndoe_admin\",\r\n    \"password\": \"PaSSw0rd\",\r\n    \"phoneNumber\": \"+48123123123\",\r\n    \"dateOfBirth\": \"02/11/2000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						},
+						"description": "First request on app to create administrator account.\n\n(pass real adress email or get an email confirmation code from console)"
+					},
+					"response": []
+				},
+				{
+					"name": "register user (anonymous)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe_user@gmail.com\",\r\n    \"username\": \"johndoe_user\",\r\n    \"password\": \"PaSSw0rd\",\r\n    \"phoneNumber\": \"+47123321321\",\r\n    \"dateOfBirth\": \"02/11/2000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						},
+						"description": "Register 1st user.\n\n(pass real adress email or get an email confirmation code from console)"
+					},
+					"response": []
+				},
+				{
+					"name": "register user for support (anonymous)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe_support@gmail.com\",\r\n    \"username\": \"support\",\r\n    \"password\": \"PaSSw0rd\",\r\n    \"phoneNumber\": \"+47333222111\",\r\n    \"dateOfBirth\": \"02/11/2000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user"
+							]
+						},
+						"description": "Register 2nd user (in this example for changing his role to Support)\n\n(pass real adress email or get an email confirmation code from console)"
+					},
+					"response": []
+				},
+				{
+					"name": "add address for user (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"addressLine1\": \"1234 Main Street\",\r\n  \"addressLine2\": \"Apartment 101\",\r\n  \"postalCode\": \"12345\",\r\n  \"city\": \"Anytown\",\r\n  \"state\": \"Anystate\",\r\n  \"country\": \"Poland\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/johndoe_user/address/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"johndoe_user",
+								"address",
+								"create"
+							]
+						},
+						"description": "Create address for existing user"
+					},
+					"response": []
+				},
+				{
+					"name": "create account for user (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/johndoe_user/account/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"johndoe_user",
+								"account",
+								"create"
+							]
+						},
+						"description": "Create bank account for existing user."
+					},
+					"response": []
+				},
+				{
+					"name": "create credit-card for user (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/johndoe_user/credit-card/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"johndoe_user",
+								"credit-card",
+								"create"
+							]
+						},
+						"description": "Create credit-card for an existing user bank account."
+					},
+					"response": []
+				},
+				{
+					"name": "fetch all users (by admin)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"list"
+							]
+						},
+						"description": "Fetch all users stored in db by administrator account."
+					},
+					"response": []
+				},
+				{
+					"name": "fetch all users (by support)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"list"
+							]
+						},
+						"description": "Fetch all users stored in db by support account."
+					},
+					"response": []
+				},
+				{
+					"name": "fetch user detail by username (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/johndoe_user/details",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"johndoe_user",
+								"details"
+							]
+						},
+						"description": "Fetch all user details (own) by user account."
+					},
+					"response": []
+				},
+				{
+					"name": "delete by username (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/johndoe_user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"johndoe_user"
+							]
+						},
+						"description": "Delete user (own) account."
+					},
+					"response": []
+				},
+				{
+					"name": "change role to support (by admin)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"support\",\r\n    \"role\":\"SUPPORT\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/role",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"role"
+							]
+						},
+						"description": "Change existing user (for this case the 2nd one created) to support."
+					},
+					"response": []
+				},
+				{
+					"name": "unlock support manually (by admin)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"support\",\r\n    \"operation\":\"UNLOCK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/access",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"access"
+							]
+						},
+						"description": "Unlock Support account (2nd user created) manually by admin (not needed email confirmation)"
+					},
+					"response": []
+				},
+				{
+					"name": "lock support manually (by admin)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"support\",\r\n    \"operation\":\"LOCK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/access",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"access"
+							]
+						},
+						"description": "Lock Support account (2nd user created) manually by admin."
+					},
+					"response": []
+				},
+				{
+					"name": "unlock user manually (by support)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"johndoe_user\",\r\n    \"operation\":\"UNLOCK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/access",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"access"
+							]
+						},
+						"description": "Unlock User account (1st user created) manually by Support account (not needed email confirmation)"
+					},
+					"response": []
+				},
+				{
+					"name": "lock user manually (by support)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"johndoe\",\r\n    \"operation\":\"LOCK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/access",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"access"
+							]
+						},
+						"description": "Lock User account (1st user created) manually by Support."
+					},
+					"response": []
+				},
+				{
+					"name": "confirm email for support (anonymous)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"support\",\r\n    \"code\":\"13498\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/email/confirm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"email",
+								"confirm"
+							]
+						},
+						"description": "Confirm email for user (in this case support/2nd user created) account by confirmation code (get code via mail or console)."
+					},
+					"response": []
+				},
+				{
+					"name": "confirm email for user (anonymous)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"johndoe_user\",\r\n    \"code\":\"13498\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/email/confirm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"email",
+								"confirm"
+							]
+						},
+						"description": "Confirm email for user (in this case 1st user created) account by confirmation code (get code via mail or console)."
+					},
+					"response": []
+				},
+				{
+					"name": "regenerate activation code for user (anonymous)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"johndoe_user\",\r\n    \"code\":\"13498\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/user/email/confirm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"user",
+								"email",
+								"confirm"
+							]
+						},
+						"description": "Regenerate activation code for user by username. Send email with code."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CreditCard",
+			"item": [
+				{
+					"name": "fetch by number (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/credit-card/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"credit-card",
+								""
+							]
+						},
+						"description": "Fetch user's credit cards."
+					},
+					"response": []
+				},
+				{
+					"name": "fetch list (by admin)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/auth/credit-card/list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"credit-card",
+								"list"
+							]
+						},
+						"description": "Fetch users credit cards."
+					},
+					"response": []
+				},
+				{
+					"name": "activate (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cardNumber\": \"6642985562869074\",\r\n    \"activationPin\": \"5068\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/auth/credit-card/activate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"auth",
+								"credit-card",
+								"activate"
+							]
+						},
+						"description": "Activate credit card via activation pin (pin from email or console)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Account",
+			"item": [],
+			"description": "todo"
+		},
+		{
+			"name": "Transaction",
+			"item": [
+				{
+					"name": "allowed (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 150,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433403\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "manual processing (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 800,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433403\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2022-12-22T16:07:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "prohibited (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 1800,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433403\",\r\n  \"region\": \"EAP\",\r\n  \"date\":  \"2022-12-22T16:07:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "with wrong amount (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": -20,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2022-12-22T16:07:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "with wrong card number (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "with wrong ip (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.356.1\",\r\n  \"number\": \"4000008449433403\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "with wrong ip and card number (by user)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_user",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.359.1\",\r\n  \"number\": \"4000008449433403\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction validation:\n\n- Transactions with a sum of lower or equal to `200` are `ALLOWED`;\n    \n- Transactions with a sum of greater than `200` but lower or equal than `1500` require `MANUAL_PROCESSING`;\n    \n- Transactions with a sum of greater than `1500` are `PROHIBITED`\n    \n\n\\+ When Stolen Card number: `PROHIBITED`\n\n\\+ When:\n\n- ip-correlation (x1): `MANUAL_PROCESSING,`\n    \n- ip-correlation `(x2): PROHIBITED,`\n    \n- ip blacklisted: `PROHIBITED,`"
+		},
+		{
+			"name": "StolenCard",
+			"item": [
+				{
+					"name": "add stolen card (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\":\"4000008449433403\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add stolen card (supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\":\"4000008449433403\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete stolen card (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard/4000008449433403",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard",
+								"4000008449433403"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete stolen card(supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard/4000008449433403",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard",
+								"4000008449433403"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch stolen card (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch stolen card (supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/stolencard",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"stolencard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SuspiciousIp",
+			"item": [
+				{
+					"name": "add sus ip (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ip\":\"192.168.1.1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add sus ip (supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ip\":\"192.168.1.1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete sus ip (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip/192.168.1.2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip",
+								"192.168.1.2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete sus ip (supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 10000,\r\n  \"ip\": \"192.168.1.1\",\r\n  \"number\": \"4000008449433402\",\r\n  \"region\": \"EAP\",\r\n  \"date\": \"2024-04-17\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip/192.168.1.2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip",
+								"192.168.1.2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch sus ips (adm)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "johndoe_admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch sus ips (supp)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "support",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "PaSSw0rd",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1102/api/antifraud/suspicious-ip",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "1102",
+							"path": [
+								"api",
+								"antifraud",
+								"suspicious-ip"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
